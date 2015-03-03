@@ -1,0 +1,42 @@
+{
+  "name": "generate",
+  "description": "Project generator, for node.js.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jonschlinkert/generate",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jonschlinkert/generate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/generate/issues"
+  },
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/jonschlinkert/generate/blob/master/LICENSE"
+  },
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "chalk": "^1.0.0",
+    "delete": "^0.1.5",
+    "export-files": "^1.1.0",
+    "log-symbols": "^1.0.2"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
+  "keywords": []
+}
