@@ -7,6 +7,4 @@
 
 'use strict';
 
-module.exports = function () {
-  // do stuff
-};
+module.exports = require('./lib/');
