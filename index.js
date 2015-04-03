@@ -52,12 +52,16 @@ Template.extend(Generate.prototype);
  */
 
 Generate.prototype.transform = function(name, fn) {
-  this.transforms[name] = fn;
   if (fn && typeof fn === 'function') {
+    this.transforms[name] = fn;
     fn.call(this, this);
   }
   return this;
 };
+
+/**
+ * Set or get a generator function by `name`.
+ */
 
 Generate.prototype.generator = function(name, fn) {
   if (arguments.length === 1 && typeof name === 'string') {
