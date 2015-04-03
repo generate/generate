@@ -2,21 +2,21 @@
   "name": "generate",
   "description": "Project generator, for node.js.",
   "version": "0.1.0",
-  "homepage": "https://github.com/jonschlinkert/generate",
+  "homepage": "https://github.com/generate/generate",
   "author": {
     "name": "Jon Schlinkert",
     "url": "https://github.com/jonschlinkert"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jonschlinkert/generate.git"
+    "url": "git://github.com/generate/generate.git"
   },
   "bugs": {
-    "url": "https://github.com/jonschlinkert/generate/issues"
+    "url": "https://github.com/generate/generate/issues"
   },
   "license": {
     "type": "MIT",
-    "url": "https://github.com/jonschlinkert/generate/blob/master/LICENSE"
+    "url": "https://github.com/generate/generate/blob/master/LICENSE"
   },
   "files": [
     "index.js",

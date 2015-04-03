@@ -1,4 +1,4 @@
-# generate [![NPM version](https://badge.fury.io/js/generate.svg)](http://badge.fury.io/js/generate) 
+# generate [![NPM version](https://badge.fury.io/js/generate.svg)](http://badge.fury.io/js/generate)
 
 > Project generator, for node.js.
 
@@ -22,7 +22,7 @@ npm i -d && npm test
 ```
 
 ## Contributing
-Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/generate/issues)
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/generate/generate/issues)
 
 ## Author
 
