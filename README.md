@@ -1,4 +1,4 @@
-# generate [![NPM version](https://badge.fury.io/js/generate.svg)](http://badge.fury.io/js/generate)  [![Build Status](https://travis-ci.org/jonschlinkert/generate.svg)](https://travis-ci.org/jonschlinkert/generate) 
+# generate [![NPM version](https://badge.fury.io/js/generate.svg)](http://badge.fury.io/js/generate) 
 
 > Project generator, for node.js.
 
