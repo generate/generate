@@ -7,7 +7,8 @@
 
 'use strict';
 
-var util = require('util');
+var extend = require('lodash')._.extend;
+var Template = require('template');
 var Task = require('orchestrator');
 var vfs = require('vinyl-fs');
 var stack = require('./lib/stack');
@@ -23,13 +24,15 @@ var init = require('./lib/init');
  * @api public
  */
 
-function Generate() {
-  Task.apply(this, arguments);
+function Generate(opts) {
+  Template.call(this, opts);
+  Task.call(this, opts);
   this.transforms = {};
   init(this);
 }
 
-util.inherits(Generate, Task);
+extend(Generate.prototype, Task.prototype);
+Template.extend(Generate.prototype);
 
 /**
  * Transforms functions are used to exted the `Generate` object and
@@ -53,6 +56,14 @@ Generate.prototype.transform = function(name, fn) {
   if (fn && typeof fn === 'function') {
     fn.call(this, this);
   }
+  return this;
+};
+
+Generate.prototype.generator = function(name, fn) {
+  if (arguments.length === 1 && typeof name === 'string') {
+    return this.generators[name];
+  }
+  this.generators[name] = fn;
   return this;
 };
 
