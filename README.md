@@ -2,24 +2,22 @@
 
 > Project generator, for node.js.
 
-## Install globally with [npm](npmjs.org):
+**Goals**
 
-```bash
-npm i -g generate
-```
+The goal of this project is to offer an alternative to Yeoman that is:
 
-## CLI
++ easier to use, and easier to author generators
++ faster and lighter (yeoman takes forever to load!)
++ should be composable and modular, allowing you to reuse logic across generators for things like:
+  - tasks
+  - plugins
+  - middleware
+  - loaders
+  - templates
+  - helpers
+  - data
 
-```js
-generate foo
-```
-
-## Running tests
-Install dev dependencies:
-
-```bash
-npm i -d && npm test
-```
+TBC
 
 ## Contributing
 Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/generate/generate/issues)
