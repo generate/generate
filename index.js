@@ -61,6 +61,10 @@ Generate.prototype.transform = function(name, fn) {
 
 /**
  * Set or get a generator function by `name`.
+ *
+ * This isn't how generators will work, it's just a placeholder.
+ * They will probably be more like "bundles" (as @doowb calls them :)
+ * and might consiste of plugins, middleware, templates etc.
  */
 
 Generate.prototype.generator = function(name, fn) {
