@@ -9,7 +9,20 @@ argv._.forEach(function (name) {
   console.log(app.generator(namify(name)));
 });
 
-console.log(stack);
+if (argv.set) {
+  var args = argv.set.split('=');
+  app.store.set.apply(app.store, args);
+}
+
+if (argv.has) {
+  var args = argv.has.split('=');
+  app.store.has.apply(app.store, args);
+}
+
+if (argv.omit) {
+  var args = argv.omit.split('=');
+  app.store.omit.apply(app.store, args);
+}
 
 // placeholder
 function namify(name) {
