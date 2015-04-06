@@ -1,8 +1,9 @@
 
-var generate = require('./');
+var app = require('./');
 
-generate.task('default', function () {
-  generate.src('*.*').pipe(generate.dest('./actual'))
+app.task('default', function () {
+  app.src('*.*')
+    .pipe(app.dest('./actual'))
 });
 
-generate.run();
+app.generate();
