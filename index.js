@@ -191,8 +191,8 @@ Generate.prototype.task = Generate.prototype.add;
 Generate.prototype.gettask = function() {
   var name = this.session.get('task');
   return typeof name != 'undefined'
-    ? 'generator_' + name
-    : 'default';
+    ? 'task_' + name
+    : 'file';
 };
 
 /**
