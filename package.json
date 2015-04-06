@@ -37,6 +37,7 @@
   },
   "devDependencies": {},
   "dependencies": {
+    "async-helper-base": "^0.1.4",
     "chalk": "^1.0.0",
     "cwd": "^0.6.0",
     "data-store": "^0.4.1",
@@ -57,7 +58,7 @@
     "sessionify": "^0.1.0",
     "template": "^0.12.6",
     "through2": "^0.6.3",
-    "undertaker": "^0.8.0",
+    "vinyl": "^0.4.6",
     "vinyl-fs": "^1.0.0"
   }
 }
