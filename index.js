@@ -11,6 +11,7 @@ var extend = require('lodash')._.extend;
 var Template = require('template');
 var Task = require('orchestrator');
 var vfs = require('vinyl-fs');
+var session = require('./lib/session');
 var stack = require('./lib/stack');
 var init = require('./lib/init');
 
@@ -25,9 +26,10 @@ var init = require('./lib/init');
  */
 
 function Generate(opts) {
+  this.transforms = this.transforms || {};
+  this.session = session;
   Template.call(this, opts);
   Task.call(this, opts);
-  this.transforms = {};
   init(this);
 }
 
@@ -40,7 +42,7 @@ Template.extend(Generate.prototype);
  * anything on the `this` object.
  *
  * ```js
- * generate.transform('foo', function(generate) {
+ * generator.transform('foo', function(generate) {
  *   generate.cache.foo = generate.cache.foo || {};
  * });
  * ```
@@ -79,7 +81,7 @@ Generate.prototype.generator = function(name, fn) {
  * Run an array of tasks.
  *
  * ```js
- * generate.run(['foo', 'bar']);
+ * generator.run(['foo', 'bar']);
  * ```
  *
  * @param {Array} `tasks`
@@ -97,13 +99,13 @@ Generate.prototype.run = function() {
  * Glob patterns or filepaths to source files.
  *
  * ```js
- * generate.src('*.js')
+ * generator.src('*.js')
  * ```
  *
  * **Example usage**
  *
  * ```js
- * generate.task('web-app', function() {
+ * generator.task('web-app', function() {
  *   generate.src('templates/*.tmpl')
  *     generate.dest('project')
  * });
@@ -122,15 +124,15 @@ Generate.prototype.src = function(glob, opts) {
  * Specify a destination for processed files.
  *
  * ```js
- * generate.dest('dist', {ext: '.xml'})
+ * generator.dest('dist', {ext: '.xml'})
  * ```
  *
  * **Example usage**
  *
  * ```js
- * generate.task('sitemap', function() {
- *   generate.src('src/*.txt')
- *     generate.dest('dist', {ext: '.xml'})
+ * generator.task('sitemap', function() {
+ *   generator.src('src/*.txt')
+ *     generator.dest('dist', {ext: '.xml'})
  * });
  * ```
  *
@@ -147,7 +149,7 @@ Generate.prototype.dest = function(dest, opts) {
  * Copy a `glob` of files to the specified `dest`.
  *
  * ```js
- * generate.copy('assets/**', 'dist');
+ * generator.copy('assets/**', 'dist');
  * ```
  *
  * @param  {String|Array} `glob`
@@ -163,8 +165,8 @@ Generate.prototype.copy = function(glob, dest, opts) {
  * Define a generator.
  *
  * ```js
- * generate.task('docs', function() {
- *   generate.src('*.js').pipe(generate.dest('.'));
+ * generator.task('docs', function() {
+ *   generator.src('*.js').pipe(generator.dest('.'));
  * });
  * ```
  *
@@ -179,7 +181,7 @@ Generate.prototype.task = Generate.prototype.add;
  * Get the name of the currently running task.
  *
  * ```js
- * generate.gettask();
+ * generator.gettask();
  * ```
  *
  * @return {String} `task` The currently running task.
@@ -197,8 +199,8 @@ Generate.prototype.gettask = function() {
  * Re-run the specified task(s) when a file changes.
  *
  * ```js
- * generate.task('watch', function() {
- *   generate.watch('docs/*.md', ['docs']);
+ * generator.task('watch', function() {
+ *   generator.watch('docs/*.md', ['docs']);
  * });
  * ```
  *
@@ -219,13 +221,13 @@ Generate.prototype.watch = function(glob, opts, fn) {
 };
 
 /**
- * Expose `generate.Generate`
+ * Expose the `Generate` class on `generate.Generate`
  */
 
 Generate.prototype.Generate = Generate;
 
 /**
- * Expose `generate`
+ * Expose an instance of `generate`
  */
 
 module.exports = new Generate();
