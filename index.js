@@ -7,10 +7,13 @@
 
 'use strict';
 
+var path = require('path');
 var extend = require('lodash')._.extend;
+var through = require('through2');
 var Template = require('template');
 var Task = require('orchestrator');
 var vfs = require('vinyl-fs');
+var plugins = require('./lib/plugins');
 var session = require('./lib/session');
 var stack = require('./lib/stack');
 var init = require('./lib/init');
@@ -121,6 +124,33 @@ Generate.prototype.src = function(glob, opts) {
 };
 
 /**
+ * Glob patterns or filepaths to source files.
+ *
+ * ```js
+ * generator.src('*.js')
+ * ```
+ *
+ * **Example usage**
+ *
+ * ```js
+ * generator.task('web-app', function() {
+ *   generate.src('templates/*.tmpl')
+ *     generate.dest('project')
+ * });
+ * ```
+ *
+ * @param {String|Array} `glob` Glob patterns or file paths to source files.
+ * @param {Object} `options` Options or locals to merge into the context and/or pass to `src` plugins
+ * @api public
+ */
+
+Generate.prototype.templates = function(glob, opts) {
+  var cwd = path.resolve(this.templates);
+  glob = path.resolve(this.templates, glob);
+  return stack.templates(this, glob, {cwd: cwd});
+};
+
+/**
  * Specify a destination for processed files.
  *
  * ```js
@@ -159,6 +189,24 @@ Generate.prototype.dest = function(dest, opts) {
 
 Generate.prototype.copy = function(glob, dest, opts) {
   return vfs.src(glob, opts).pipe(vfs.dest(dest, opts));
+};
+
+/**
+ * Copy a `glob` of files to the specified `dest`.
+ *
+ * ```js
+ * generator.copy('assets/**', 'dist');
+ * ```
+ *
+ * @param  {String|Array} `glob`
+ * @param  {String|Function} `dest`
+ * @return {Stream} Stream to allow doing additional work.
+ */
+
+Generate.prototype.process = function(locals, options) {
+  locals = extend({id: this.gettask()}, this.cache.data, locals);
+  locals.options = extend({}, this.options, options, locals.options);
+  return through.obj(plugins.process.call(this, locals, options));
 };
 
 /**
