@@ -87,8 +87,8 @@ Generate.prototype.src = function(glob, opts) {
  */
 
 Generate.prototype.templates = function(glob, opts) {
-  var cwd = path.resolve(this.templates);
-  glob = path.resolve(this.templates, glob);
+  var cwd = path.resolve(this.get('templates'));
+  glob = path.resolve(this.get('templates'), glob);
   return stack.templates(this, glob, {cwd: cwd});
 };
 
