@@ -26,10 +26,10 @@ var init = require('./lib/init');
  */
 
 function Generate(opts) {
-  this.transforms = this.transforms || {};
-  this.session = session;
   Template.call(this, opts);
   Task.call(this, opts);
+  this.transforms = this.transforms || {};
+  this.session = session;
   init(this);
 }
 
