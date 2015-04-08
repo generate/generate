@@ -5,7 +5,6 @@ var argv = require('minimist')(process.argv.slice(2));
 var taskTree = require('./lib/utils/task-tree');
 var generate = require('./');
 
-
 var stack = argv._;
 var name = stack.shift();
 var tasks = stack.length ? stack : ['default'];
@@ -25,20 +24,21 @@ if (file) {
   });
 }
 
+
 generate.on('last', function () {
   if (argv.set) {
     var args = argv.set.split('=');
-    generate.store.set.generately(generate.store, args);
+    generate.store.set.apply(generate.store, args);
   }
 
   if (argv.has) {
     var args = argv.has.split('=');
-    generate.store.has.generately(generate.store, args);
+    generate.store.has.apply(generate.store, args);
   }
 
   if (argv.omit) {
     var args = argv.omit.split('=');
-    generate.store.omit.generately(generate.store, args);
+    generate.store.omit.apply(generate.store, args);
   }
 
   if (argv.del) {
