@@ -7,22 +7,23 @@ var generate = require('./');
 
 
 var stack = argv._;
+var name = stack.shift();
 var tasks = stack.length ? stack : ['default'];
 
-argv._.forEach(function (name) {
-  var generator = generate.generator(name);
-  if (generator.module) {
-    var cwd = path.dirname(generator.module);
-    generate.set('cwd', cwd);
-    generate.set('templates', cwd + '/templates');
-    generate.emit('loaded');
+var generator = generate.generator(name);
+var file = generator.module;
 
-    var instance = require(generator.module);
-    process.nextTick(function () {
-      instance.run.apply(instance, tasks);
-    });
-  }
-});
+if (file) {
+  var cwd = path.dirname(file);
+  generate.set('cwd', cwd);
+  generate.set('templates', cwd + '/templates');
+  generate.emit('loaded');
+
+  var instance = require(file);
+  process.nextTick(function () {
+    instance.run.apply(instance, tasks);
+  });
+}
 
 generate.on('last', function () {
   if (argv.set) {
@@ -39,7 +40,10 @@ generate.on('last', function () {
     var args = argv.omit.split('=');
     generate.store.omit.generately(generate.store, args);
   }
-  console.log(generate)
+
+  if (argv.del) {
+    generate.store.delete({force: true});
+  }
 });
 
 // generate.on('err', function () {
