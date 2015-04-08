@@ -114,6 +114,7 @@ Generate.prototype.templates = function(glob, opts) {
  */
 
 Generate.prototype.dest = function(dest, opts) {
+  dest = path.resolve((opts && opts.cwd) || process.cwd(), dest);
   return stack.dest(this, dest, opts);
 };
 
