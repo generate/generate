@@ -226,7 +226,8 @@ Generate.prototype.process = function(locals, options) {
 Generate.prototype.task = Generate.prototype.add;
 
 /**
- * Get the name of the currently running task.
+ * Get the name of the currently running task. This is
+ * primarily used inside plugins.
  *
  * ```js
  * generator.gettask();
