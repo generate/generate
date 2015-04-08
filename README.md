@@ -53,21 +53,7 @@ Create a `generate` generator.
 var app = require('generate');
 ```
 
-### [.transform](./index.js#L59)
-
-Transforms functions are used to exted the `Generate` object and are run immediately upon init and are used to extend or modify anything on the `this` object.
-
-* `name` **{String}**: The name of the transform to add.    
-* `fn` **{Function}**: The actual transform function.    
-* `returns` **{Object}**: Returns `Generate` for chaining.  
-
-```js
-app.transform('foo', function(app) {
-  app.cache.foo = app.cache.foo || {};
-});
-```
-
-### [.src](./index.js#L122)
+### [.src](./index.js#L63)
 
 Glob patterns or filepaths to source files.
 
@@ -82,32 +68,32 @@ app.src('*.js')
 
 ```js
 app.task('web-app', function() {
-  app.src('templates/*.tmpl')
-    app.dest('project')
+  app.src('templates/*')
+    app.dest(process.cwd())
 });
 ```
 
-### [.templates](./index.js#L147)
+### [.templates](./index.js#L89)
 
-Glob patterns or filepaths to source files.
+Glob patterns or filepaths to templates stored in the `./templates` directory of a generator.
 
 * `glob` **{String|Array}**: Glob patterns or file paths to source files.    
 * `options` **{Object}**: Options or locals to merge into the context and/or pass to `src` plugins    
 
 ```js
-app.src('*.js')
+app.templates('*.js')
 ```
 
 **Example usage**
 
 ```js
 app.task('web-app', function() {
-  app.src('templates/*.tmpl')
-    app.dest('project')
+  app.templates('templates/*')
+    app.dest(process.cwd())
 });
 ```
 
-### [.dest](./index.js#L174)
+### [.dest](./index.js#L116)
 
 Specify a destination for processed files.
 
@@ -122,12 +108,12 @@ app.dest('dist', {ext: '.xml'})
 
 ```js
 app.task('sitemap', function() {
-  app.src('src/*.txt')
+  app.src('templates/*')
     app.dest('dist', {ext: '.xml'})
 });
 ```
 
-### [.task](./index.js#L226)
+### [.task](./index.js#L170)
 
 Define a generator.
 
@@ -140,7 +126,7 @@ app.task('docs', function() {
 });
 ```
 
-### [.gettask](./index.js#L240)
+### [.gettask](./index.js#L184)
 
 Get the name of the currently running task. This is primarily used inside plugins.
 
@@ -150,7 +136,21 @@ Get the name of the currently running task. This is primarily used inside plugin
 app.gettask();
 ```
 
-### [.watch](./index.js#L261)
+### [.transform](./index.js#L208)
+
+Transforms functions are used to exted the `Generate` object and are run immediately upon init and are used to extend or modify anything on the `this` object.
+
+* `name` **{String}**: The name of the transform to add.    
+* `fn` **{Function}**: The actual transform function.    
+* `returns` **{Object}**: Returns `Generate` for chaining.  
+
+```js
+app.transform('foo', function(app) {
+  app.cache.foo = app.cache.foo || {};
+});
+```
+
+### [.watch](./index.js#L264)
 
 Re-run the specified task(s) when a file changes.
 

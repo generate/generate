@@ -40,6 +40,155 @@ extend(Generate.prototype, Task.prototype);
 Template.extend(Generate.prototype);
 
 /**
+ * Glob patterns or filepaths to source files.
+ *
+ * ```js
+ * app.src('*.js')
+ * ```
+ *
+ * **Example usage**
+ *
+ * ```js
+ * app.task('web-app', function() {
+ *   app.src('templates/*')
+ *     app.dest(process.cwd())
+ * });
+ * ```
+ *
+ * @param {String|Array} `glob` Glob patterns or file paths to source files.
+ * @param {Object} `options` Options or locals to merge into the context and/or pass to `src` plugins
+ * @api public
+ */
+
+Generate.prototype.src = function(glob, opts) {
+  return stack.src(this, glob, opts);
+};
+
+/**
+ * Glob patterns or filepaths to templates stored in the
+ * `./templates` directory of a generator.
+ *
+ * ```js
+ * app.templates('*.js')
+ * ```
+ *
+ * **Example usage**
+ *
+ * ```js
+ * app.task('web-app', function() {
+ *   app.templates('templates/*')
+ *     app.dest(process.cwd())
+ * });
+ * ```
+ *
+ * @param {String|Array} `glob` Glob patterns or file paths to source files.
+ * @param {Object} `options` Options or locals to merge into the context and/or pass to `src` plugins
+ * @api public
+ */
+
+Generate.prototype.templates = function(glob, opts) {
+  var cwd = path.resolve(this.templates);
+  glob = path.resolve(this.templates, glob);
+  return stack.templates(this, glob, {cwd: cwd});
+};
+
+/**
+ * Specify a destination for processed files.
+ *
+ * ```js
+ * app.dest('dist', {ext: '.xml'})
+ * ```
+ *
+ * **Example usage**
+ *
+ * ```js
+ * app.task('sitemap', function() {
+ *   app.src('templates/*')
+ *     app.dest('dist', {ext: '.xml'})
+ * });
+ * ```
+ *
+ * @param {String|Function} `dest` File path or rename function.
+ * @param {Object} `options` Options or locals to merge into the context and/or pass to `dest` plugins
+ * @api public
+ */
+
+Generate.prototype.dest = function(dest, opts) {
+  return stack.dest(this, dest, opts);
+};
+
+/**
+ * Copy a `glob` of files to the specified `dest`.
+ *
+ * ```js
+ * app.copy('assets/**', 'dist');
+ * ```
+ *
+ * @param  {String|Array} `glob`
+ * @param  {String|Function} `dest`
+ * @return {Stream} Stream to allow doing additional work.
+ */
+
+Generate.prototype.copy = function(glob, dest, opts) {
+  return vfs.src(glob, opts).pipe(vfs.dest(dest, opts));
+};
+
+/**
+ * Plugin for processing templates using any registered engine.
+ * If this plugin is NOT used, engines will be selected based
+ * on file extension.
+ *
+ * ```js
+ * app.process();
+ * ```
+ *
+ * @param  {String|Array} `glob`
+ * @param  {String|Function} `dest`
+ * @return {Stream} Stream to allow doing additional work.
+ */
+
+Generate.prototype.process = function(locals, options) {
+  locals = extend({id: this.gettask()}, this.cache.data, locals);
+  locals.options = extend({}, this.options, options, locals.options);
+  return through.obj(plugins.process.call(this, locals, options));
+};
+
+/**
+ * Define a generator.
+ *
+ * ```js
+ * app.task('docs', function() {
+ *   app.src('*.js').pipe(app.dest('.'));
+ * });
+ * ```
+ *
+ * @param {String} `name`
+ * @param {Function} `fn`
+ * @api public
+ */
+
+Generate.prototype.task = Generate.prototype.add;
+
+/**
+ * Get the name of the currently running task. This is
+ * primarily used inside plugins.
+ *
+ * ```js
+ * app.gettask();
+ * ```
+ *
+ * @return {String} `task` The currently running task.
+ * @api public
+ */
+
+Generate.prototype.gettask = function() {
+  var name = this.session.get('task');
+  return typeof name != 'undefined'
+    ? 'task_' + name
+    : 'file';
+};
+
+/**
  * Transforms functions are used to exted the `Generate` object and
  * are run immediately upon init and are used to extend or modify
  * anything on the `this` object.
@@ -96,152 +245,6 @@ Generate.prototype.run = function() {
   process.nextTick(function () {
     this.start.apply(this, tasks);
   }.bind(this));
-};
-
-/**
- * Glob patterns or filepaths to source files.
- *
- * ```js
- * app.src('*.js')
- * ```
- *
- * **Example usage**
- *
- * ```js
- * app.task('web-app', function() {
- *   app.src('templates/*.tmpl')
- *     app.dest('project')
- * });
- * ```
- *
- * @param {String|Array} `glob` Glob patterns or file paths to source files.
- * @param {Object} `options` Options or locals to merge into the context and/or pass to `src` plugins
- * @api public
- */
-
-Generate.prototype.src = function(glob, opts) {
-  return stack.src(this, glob, opts);
-};
-
-/**
- * Glob patterns or filepaths to source files.
- *
- * ```js
- * app.src('*.js')
- * ```
- *
- * **Example usage**
- *
- * ```js
- * app.task('web-app', function() {
- *   app.src('templates/*.tmpl')
- *     app.dest('project')
- * });
- * ```
- *
- * @param {String|Array} `glob` Glob patterns or file paths to source files.
- * @param {Object} `options` Options or locals to merge into the context and/or pass to `src` plugins
- * @api public
- */
-
-Generate.prototype.templates = function(glob, opts) {
-  var cwd = path.resolve(this.templates);
-  glob = path.resolve(this.templates, glob);
-  return stack.templates(this, glob, {cwd: cwd});
-};
-
-/**
- * Specify a destination for processed files.
- *
- * ```js
- * app.dest('dist', {ext: '.xml'})
- * ```
- *
- * **Example usage**
- *
- * ```js
- * app.task('sitemap', function() {
- *   app.src('src/*.txt')
- *     app.dest('dist', {ext: '.xml'})
- * });
- * ```
- *
- * @param {String|Function} `dest` File path or rename function.
- * @param {Object} `options` Options or locals to merge into the context and/or pass to `dest` plugins
- * @api public
- */
-
-Generate.prototype.dest = function(dest, opts) {
-  return stack.dest(this, dest, opts);
-};
-
-/**
- * Copy a `glob` of files to the specified `dest`.
- *
- * ```js
- * app.copy('assets/**', 'dist');
- * ```
- *
- * @param  {String|Array} `glob`
- * @param  {String|Function} `dest`
- * @return {Stream} Stream to allow doing additional work.
- */
-
-Generate.prototype.copy = function(glob, dest, opts) {
-  return vfs.src(glob, opts).pipe(vfs.dest(dest, opts));
-};
-
-/**
- * Copy a `glob` of files to the specified `dest`.
- *
- * ```js
- * app.copy('assets/**', 'dist');
- * ```
- *
- * @param  {String|Array} `glob`
- * @param  {String|Function} `dest`
- * @return {Stream} Stream to allow doing additional work.
- */
-
-Generate.prototype.process = function(locals, options) {
-  locals = extend({id: this.gettask()}, this.cache.data, locals);
-  locals.options = extend({}, this.options, options, locals.options);
-  return through.obj(plugins.process.call(this, locals, options));
-};
-
-/**
- * Define a generator.
- *
- * ```js
- * app.task('docs', function() {
- *   app.src('*.js').pipe(app.dest('.'));
- * });
- * ```
- *
- * @param {String} `name`
- * @param {Function} `fn`
- * @api public
- */
-
-Generate.prototype.task = Generate.prototype.add;
-
-/**
- * Get the name of the currently running task. This is
- * primarily used inside plugins.
- *
- * ```js
- * app.gettask();
- * ```
- *
- * @return {String} `task` The currently running task.
- * @api public
- */
-
-Generate.prototype.gettask = function() {
-  var name = this.session.get('task');
-  return typeof name != 'undefined'
-    ? 'task_' + name
-    : 'file';
 };
 
 /**
