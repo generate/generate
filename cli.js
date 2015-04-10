@@ -16,8 +16,9 @@ var file = generator.module;
 
 if (file) {
   var cwd = path.dirname(file);
-  generate.set('cwd', cwd);
-  generate.set('templates', cwd + '/templates');
+  generate.set('generator.cwd', cwd);
+  generate.set('generator.templates', cwd + '/templates');
+  generate.set('args', argv);
   generate.emit('loaded');
 
   var instance = require(file);
