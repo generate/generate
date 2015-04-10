@@ -33,7 +33,7 @@ function Generate(opts) {
   Task.call(this, opts);
   this.transforms = this.transforms || {};
   this.session = session;
-  init(this);
+  init.call(this, this);
 }
 
 extend(Generate.prototype, Task.prototype);
@@ -87,9 +87,9 @@ Generate.prototype.src = function(glob, opts) {
  */
 
 Generate.prototype.templates = function(glob, opts) {
-  var cwd = path.resolve(this.get('templates'));
-  glob = path.resolve(this.get('templates'), glob);
-  return stack.templates(this, glob, {cwd: cwd});
+  var templates = this.get('generator.templates');
+  glob = path.resolve(templates, glob);
+  return stack.templates(this, glob, {cwd: templates});
 };
 
 /**
@@ -131,7 +131,9 @@ Generate.prototype.dest = function(dest, opts) {
  */
 
 Generate.prototype.copy = function(glob, dest, opts) {
-  return vfs.src(glob, opts).pipe(vfs.dest(dest, opts));
+  return stack.templates(this, glob, {cwd: cwd})
+    .pipe(this.process(opts))
+    .pipe(vfs.dest(dest, opts));
 };
 
 /**
@@ -187,31 +189,6 @@ Generate.prototype.gettask = function() {
   return typeof name != 'undefined'
     ? 'task_' + name
     : 'file';
-};
-
-/**
- * Transforms functions are used to exted the `Generate` object and
- * are run immediately upon init and are used to extend or modify
- * anything on the `this` object.
- *
- * ```js
- * app.transform('foo', function(app) {
- *   app.cache.foo = app.cache.foo || {};
- * });
- * ```
- *
- * @param {String} `name` The name of the transform to add.
- * @param {Function} `fn` The actual transform function.
- * @return {Object} Returns `Generate` for chaining.
- * @api public
- */
-
-Generate.prototype.transform = function(name, fn) {
-  if (fn && typeof fn === 'function') {
-    this.transforms[name] = fn;
-    fn.call(this, this);
-  }
-  return this;
 };
 
 /**
