@@ -6,6 +6,7 @@ var prettyTime = require('pretty-hrtime');
 var completion = require('../lib/utils/completion');
 var taskTree = require('../lib/utils/task-tree');
 var generate = require('..');
+var _ = require('lodash');
 
 var argv = require('minimist')(process.argv.slice(2));
 generate.extend('args', argv);
@@ -17,6 +18,9 @@ var tasks = stack.length ? stack : ['default'];
 var generator = generate.generator(name);
 var file = generator.module;
 
+var generators = {};
+var combined = {};
+
 if (file) {
   var cwd = path.dirname(file);
   generate.set('generator.cwd', cwd);
@@ -24,6 +28,8 @@ if (file) {
   generate.emit('loaded');
 
   var instance = require(file);
+  generators[name] = instance;
+  console.log(file)
 
   process.nextTick(function () {
     instance.start.apply(instance, tasks);
@@ -117,7 +123,6 @@ function formatError(e) {
   // unknown (string, number, etc.)
   return new Error(String(e.err)).stack;
 }
-
 
 // fix stdout truncation on windows
 function exit(code) {

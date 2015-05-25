@@ -1,57 +1,52 @@
-/*!
- * generate <https://github.com/jonschlinkert/generate>
- *
- * Copyright (c) 2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
 'use strict';
 
 var path = require('path');
-var extend = require('lodash')._.extend;
+var diff = require('diff');
+var chalk = require('chalk');
 var through = require('through2');
 var Template = require('template');
+var tutil = require('template-utils')._;
+var toVinyl = require('to-vinyl');
 var Task = require('orchestrator');
 var vfs = require('vinyl-fs');
-var plugins = require('./lib/plugins');
+var _ = require('lodash');
+
 var session = require('./lib/session');
+var plugins = require('./lib/plugins');
 var stack = require('./lib/stack');
+var utils = require('./lib/utils');
 var init = require('./lib/init');
 
 /**
- * Create a `generate` generator.
+ * Initialize `Generate`.
  *
- * ```js
- * var app = require('generate');
- * ```
- *
- * @api public
+ * @param {Object} `context`
+ * @api private
  */
 
-function Generate(opts) {
-  Template.call(this, opts);
-  Task.call(this, opts);
-  this.transforms = this.transforms || {};
+function Generate() {
+  Template.apply(this, arguments);
+  Task.apply(this, arguments);
   this.session = session;
-  init.call(this, this);
+  init(this);
 }
 
-extend(Generate.prototype, Task.prototype);
+_.extend(Generate.prototype, Task.prototype);
 Template.extend(Generate.prototype);
 
 /**
  * Glob patterns or filepaths to source files.
  *
  * ```js
- * app.src('*.js')
+ * generate.src('*.js')
  * ```
  *
  * **Example usage**
  *
  * ```js
- * app.task('web-app', function() {
- *   app.src('templates/*')
- *     app.dest(process.cwd())
+ * generate.task('web-app', function() {
+ *   generate.src('templates/*')
+ *     generate.dest(process.cwd())
  * });
  * ```
  *
@@ -65,57 +60,35 @@ Generate.prototype.src = function(glob, opts) {
 };
 
 /**
- * Glob patterns or filepaths to templates stored in the
- * `./templates` directory of a generator.
+ * Specify a destination for processed files.
  *
  * ```js
- * app.templates('*.js')
+ * generate.dest('dist', {ext: '.xml'})
  * ```
  *
- * **Example usage**
- *
- * ```js
- * app.task('web-app', function() {
- *   app.templates('templates/*')
- *     app.dest(process.cwd())
- * });
- * ```
- *
- * @param {String|Array} `glob` Glob patterns or file paths to source files.
- * @param {Object} `options` Options or locals to merge into the context and/or pass to `src` plugins
+ * @param {String|Function} `dest` File path or rename function.
+ * @param {Object} `options` Options or locals to pass to `dest` plugins
  * @api public
  */
 
-Generate.prototype.templates = function(glob, opts) {
-  var templates = this.get('generator.templates');
-  glob = path.resolve(templates, glob);
-  return stack.templates(this, glob, {cwd: templates});
+Generate.prototype.dest = function(dest, opts) {
+  return stack.dest(this, dest, opts);
 };
 
 /**
  * Specify a destination for processed files.
  *
  * ```js
- * app.dest('dist', {ext: '.xml'})
- * ```
- *
- * **Example usage**
- *
- * ```js
- * app.task('sitemap', function() {
- *   app.src('templates/*')
- *     app.dest('dist', {ext: '.xml'})
- * });
+ * generate.templates('foo.tmpl')
  * ```
  *
  * @param {String|Function} `dest` File path or rename function.
- * @param {Object} `options` Options or locals to merge into the context and/or pass to `dest` plugins
+ * @param {Object} `options` Options to `dest` plugins
  * @api public
  */
 
-Generate.prototype.dest = function(dest, opts) {
-  dest = path.resolve((opts && opts.cwd) || process.cwd(), dest);
-  return stack.dest(this, dest, opts);
+Generate.prototype.templates = function(glob, opts) {
+  return stack.templates(this, glob, opts);
 };
 
 /**
@@ -127,76 +100,30 @@ Generate.prototype.dest = function(dest, opts) {
  *
  * @param  {String|Array} `glob`
  * @param  {String|Function} `dest`
- * @return {Stream} Stream to allow doing additional work.
+ * @return {Stream} Stream, to continue processing if necessary.
+ * @api public
  */
 
 Generate.prototype.copy = function(glob, dest, opts) {
-  return stack.templates(this, glob, {cwd: cwd})
-    .pipe(this.process(opts))
+  opts = _.extend({cwd: this.get('generator.cwd')}, opts);
+  dest = path.resolve(process.cwd(), dest);
+  return this.src(glob, opts)
     .pipe(vfs.dest(dest, opts));
-};
-
-/**
- * Plugin for processing templates using any registered engine.
- * If this plugin is NOT used, engines will be selected based
- * on file extension.
- *
- * ```js
- * app.process();
- * ```
- *
- * @param  {String|Array} `glob`
- * @param  {String|Function} `dest`
- * @return {Stream} Stream to allow doing additional work.
- */
-
-Generate.prototype.process = function(locals, options) {
-  locals = extend({id: this.gettask()}, this.cache.data, locals);
-  locals.options = extend({}, this.options, options, locals.options);
-  return through.obj(plugins.process.call(this, locals, options));
-};
-
-/**
- * Define a generator.
- *
- * ```js
- * app.task('docs', function() {
- *   app.src('*.js').pipe(app.dest('.'));
- * });
- * ```
- *
- * @param {String} `name`
- * @param {Function} `fn`
- * @api public
- */
-
-Generate.prototype.task = Generate.prototype.add;
-
-/**
- * Get the name of the currently running task. This is
- * primarily used inside plugins.
- *
- * ```js
- * app.gettask();
- * ```
- *
- * @return {String} `task` The currently running task.
- * @api public
- */
-
-Generate.prototype.gettask = function() {
-  var name = this.session.get('task');
-  return typeof name != 'undefined'
-    ? 'task_' + name
-    : 'file';
 };
 
 /**
  * Set or get a generator function by `name`.
  *
- * This isn't how generators will work, it's just a placeholder.
- * They will probably be more like "bundles" (as @doowb calls them :)
- * and might consiste of plugins, middleware, templates etc.
+ * ```js
+ * // set an generator
+ * app.generator('foo', require('generator-foo'));
+ *
+ * // get an generator
+ * var foo = app.generator('foo');
+ * ```
+ * @param  {String} `name`
+ * @param  {Function} `fn` The generator plugin function
+ * @api public
  */
 
 Generate.prototype.generator = function(name, fn) {
@@ -208,10 +135,127 @@ Generate.prototype.generator = function(name, fn) {
 };
 
 /**
+ * Define a task.
+ *
+ * ```js
+ * generate.task('docs', function() {
+ *   generate.src(['.generate.js', 'foo/*.js'])
+ *     .pipe(generate.dest('./'));
+ * });
+ * ```
+ *
+ * @param {String} `name`
+ * @param {Function} `fn`
+ * @api public
+ */
+
+Generate.prototype.task = Generate.prototype.add;
+
+/**
+ * Get the name of the current task-session. This is
+ * used in plugins to lookup data or views created in
+ * a task.
+ *
+ * ```js
+ * var id = generate.getTask();
+ * var views = generate.views[id];
+ * ```
+ *
+ * @return {String} `task` The name of the currently running task.
+ * @api public
+ */
+
+Generate.prototype.getTask = function() {
+  var name = this.session.get('task');
+  return typeof name !== 'undefined'
+    ? 'task_' + name
+    : 'taskFile';
+};
+
+/**
+ * Get a view collection by its singular-form `name`.
+ *
+ * ```js
+ * var collection = generate.getCollection('page');
+ * // gets the `pages` collection
+ * //=> {a: {}, b: {}, ...}
+ * ```
+ *
+ * @return {String} `name` Singular name of the collection to get
+ * @api public
+ */
+
+Generate.prototype.getCollection = function(name) {
+  if (typeof name === 'undefined') {
+    name = this.getTask();
+  }
+
+  if (this.views.hasOwnProperty(name)) {
+    return this.views[name];
+  }
+
+  name = this.inflections[name];
+  return this.views[name];
+};
+
+/**
+ * Get a file from the current session.
+ *
+ * ```js
+ * var file = generate.getFile(file);
+ * ```
+ *
+ * @return {Object} `file` Vinyl file object. Must have an `id` property.
+ * @api public
+ */
+
+Generate.prototype.getFile = function(file, id) {
+  return this.getCollection(id)[file.id];
+};
+
+/**
+ * Get a template from the current session, convert it to a vinyl
+ * file, and push it into the stream.
+ *
+ * ```js
+ * generate.pushToStream(file);
+ * ```
+ *
+ * @param {Stream} `stream` Vinyl stream
+ * @param {String} `id` Get the session `id` using `generate.getTask()`
+ * @api public
+ */
+
+Generate.prototype.pushToStream = function(id, stream) {
+  return tutil.pushToStream(this.getCollection(id), stream, toVinyl);
+};
+
+/**
+ * `taskFiles` is a session-context-specific getter that
+ * returns the collection of files from the currently running `task`.
+ *
+ * ```js
+ * var taskFiles = generate.taskFiles;
+ * ```
+ *
+ * @name .taskFiles
+ * @return {Object} Get the files from the currently running task.
+ * @api public
+ */
+
+Object.defineProperty(Generate.prototype, 'taskFiles', {
+  configurable: true,
+  enumerable: true,
+  get: function () {
+    return this.views[this.inflections[this.getTask()]];
+  }
+});
+
+/**
  * Run an array of tasks.
  *
  * ```js
- * app.run(['foo', 'bar']);
+ * generate.run(['foo', 'bar']);
  * ```
  *
  * @param {Array} `tasks`
@@ -226,11 +270,26 @@ Generate.prototype.run = function() {
 };
 
 /**
+ * Wrapper around Task._runTask to enable `sessions`.
+ *
+ * @param  {Object} `task` Task to run
+ * @api private
+ */
+
+Generate.prototype._runTask = function(task) {
+  var self = this;
+  self.session.run(function () {
+    self.session.set('task', task.name);
+    Task.prototype._runTask.call(self, task);
+  });
+};
+
+/**
  * Re-run the specified task(s) when a file changes.
  *
  * ```js
- * app.task('watch', function() {
- *   app.watch('docs/*.md', ['docs']);
+ * generate.task('watch', function() {
+ *   generate.watch('docs/*.md', ['docs']);
  * });
  * ```
  *
@@ -243,11 +302,32 @@ Generate.prototype.watch = function(glob, opts, fn) {
   if (Array.isArray(opts) || typeof opts === 'function') {
     fn = opts; opts = null;
   }
-
-  if (!Array.isArray(fn)) vfs.watch(glob, opts, fn);
+  if (!Array.isArray(fn)) return vfs.watch(glob, opts, fn);
   return vfs.watch(glob, opts, function () {
     this.start.apply(this, fn);
   }.bind(this));
+};
+
+/**
+ * Display a visual representation of the
+ * difference between `a` and `b`
+ */
+
+Generate.prototype.diff = function(a, b, method) {
+  method = method || 'diffJson';
+  a = a || this.env;
+  b = b || this.cache.data;
+  diff[method](a, b).forEach(function (res) {
+    var color = chalk.gray;
+    if (res.added) {
+      color = chalk.green;
+    }
+    if (res.removed) {
+      color = chalk.red;
+    }
+    process.stderr.write(color(res.value));
+  });
+  console.log('\n');
 };
 
 /**
@@ -257,7 +337,7 @@ Generate.prototype.watch = function(glob, opts, fn) {
 Generate.prototype.Generate = Generate;
 
 /**
- * Expose an instance of `generate`
+ * Expose our instance of `generate`
  */
 
 module.exports = new Generate();
