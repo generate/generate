@@ -35,6 +35,51 @@ _.extend(Generate.prototype, Task.prototype);
 Template.extend(Generate.prototype);
 
 /**
+ * Register a plugin by `name`
+ *
+ * @param  {String} `name`
+ * @param  {Function} `fn`
+ * @api public
+ */
+
+Generate.prototype.plugin = function(name, fn) {
+  if (arguments.length === 1) {
+    return this.plugins[name];
+  }
+  if (typeof fn === 'function') {
+    fn = fn.bind(this);
+  }
+  this.plugins[name] = fn;
+  return this;
+};
+
+/**
+ * Create a plugin pipeline from an array of plugins.
+ *
+ * @param  {Array} `plugins` Each plugin is a function that returns a stream, or the name of a registered plugin.
+ * @param  {Object} `options`
+ * @return {Stream}
+ * @api public
+ */
+
+Generate.prototype.pipeline = function(plugins, options) {
+  var res = [];
+  for (var i = 0; i < plugins.length; i++) {
+    var val = plugins[i];
+    if (typeOf(val) === 'function') {
+      res.push(val.call(this, options));
+    } else if (typeOf(val) === 'object') {
+      res.push(val);
+    } else if (this.plugins.hasOwnProperty(val) && !this.isFalse('plugin ' + val)) {
+      res.push(this.plugins[val].call(this, options));
+    } else {
+      res.push(through.obj());
+    }
+  }
+  return es.pipe.apply(es, res);
+};
+
+/**
  * Glob patterns or filepaths to source files.
  *
  * ```js
