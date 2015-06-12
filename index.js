@@ -79,20 +79,19 @@ Generate.prototype.pipeline = function(plugins, options) {
   return es.pipe.apply(es, res);
 };
 
+Generate.prototype.ask = function(question) {
+  questions.ask(this.questions[question]);
+};
+
+Generate.prototype.question = function(name) {
+  questions.ask(this.questions[question]);
+};
+
 /**
  * Glob patterns or filepaths to source files.
  *
  * ```js
- * generate.src('*.js')
- * ```
- *
- * **Example usage**
- *
- * ```js
- * generate.task('web-app', function() {
- *   generate.src('templates/*')
- *     generate.dest(process.cwd())
- * });
+ * app.src('*.js')
  * ```
  *
  * @param {String|Array} `glob` Glob patterns or file paths to source files.

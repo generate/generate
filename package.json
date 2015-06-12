@@ -56,6 +56,7 @@
     "gulp-dest-paths": "^0.1.1",
     "helper-date": "^0.2.1",
     "init-file-loader": "^0.1.1",
+    "lint-templates": "^0.1.2",
     "lodash": "^3.6.0",
     "log-symbols": "^1.0.2",
     "logging-helpers": "^0.4.0",
