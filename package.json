@@ -19,6 +19,7 @@
     "url": "https://github.com/generate/generate/blob/master/LICENSE"
   },
   "files": [
+    "cli.js",
     "index.js",
     "lib/",
     "templates/"
