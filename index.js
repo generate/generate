@@ -1,21 +1,62 @@
 'use strict';
 
+var fs = require('fs');
 var path = require('path');
-var diff = require('diff');
-var chalk = require('chalk');
+var async = require('async');
+var Base = require('base-methods');
+var combine = require('stream-combiner');
+var merge = require('mixin-deep');
+var loader = require('stream-loader');
 var through = require('through2');
-var Template = require('template');
-var tutil = require('template-utils')._;
-var toVinyl = require('to-vinyl');
-var Task = require('orchestrator');
-var vfs = require('vinyl-fs');
-var _ = require('lodash');
-
-var session = require('./lib/session');
+var writeFile = require('write');
+var options = require('./lib/options');
 var plugins = require('./lib/plugins');
-var stack = require('./lib/stack');
-var utils = require('./lib/utils');
-var init = require('./lib/init');
+
+var dest = require('dest');
+
+dest.normalize = function normalize(dest, file, opts, cb) {
+  opts = opts || {};
+  var cwd = path.resolve(opts.cwd);
+  var destPath;
+
+  if (typeof dest === 'function') {
+    destPath = dest(file);
+
+  } else if (typeof dest === 'string') {
+    destPath = dest;
+
+  } else {
+    throw new Error('expected dest to be a string or function.');
+  }
+
+  var base = opts.base;
+  var basePath;
+
+  if (!base) {
+    basePath = path.resolve(cwd, destPath);
+
+  } else if (typeof base === 'function') {
+    basePath = base(file);
+
+  } else if (typeof base === 'string') {
+    basePath = base;
+
+  } else {
+    throw new Error('expected base to be a string, function or undefined.');
+  }
+
+  var filepath = path.resolve(basePath, file.relative);
+
+  // wire up new properties
+  file.stat = (file.stat || new fs.Stats());
+  file.stat.mode = opts.mode;
+  file.flag = opts.flag;
+  file.cwd = cwd;
+  file.base = basePath;
+  file.path = filepath;
+
+  cb(null, filepath);
+};
 
 /**
  * Initialize `Generate`.
@@ -24,74 +65,57 @@ var init = require('./lib/init');
  * @api private
  */
 
-function Generate() {
-  Template.apply(this, arguments);
-  Task.apply(this, arguments);
-  this.session = session;
-  init(this);
+function Generate(opts) {
+  if (!(this instanceof Generate)) {
+    return new Generate(opts);
+  }
+  this.options = opts || {};
+  Base.call(this);
+  this.use(plugins);
+  this.use(options);
 }
 
-_.extend(Generate.prototype, Task.prototype);
-Template.extend(Generate.prototype);
+/**
+ * Inherit `Base`
+ */
+
+Base.extend(Generate);
 
 /**
- * Register a plugin by `name`
+ * Merge default options with user supplied options.
+ */
+
+Generate.prototype.defaults = function(options) {
+  return merge({}, this.options, options);
+};
+
+/**
+ * Run a plugin on the `generate` instance. Plugins are run immediately
+ * upon initialization, and each time a plugin is run a `use` event
+ * is emitted to allow listeners to trigger options or config reloading.
  *
- * @param  {String} `name`
- * @param  {Function} `fn`
+ * ```js
+ * var generate = new Generate()
+ *   .use(require('foo'))
+ *   .use(require('bar'))
+ *   .use(require('baz'))
+ * ```
+ * @param {Function} `fn` plugin function to call
+ * @return {Object} Returns the generate instance for chaining.
  * @api public
  */
 
-Generate.prototype.plugin = function(name, fn) {
-  if (arguments.length === 1) {
-    return this.plugins[name];
-  }
-  if (typeof fn === 'function') {
-    fn = fn.bind(this);
-  }
-  this.plugins[name] = fn;
+Generate.prototype.use = function(fn) {
+  fn.call(this, this);
+  this.emit('use');
   return this;
-};
-
-/**
- * Create a plugin pipeline from an array of plugins.
- *
- * @param  {Array} `plugins` Each plugin is a function that returns a stream, or the name of a registered plugin.
- * @param  {Object} `options`
- * @return {Stream}
- * @api public
- */
-
-Generate.prototype.pipeline = function(plugins, options) {
-  var res = [];
-  for (var i = 0; i < plugins.length; i++) {
-    var val = plugins[i];
-    if (typeOf(val) === 'function') {
-      res.push(val.call(this, options));
-    } else if (typeOf(val) === 'object') {
-      res.push(val);
-    } else if (this.plugins.hasOwnProperty(val) && !this.isFalse('plugin ' + val)) {
-      res.push(this.plugins[val].call(this, options));
-    } else {
-      res.push(through.obj());
-    }
-  }
-  return es.pipe.apply(es, res);
-};
-
-Generate.prototype.ask = function(question) {
-  questions.ask(this.questions[question]);
-};
-
-Generate.prototype.question = function(name) {
-  questions.ask(this.questions[question]);
 };
 
 /**
  * Glob patterns or filepaths to source files.
  *
  * ```js
- * app.src('*.js')
+ * app.src('*.js', {});
  * ```
  *
  * @param {String|Array} `glob` Glob patterns or file paths to source files.
@@ -99,15 +123,23 @@ Generate.prototype.question = function(name) {
  * @api public
  */
 
+Generate.prototype.combine = function(options) {
+  options = options || {};
+  var self = this;
+  return function(stream, opts) {
+    return combine([stream, self.pipeline(options.pipeline, opts)]);
+  };
+};
+
 Generate.prototype.src = function(glob, opts) {
-  return stack.src(this, glob, opts);
+  return loader(this.options, this.combine(opts))(glob, opts);
 };
 
 /**
  * Specify a destination for processed files.
  *
  * ```js
- * generate.dest('dist', {ext: '.xml'})
+ * generate.dest('foo/', {});
  * ```
  *
  * @param {String|Function} `dest` File path or rename function.
@@ -115,24 +147,73 @@ Generate.prototype.src = function(glob, opts) {
  * @api public
  */
 
-Generate.prototype.dest = function(dest, opts) {
-  return stack.dest(this, dest, opts);
+Generate.prototype.dest = function(dir, opts) {
+  if (!dir) throw new TypeError('dest expects a string.');
+  return dest.apply(dest, arguments);
+
+  // return through.obj(function (file, enc, cb) {
+  //   if (opts && !opts.expand) dest = path.join(dest, file.relative);
+  //   if (file.contents === null) return cb();
+  //   writeFile(dest, file.contents.toString(), cb);
+  // });
 };
 
+
+Generate.prototype.process = function (config, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+  options = options || {};
+  var src = loader(options, options.pipeline);
+  src(config.src, {dot: true})
+    .pipe(through.obj(function (file, enc, next) {
+      var dest = config.dest;
+      if (!config.options.expand) {
+        dest = path.join(config.dest, file.relative);
+      }
+      writeFile(dest, file.contents.toString(), next);
+    }))
+    .on('error', cb)
+    .on('end', cb)
+    .on('finish', cb);
+};
+
+
 /**
- * Specify a destination for processed files.
+ * Similar to [copy](#copy) but call a plugin `pipeline` if passed
+ * on the `config` or `options`.
  *
- * ```js
- * generate.templates('foo.tmpl')
- * ```
- *
- * @param {String|Function} `dest` File path or rename function.
- * @param {Object} `options` Options to `dest` plugins
- * @api public
+ * @param {Object} `config`
+ * @param {Object} `options`
+ * @param {Function} `cb`
+ * @return {Object}
  */
 
-Generate.prototype.templates = function(glob, opts) {
-  return stack.templates(this, glob, opts);
+// Generate.prototype.process = function (config, options, cb) {
+//   if (typeof options === 'function') {
+//     return this.process(config, this.options, options);
+//   }
+//   var opts = this.defaults(options);
+//   this.src(config.src, opts)
+//     .pipe(this.dest(config.dest, opts))
+//     .on('error', cb)
+//     .on('end', cb)
+//     .on('finish', cb)
+// };
+
+Generate.prototype.parallel = function (config, cb) {
+  async.each(config.files, function (file, next) {
+    this.process(file, config, next);
+  }.bind(this), cb);
+  return this;
+};
+
+Generate.prototype.series = function (config, cb) {
+  async.eachSeries(config.files, function (file, next) {
+    this.process(file, config, next);
+  }.bind(this), cb);
+  return this;
 };
 
 /**
@@ -149,239 +230,11 @@ Generate.prototype.templates = function(glob, opts) {
  */
 
 Generate.prototype.copy = function(glob, dest, opts) {
-  opts = _.extend({cwd: this.get('generator.cwd')}, opts);
-  dest = path.resolve(process.cwd(), dest);
-  return this.src(glob, opts)
-    .pipe(vfs.dest(dest, opts));
+  return this.src(glob, opts).pipe(this.dest(dest, opts));
 };
-
-/**
- * Set or get a generator function by `name`.
- *
- * ```js
- * // set an generator
- * app.generator('foo', require('generator-foo'));
- *
- * // get an generator
- * var foo = app.generator('foo');
- * ```
- * @param  {String} `name`
- * @param  {Function} `fn` The generator plugin function
- * @api public
- */
-
-Generate.prototype.generator = function(name, fn) {
-  if (arguments.length === 1 && typeof name === 'string') {
-    return this.generators[name];
-  }
-  this.generators[name] = fn;
-  return this;
-};
-
-/**
- * Define a task.
- *
- * ```js
- * generate.task('docs', function() {
- *   generate.src(['.generate.js', 'foo/*.js'])
- *     .pipe(generate.dest('./'));
- * });
- * ```
- *
- * @param {String} `name`
- * @param {Function} `fn`
- * @api public
- */
-
-Generate.prototype.task = Generate.prototype.add;
-
-/**
- * Get the name of the current task-session. This is
- * used in plugins to lookup data or views created in
- * a task.
- *
- * ```js
- * var id = generate.getTask();
- * var views = generate.views[id];
- * ```
- *
- * @return {String} `task` The name of the currently running task.
- * @api public
- */
-
-Generate.prototype.getTask = function() {
-  var name = this.session.get('task');
-  return typeof name !== 'undefined'
-    ? 'task_' + name
-    : 'taskFile';
-};
-
-/**
- * Get a view collection by its singular-form `name`.
- *
- * ```js
- * var collection = generate.getCollection('page');
- * // gets the `pages` collection
- * //=> {a: {}, b: {}, ...}
- * ```
- *
- * @return {String} `name` Singular name of the collection to get
- * @api public
- */
-
-Generate.prototype.getCollection = function(name) {
-  if (typeof name === 'undefined') {
-    name = this.getTask();
-  }
-
-  if (this.views.hasOwnProperty(name)) {
-    return this.views[name];
-  }
-
-  name = this.inflections[name];
-  return this.views[name];
-};
-
-/**
- * Get a file from the current session.
- *
- * ```js
- * var file = generate.getFile(file);
- * ```
- *
- * @return {Object} `file` Vinyl file object. Must have an `id` property.
- * @api public
- */
-
-Generate.prototype.getFile = function(file, id) {
-  return this.getCollection(id)[file.id];
-};
-
-/**
- * Get a template from the current session, convert it to a vinyl
- * file, and push it into the stream.
- *
- * ```js
- * generate.pushToStream(file);
- * ```
- *
- * @param {Stream} `stream` Vinyl stream
- * @param {String} `id` Get the session `id` using `generate.getTask()`
- * @api public
- */
-
-Generate.prototype.pushToStream = function(id, stream) {
-  return tutil.pushToStream(this.getCollection(id), stream, toVinyl);
-};
-
-/**
- * `taskFiles` is a session-context-specific getter that
- * returns the collection of files from the currently running `task`.
- *
- * ```js
- * var taskFiles = generate.taskFiles;
- * ```
- *
- * @name .taskFiles
- * @return {Object} Get the files from the currently running task.
- * @api public
- */
-
-Object.defineProperty(Generate.prototype, 'taskFiles', {
-  configurable: true,
-  enumerable: true,
-  get: function () {
-    return this.views[this.inflections[this.getTask()]];
-  }
-});
-
-/**
- * Run an array of tasks.
- *
- * ```js
- * generate.run(['foo', 'bar']);
- * ```
- *
- * @param {Array} `tasks`
- * @api private
- */
-
-Generate.prototype.run = function() {
-  var tasks = arguments.length ? arguments : ['default'];
-  process.nextTick(function () {
-    this.start.apply(this, tasks);
-  }.bind(this));
-};
-
-/**
- * Wrapper around Task._runTask to enable `sessions`.
- *
- * @param  {Object} `task` Task to run
- * @api private
- */
-
-Generate.prototype._runTask = function(task) {
-  var self = this;
-  self.session.run(function () {
-    self.session.set('task', task.name);
-    Task.prototype._runTask.call(self, task);
-  });
-};
-
-/**
- * Re-run the specified task(s) when a file changes.
- *
- * ```js
- * generate.task('watch', function() {
- *   generate.watch('docs/*.md', ['docs']);
- * });
- * ```
- *
- * @param  {String|Array} `glob` Filepaths or glob patterns.
- * @param  {Function} `fn` Task(s) to watch.
- * @api public
- */
-
-Generate.prototype.watch = function(glob, opts, fn) {
-  if (Array.isArray(opts) || typeof opts === 'function') {
-    fn = opts; opts = null;
-  }
-  if (!Array.isArray(fn)) return vfs.watch(glob, opts, fn);
-  return vfs.watch(glob, opts, function () {
-    this.start.apply(this, fn);
-  }.bind(this));
-};
-
-/**
- * Display a visual representation of the
- * difference between `a` and `b`
- */
-
-Generate.prototype.diff = function(a, b, method) {
-  method = method || 'diffJson';
-  a = a || this.env;
-  b = b || this.cache.data;
-  diff[method](a, b).forEach(function (res) {
-    var color = chalk.gray;
-    if (res.added) {
-      color = chalk.green;
-    }
-    if (res.removed) {
-      color = chalk.red;
-    }
-    process.stderr.write(color(res.value));
-  });
-  console.log('\n');
-};
-
-/**
- * Expose the `Generate` class on `generate.Generate`
- */
-
-Generate.prototype.Generate = Generate;
 
 /**
  * Expose our instance of `generate`
  */
 
-module.exports = new Generate();
+module.exports = Generate;
