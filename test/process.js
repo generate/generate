@@ -1,143 +1,128 @@
 require('mocha');
-require('should');
+var fs = require('fs');
+var path = require('path');
 var assert = require('assert');
-var App = require('..');
-var app;
+var rimraf = require('rimraf');
+var Files = require('expand-files');
+var Generate = require('..');
+var app, files, config;
 
-describe('.process()', function () {
-  beforeEach(function () {
-    app = new App();
+var fixtures = path.join(__dirname, 'fixtures');
+var actual = path.join(__dirname, 'actual');
+
+function expand(options) {
+  var config = new Files();
+  config.expand(options);
+  return config.files[0];
+}
+
+function output(name) {
+  return path.join(actual, name);
+}
+
+function fixture(name) {
+  return path.join(fixtures, name);
+}
+
+function exists(name) {
+  try {
+    fs.statSync(output(name));
+    return true;
+  } catch(err) {}
+  return false;
+}
+
+describe('process()', function() {
+  beforeEach(function (done) {
+    rimraf(actual, done);
+    app = new Generate();
   });
 
-  describe('errors', function () {
-    it('should throw an error when file is not an object:', function () {
-      (function () {
-        app.process();
-      }).should.throw('process expects file to be an object.');
-    });
-
-    it('should throw an error when dest is not defined:', function () {
-      var view = new View({path: 'test/fixtures/pages/a.hbs', data: {}});
-      (function () {
-        app.process(view);
-      }).should.throw('process expects file to have a dest defined.');
-    });
+  afterEach(function (done) {
+    rimraf(actual, done);
   });
 
-  describe('dest', function () {
-    it('should use `dest` from app.options:', function (done) {
-      app.option('dest', 'test/actual/process');
-      var view = new View({
-        path: 'test/fixtures/pages/a.hbs'
-      });
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
-    });
-
-    it('should use `dest` from file:', function (done) {
-      var view = new View({
-        path: 'test/fixtures/pages/a.hbs',
-        dest: 'test/actual/process'
-      });
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
-    });
-  });
-
-  describe('src', function () {
-    it('should use `src`:', function (done) {
-      var view = new View({
-        src: 'test/fixtures/pages/a.hbs',
-        dest: 'test/actual/process'
-      });
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
-    });
-
-    it('should use `path` as the src:', function (done) {
-      var view = new View({
-        path: 'test/fixtures/pages/a.hbs',
-        dest: 'test/actual/process'
-      });
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
-    });
-
-    it('should work with a glob:', function (done) {
-      var view = new View({
-        path: 'test/fixtures/pages/*.hbs',
-        dest: 'test/actual/process'
-      });
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
-    });
-
-    it('should not work with an array of globs:', function () {
-      (function () {
-        var view = new View({
-          path: ['test/fixtures/pages/*.hbs'],
-          dest: 'test/actual/process'
-        });
-      }).should.throw('path should be string');
+  describe('setup', function () {
+    it('should clean out all test fixtures', function (done) {
+      assert(!exists(actual));
+      done();
     });
   });
 
-  describe('cwd', function () {
-    it('should use `cwd` from app.options:', function (done) {
-      app.option('cwd', 'test/fixtures/pages');
-      var view = new View({
-        path: 'a.hbs',
-        dest: 'test/actual/process'
+  describe('streams', function () {
+    it('should process files from the process options.cwd', function (done) {
+      config = expand({src: 'b.txt', dest: actual, cwd: fixtures});
+
+      app.process(config, {cwd: fixtures}, function (err) {
+        if (err) return done(err);
+        assert(exists('b.txt'));
+        done();
       });
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
     });
 
-    it('should use `cwd` from view:', function (done) {
-      var view = new View({
-        cwd: 'test/fixtures/pages',
-        path: 'a.hbs',
-        dest: 'test/actual/process'
+    it('should use the cwd passed on the config.options.cwd', function (done) {
+      assert(!exists('b.txt'));
+
+      config = expand({
+        cwd: fixtures,
+        src: 'b.txt',
+        dest: actual
       });
 
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
-    });
-  });
-
-  describe('rendering', function () {
-    it('should use render templates:', function (done) {
-      var view = new View({
-        data: {title: 'View Title'},
-        src: 'test/fixtures/pages/a.hbs',
-        dest: 'test/actual/process'
+      app.process(config, function (err) {
+        if (err) return done(err);
+        assert(!err);
+        assert(exists('b.txt'));
+        done();
       });
-
-      assert(view.data.title === 'View Title');
-
-      app.process(view)
-        .on('error', done)
-        .on('data', function (data) {
-          console.log(data.contents.toString())
-        })
-        .on('end', done);
     });
 
-    it('should use `path` as the src:', function (done) {
-      var view = new View({
-        path: 'test/fixtures/pages/a.hbs',
-        dest: 'test/actual/process'
+    it('should work with no options:', function (done) {
+      config = expand({src: 'b.txt', dest: actual, cwd: fixtures});
+
+      app.process(config, function (err) {
+        if (err) return done(err);
+        assert(exists('b.txt'));
+        done();
       });
-      app.process(view)
-        .on('error', done)
-        .on('end', done);
+    });
+
+    it('should process a single file', function (done) {
+      assert(!exists('a.txt'));
+
+      config = expand({
+        cwd: fixtures,
+        src: 'a.txt',
+        dest: actual
+      });
+
+      app.process(config, function (err) {
+        if (err) return done(err);
+        assert(!err);
+        assert(exists('a.txt'));
+        done();
+      });
+    });
+
+    it('should process a glob of files', function (done) {
+      assert(!exists('a.txt'));
+      assert(!exists('b.txt'));
+      assert(!exists('c.txt'));
+
+      config = expand({
+        cwd: fixtures,
+        src: '*.txt',
+        dest: actual
+      });
+
+      app.process(config, function (err) {
+        if (err) return done(err);
+        assert(!err);
+        assert(exists('a.txt'));
+        assert(exists('b.txt'));
+        assert(exists('c.txt'));
+        done();
+      });
     });
   });
 });

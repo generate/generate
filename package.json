@@ -40,11 +40,11 @@
     "stream-loader": "jonschlinkert/stream-loader#plugins",
     "through2": "^2.0.0",
     "vinyl": "wearefractal/vinyl",
-    "vinyl-fs": "wearefractal/vinyl-fs",
     "write": "^0.2.1"
   },
   "devDependencies": {
     "buffer-equal": "0.0.1",
+    "expand-files": "^0.3.2",
     "graceful-fs": "^4.1.2",
     "mocha": "^2.3.3",
     "rimraf": "^2.4.3",

@@ -53,9 +53,6 @@ describe('app', function () {
     it('should expose `copy`', function () {
       assert(typeof app.copy === 'function');
     });
-    it('should expose `combine`', function () {
-      assert(typeof app.combine === 'function');
-    });
   });
 
   describe('instance', function () {

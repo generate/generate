@@ -2,38 +2,43 @@
 
 var fs = require('fs');
 var path = require('path');
-var async = require('async');
-var Base = require('base-methods');
-var combine = require('stream-combiner');
-var merge = require('mixin-deep');
-var loader = require('stream-loader');
-var through = require('through2');
-var writeFile = require('write');
 var options = require('./lib/options');
 var plugins = require('./lib/plugins');
+var utils = require('./lib');
+var dest = utils.dest;
+var Base = utils.Base;
 
-var dest = require('dest');
-
-dest.normalize = function normalize(dest, file, opts, cb) {
+dest.normalize = function normalize(dir, file, opts, cb) {
   opts = opts || {};
   var cwd = path.resolve(opts.cwd);
-  var destPath;
+  var filepath;
+  var destDir;
 
-  if (typeof dest === 'function') {
-    destPath = dest(file);
+  if (opts.expand === true) {
+    if (typeof dir !== 'string') {
+      throw new TypeError('expected dest to be a string with expand=true');
+    }
 
-  } else if (typeof dest === 'string') {
-    destPath = dest;
+    filepath = dir;
+    destDir = path.dirname(filepath);
 
   } else {
-    throw new Error('expected dest to be a string or function.');
+    if (typeof dir === 'function') {
+      destDir = dir(file);
+
+    } else if (typeof dir === 'string') {
+      destDir = dir;
+
+    } else {
+      throw new TypeError('expected dest to be a string or function.');
+    }
   }
 
   var base = opts.base;
   var basePath;
 
   if (!base) {
-    basePath = path.resolve(cwd, destPath);
+    basePath = path.resolve(cwd, destDir);
 
   } else if (typeof base === 'function') {
     basePath = base(file);
@@ -42,19 +47,22 @@ dest.normalize = function normalize(dest, file, opts, cb) {
     basePath = base;
 
   } else {
-    throw new Error('expected base to be a string, function or undefined.');
+    throw new TypeError('expected base to be a string, function or undefined.');
   }
 
-  var filepath = path.resolve(basePath, file.relative);
+  if (typeof filepath === 'undefined') {
+    filepath = path.resolve(basePath, file.relative);
+  }
 
-  // wire up new properties
+  // update stat properties
   file.stat = (file.stat || new fs.Stats());
   file.stat.mode = opts.mode;
   file.flag = opts.flag;
+
+  // update path properties
   file.cwd = cwd;
   file.base = basePath;
   file.path = filepath;
-
   cb(null, filepath);
 };
 
@@ -80,14 +88,6 @@ function Generate(opts) {
  */
 
 Base.extend(Generate);
-
-/**
- * Merge default options with user supplied options.
- */
-
-Generate.prototype.defaults = function(options) {
-  return merge({}, this.options, options);
-};
 
 /**
  * Run a plugin on the `generate` instance. Plugins are run immediately
@@ -123,16 +123,9 @@ Generate.prototype.use = function(fn) {
  * @api public
  */
 
-Generate.prototype.combine = function(options) {
-  options = options || {};
-  var self = this;
-  return function(stream, opts) {
-    return combine([stream, self.pipeline(options.pipeline, opts)]);
-  };
-};
-
 Generate.prototype.src = function(glob, opts) {
-  return loader(this.options, this.combine(opts))(glob, opts);
+  var fn = utils.combine(this, opts && opts.pipeline);
+  return utils.loader(this.options, fn)(glob, opts);
 };
 
 /**
@@ -148,72 +141,7 @@ Generate.prototype.src = function(glob, opts) {
  */
 
 Generate.prototype.dest = function(dir, opts) {
-  if (!dir) throw new TypeError('dest expects a string.');
-  return dest.apply(dest, arguments);
-
-  // return through.obj(function (file, enc, cb) {
-  //   if (opts && !opts.expand) dest = path.join(dest, file.relative);
-  //   if (file.contents === null) return cb();
-  //   writeFile(dest, file.contents.toString(), cb);
-  // });
-};
-
-
-Generate.prototype.process = function (config, options, cb) {
-  if (typeof options === 'function') {
-    cb = options;
-    options = {};
-  }
-  options = options || {};
-  var src = loader(options, options.pipeline);
-  src(config.src, {dot: true})
-    .pipe(through.obj(function (file, enc, next) {
-      var dest = config.dest;
-      if (!config.options.expand) {
-        dest = path.join(config.dest, file.relative);
-      }
-      writeFile(dest, file.contents.toString(), next);
-    }))
-    .on('error', cb)
-    .on('end', cb)
-    .on('finish', cb);
-};
-
-
-/**
- * Similar to [copy](#copy) but call a plugin `pipeline` if passed
- * on the `config` or `options`.
- *
- * @param {Object} `config`
- * @param {Object} `options`
- * @param {Function} `cb`
- * @return {Object}
- */
-
-// Generate.prototype.process = function (config, options, cb) {
-//   if (typeof options === 'function') {
-//     return this.process(config, this.options, options);
-//   }
-//   var opts = this.defaults(options);
-//   this.src(config.src, opts)
-//     .pipe(this.dest(config.dest, opts))
-//     .on('error', cb)
-//     .on('end', cb)
-//     .on('finish', cb)
-// };
-
-Generate.prototype.parallel = function (config, cb) {
-  async.each(config.files, function (file, next) {
-    this.process(file, config, next);
-  }.bind(this), cb);
-  return this;
-};
-
-Generate.prototype.series = function (config, cb) {
-  async.eachSeries(config.files, function (file, next) {
-    this.process(file, config, next);
-  }.bind(this), cb);
-  return this;
+  return dest(dir, opts);
 };
 
 /**
@@ -229,8 +157,94 @@ Generate.prototype.series = function (config, cb) {
  * @api public
  */
 
-Generate.prototype.copy = function(glob, dest, opts) {
+Generate.prototype.copy = function(glob, dest, options) {
+  var opts = this.defaults(options);
   return this.src(glob, opts).pipe(this.dest(dest, opts));
+};
+
+
+// Generate.prototype.process = function (config, options, cb) {
+//   if (typeof options === 'function') {
+//     cb = options;
+//     options = {};
+//   }
+//   options = options || {};
+//   var src = loader(options, options.pipeline);
+//   src(config.src, {dot: true})
+//     .pipe(through.obj(function (file, enc, next) {
+//       var dest = config.dest;
+//       if (!config.options.expand) {
+//         dest = path.join(config.dest, file.relative);
+//       }
+//       writeFile(dest, file.contents.toString(), next);
+//     }))
+//     .on('error', cb)
+//     .on('end', cb)
+//     .on('finish', cb);
+// };
+
+
+/**
+ * Similar to [copy](#copy) but call a plugin `pipeline` if passed
+ * on the `config` or `options`.
+ *
+ * @param {Object} `config`
+ * @param {Object} `options`
+ * @param {Function} `cb`
+ * @return {Object}
+ */
+
+Generate.prototype.process = function (config, options, cb) {
+  if (typeof options === 'function') {
+    return this.process(config, this.options, options);
+  }
+  console.log(arguments)
+  var opts = this.defaults(options);
+  this.src(config.src, opts)
+    .pipe(this.dest(config.dest, opts))
+    .on('error', cb)
+    .on('end', cb);
+  return this;
+};
+
+Generate.prototype.files = function (config, options, cb) {
+  if (typeof options === 'function') {
+    return this.process(config, this.options, options);
+  }
+  var opts = this.defaults(options);
+  this.src(config.src, opts)
+    .pipe(this.dest(config.dest, opts))
+    .on('error', cb)
+    .on('end', cb);
+  return this;
+};
+
+Generate.prototype.parallel = function (config, cb) {
+  utils.async.each(config.files, function (file, next) {
+    this.process(file, config, next);
+  }.bind(this), cb);
+  return this;
+};
+
+Generate.prototype.series = function (config, cb) {
+  utils.async.eachSeries(config.files, function (file, next) {
+    this.process(file, config, next);
+  }.bind(this), cb);
+  return this;
+};
+
+/**
+ * Merge default options with user supplied options.
+ */
+
+Generate.prototype.defaults = function(options) {
+  options = options || {};
+  for (var key in this.options) {
+    if (!options.hasOwnProperty(key)) {
+      options[key] = this.options[key];
+    }
+  }
+  return options;
 };
 
 /**
