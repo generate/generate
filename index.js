@@ -125,7 +125,7 @@ Generate.prototype.use = function(fn) {
 
 Generate.prototype.src = function(glob, opts) {
   var fn = utils.combine(this, opts && opts.pipeline);
-  return utils.loader(this.options, fn)(glob, opts);
+  return utils.loader(this.defaults(opts), fn)(glob, opts);
 };
 
 /**
@@ -141,7 +141,7 @@ Generate.prototype.src = function(glob, opts) {
  */
 
 Generate.prototype.dest = function(dir, opts) {
-  return dest(dir, opts);
+  return dest(dir, this.defaults(opts));
 };
 
 /**
@@ -158,31 +158,8 @@ Generate.prototype.dest = function(dir, opts) {
  */
 
 Generate.prototype.copy = function(glob, dest, options) {
-  var opts = this.defaults(options);
-  return this.src(glob, opts).pipe(this.dest(dest, opts));
+  return this.src(glob, options).pipe(this.dest(dest, options));
 };
-
-
-// Generate.prototype.process = function (config, options, cb) {
-//   if (typeof options === 'function') {
-//     cb = options;
-//     options = {};
-//   }
-//   options = options || {};
-//   var src = loader(options, options.pipeline);
-//   src(config.src, {dot: true})
-//     .pipe(through.obj(function (file, enc, next) {
-//       var dest = config.dest;
-//       if (!config.options.expand) {
-//         dest = path.join(config.dest, file.relative);
-//       }
-//       writeFile(dest, file.contents.toString(), next);
-//     }))
-//     .on('error', cb)
-//     .on('end', cb)
-//     .on('finish', cb);
-// };
-
 
 /**
  * Similar to [copy](#copy) but call a plugin `pipeline` if passed
@@ -196,37 +173,23 @@ Generate.prototype.copy = function(glob, dest, options) {
 
 Generate.prototype.process = function (config, options, cb) {
   if (typeof options === 'function') {
-    return this.process(config, this.options, options);
+    return this.process(config, config.options, options);
   }
-  console.log(arguments)
-  var opts = this.defaults(options);
-  this.src(config.src, opts)
-    .pipe(this.dest(config.dest, opts))
+  this.src(config.src, options)
+    .pipe(this.dest(config.dest, options))
     .on('error', cb)
     .on('end', cb);
   return this;
 };
 
-Generate.prototype.files = function (config, options, cb) {
-  if (typeof options === 'function') {
-    return this.process(config, this.options, options);
-  }
-  var opts = this.defaults(options);
-  this.src(config.src, opts)
-    .pipe(this.dest(config.dest, opts))
-    .on('error', cb)
-    .on('end', cb);
-  return this;
-};
-
-Generate.prototype.parallel = function (config, cb) {
+Generate.prototype.parallel = function(config, cb) {
   utils.async.each(config.files, function (file, next) {
     this.process(file, config, next);
   }.bind(this), cb);
   return this;
 };
 
-Generate.prototype.series = function (config, cb) {
+Generate.prototype.series = function(config, cb) {
   utils.async.eachSeries(config.files, function (file, next) {
     this.process(file, config, next);
   }.bind(this), cb);
@@ -238,13 +201,7 @@ Generate.prototype.series = function (config, cb) {
  */
 
 Generate.prototype.defaults = function(options) {
-  options = options || {};
-  for (var key in this.options) {
-    if (!options.hasOwnProperty(key)) {
-      options[key] = this.options[key];
-    }
-  }
-  return options;
+  return utils.merge({}, this.options, options);
 };
 
 /**
