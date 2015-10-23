@@ -2,10 +2,8 @@ var spies = require('./support/spy');
 var chmodSpy = spies.chmodSpy;
 var statSpy = spies.statSpy;
 
-require('mocha');
-var should = require('should');
 var assert = require('assert');
-var Generate = require('..');
+var App = require('../');
 var app;
 
 var path = require('path');
@@ -17,11 +15,12 @@ var bufEqual = require('buffer-equal');
 var through = require('through2');
 var File = require('vinyl');
 
-var outpath = path.join(__dirname, 'out-fixtures');
+var should = require('should');
+require('mocha');
 
 var wipeOut = function(cb) {
-  app = new Generate();
-  rimraf(path.join(__dirname, 'out-fixtures'), cb);
+  app = new App();
+  rimraf(path.join(__dirname, './out-fixtures/'), cb);
   spies.setError('false');
   statSpy.reset();
   chmodSpy.reset();
@@ -47,7 +46,7 @@ describe('dest stream', function() {
     try {
       stream = app.dest();
     } catch (err) {
-      assert(err && typeof err === 'object');
+      should.exist(err);
       should.not.exist(stream);
       done();
     }
@@ -58,7 +57,7 @@ describe('dest stream', function() {
     try {
       stream = app.dest('');
     } catch (err) {
-      assert(err && typeof err === 'object');
+      should.exist(err);
       should.not.exist(stream);
       done();
     }
@@ -452,7 +451,7 @@ describe('dest stream', function() {
     stream.end();
   });
 
-  it('should update file mode to match the vinyl mode', function(done) {
+  it('should generate file mode to match the vinyl mode', function(done) {
     var inputPath = path.join(__dirname, './fixtures/vinyl/test.coffee');
     var inputBase = path.join(__dirname, './fixtures/vinyl/');
     var expectedPath = path.join(__dirname, './out-fixtures/test.coffee');
@@ -496,9 +495,9 @@ describe('dest stream', function() {
   });
 
   it('should use different modes for files and directories', function(done) {
-    var inputBase = path.join(__dirname, 'fixtures/vinyl');
-    var inputPath = path.join(__dirname, 'fixtures/vinyl/wow/suchempty');
-    var expectedBase = path.join(__dirname, 'out-fixtures/wow');
+    var inputBase = path.join(__dirname, './fixtures/vinyl');
+    var inputPath = path.join(__dirname, './fixtures/vinyl/wow/suchempty');
+    var expectedBase = path.join(__dirname, './out-fixtures/wow');
     var expectedDirMode = 0755;
     var expectedFileMode = 0655;
 
@@ -509,13 +508,13 @@ describe('dest stream', function() {
       stat: fs.statSync(inputPath)
     });
 
-    var onEnd = function() {
+    var onEnd = function(){
       realMode(fs.lstatSync(expectedBase).mode).should.equal(expectedDirMode);
       realMode(buffered[0].stat.mode).should.equal(expectedFileMode);
       done();
     };
 
-    var stream = app.dest('out-fixtures/', {
+    var stream = app.dest('./out-fixtures/', {
       cwd: __dirname,
       mode: expectedFileMode,
       dirMode: expectedDirMode
@@ -530,8 +529,8 @@ describe('dest stream', function() {
   });
 
   it('should change to the specified base as string', function(done) {
-    var inputBase = path.join(__dirname, 'fixtures/vinyl');
-    var inputPath = path.join(__dirname, 'fixtures/vinyl/wow/suchempty');
+    var inputBase = path.join(__dirname, './fixtures/vinyl');
+    var inputPath = path.join(__dirname, './fixtures/vinyl/wow/suchempty');
 
     var firstFile = new File({
       cwd: __dirname,
@@ -544,7 +543,7 @@ describe('dest stream', function() {
       done();
     };
 
-    var stream = app.dest('out-fixtures/', {
+    var stream = app.dest('./out-fixtures/', {
       cwd: __dirname,
       base: inputBase
     });
@@ -558,8 +557,8 @@ describe('dest stream', function() {
   });
 
   it('should change to the specified base as function', function(done) {
-    var inputBase = path.join(__dirname, 'fixtures/vinyl');
-    var inputPath = path.join(__dirname, 'fixtures/vinyl/wow/suchempty');
+    var inputBase = path.join(__dirname, './fixtures/vinyl');
+    var inputPath = path.join(__dirname, './fixtures/vinyl/wow/suchempty');
 
     var firstFile = new File({
       cwd: __dirname,
@@ -572,7 +571,7 @@ describe('dest stream', function() {
       done();
     };
 
-    var stream = app.dest('out-fixtures/', {
+    var stream = app.dest('./out-fixtures/', {
       cwd: __dirname,
       base: function(file){
         should.exist(file);
@@ -590,11 +589,11 @@ describe('dest stream', function() {
   });
 
   it('should report IO errors', function(done) {
-    var inputPath = path.join(__dirname, 'fixtures/vinyl/test.coffee');
-    var inputBase = path.join(__dirname, 'fixtures/vinyl/');
-    var expectedPath = path.join(__dirname, 'out-fixtures/test.coffee');
+    var inputPath = path.join(__dirname, './fixtures/vinyl/test.coffee');
+    var inputBase = path.join(__dirname, './fixtures/vinyl/');
+    var expectedPath = path.join(__dirname, './out-fixtures/test.coffee');
     var expectedContents = fs.readFileSync(inputPath);
-    var expectedBase = path.join(__dirname, 'out-fixtures');
+    var expectedBase = path.join(__dirname, './out-fixtures');
     var expectedMode = 0722;
 
     var expectedFile = new File({
@@ -907,197 +906,3 @@ describe('dest stream', function() {
     stream.end();
   });
 });
-
-describe('dest', function() {
-  beforeEach(function (done) {
-    rimraf(outpath, done);
-    app = new Generate();
-  });
-
-  afterEach(function (done) {
-    rimraf(outpath, done);
-  });
-
-  describe('streams', function () {
-    it('should return a stream', function (done) {
-      var stream = app.dest(path.join(__dirname, 'fixtures/'));
-      should.exist(stream);
-      should.exist(stream.on);
-      done();
-    });
-
-    it('should return an output stream that writes files', function (done) {
-      var instream = app.src(path.join(__dirname, 'fixtures/copy/*.txt'));
-      var outstream = app.dest(outpath);
-      instream.pipe(outstream);
-
-      outstream.on('error', done);
-      outstream.on('data', function (file) {
-        // data should be re-emitted correctly
-        should.exist(file);
-        should.exist(file.path);
-        should.exist(file.contents);
-        path.join(file.path, '').should.equal(path.join(outpath, 'example.txt'));
-        String(file.contents).should.equal('Hello world!');
-      });
-      outstream.on('end', function () {
-        fs.readFile(path.join(outpath, 'example.txt'), function (err, contents) {
-          should.not.exist(err);
-          should.exist(contents);
-          String(contents).should.equal('Hello world!');
-          done();
-        });
-      });
-    });
-
-    it('should return an output stream that does not write non-read files', function (done) {
-      var instream = app.src(path.join(__dirname, 'fixtures/copy/*.txt'), {read: false});
-      var outstream = app.dest(outpath);
-      instream.pipe(outstream);
-
-      outstream.on('error', done);
-      outstream.on('data', function (file) {
-        // data should be re-emitted correctly
-        should.exist(file);
-        should.exist(file.path);
-        should.not.exist(file.contents);
-        path.join(file.path, '').should.equal(path.join(outpath, 'example.txt'));
-      });
-
-      outstream.on('end', function () {
-        fs.readFile(path.join(outpath, 'example.txt'), function (err, contents) {
-          should.exist(err);
-          should.not.exist(contents);
-          done();
-        });
-      });
-    });
-
-    it('should return an output stream that writes streaming files', function (done) {
-      var instream = app.src(path.join(__dirname, 'fixtures/copy/*.txt'), {buffer: false});
-      var outstream = instream.pipe(app.dest(outpath));
-
-      outstream.on('error', done);
-      outstream.on('data', function (file) {
-        // data should be re-emitted correctly
-        should.exist(file);
-        should.exist(file.path);
-        should.exist(file.contents);
-        path.join(file.path, '').should.equal(path.join(outpath, 'example.txt'));
-      });
-      outstream.on('end', function () {
-        fs.readFile(path.join(outpath, 'example.txt'), function (err, contents) {
-          should.not.exist(err);
-          should.exist(contents);
-          String(contents).should.equal('Hello world!');
-          done();
-        });
-      });
-    });
-
-    it('should return an output stream that writes streaming files to new directories', function (done) {
-      testWriteDir({}, done);
-    });
-
-    it('should return an output stream that writes streaming files to new directories (buffer: false)', function (done) {
-      testWriteDir({buffer: false}, done);
-    });
-
-    it('should return an output stream that writes streaming files to new directories (read: false)', function (done) {
-      testWriteDir({read: false}, done);
-    });
-
-    it('should return an output stream that writes streaming files to new directories (read: false, buffer: false)', function (done) {
-      testWriteDir({buffer: false, read: false}, done);
-    });
-
-  });
-
-  describe('ext', function () {
-    beforeEach(function () {
-      app = new Generate();
-      app.set('ext', '.txt');
-    });
-
-    afterEach(function () {
-      app.set('ext', '.html');
-    });
-
-    it('should return a stream', function (done) {
-      var stream = app.dest(path.join(__dirname, 'fixtures/'));
-      should.exist(stream);
-      should.exist(stream.on);
-      done();
-    });
-
-    it('should return an output stream that writes files', function (done) {
-      var instream = app.src(path.join(__dirname, 'fixtures/copy/*.txt'));
-      var outstream = app.dest(outpath);
-      instream.pipe(outstream);
-
-      outstream.on('error', done);
-      outstream.on('data', function (file) {
-        // data should be re-emitted correctly
-        should.exist(file);
-        should.exist(file.path);
-        should.exist(file.contents);
-        path.join(file.path, '').should.equal(path.join(outpath, 'example.txt'));
-        String(file.contents).should.equal('Hello world!');
-      });
-      outstream.on('end', function () {
-        fs.readFile(path.join(outpath, 'example.txt'), function (err, contents) {
-          should.not.exist(err);
-          should.exist(contents);
-          String(contents).should.equal('Hello world!');
-          done();
-        });
-      });
-    });
-
-    it('should return an output stream that does not write non-read files', function (done) {
-      var instream = app.src(path.join(__dirname, 'fixtures/dest/*.txt'), {read: false});
-      var outstream = app.dest(outpath);
-      instream.pipe(outstream);
-
-      outstream.on('error', done);
-      outstream.on('data', function (file) {
-        // data should be re-emitted correctly
-        should.exist(file);
-        should.exist(file.path);
-        should.not.exist(file.contents);
-        path.join(file.path, '').should.equal(path.join(outpath, 'example.txt'));
-      });
-
-      outstream.on('end', function () {
-        fs.readFile(path.join(outpath, 'example.txt'), function (err, contents) {
-          should.exist(err);
-          should.not.exist(contents);
-          done();
-        });
-      });
-    });
-  });
-
-  function testWriteDir(srcOptions, done) {
-    var instream = app.src(path.join(__dirname, 'fixtures/generic'), srcOptions);
-    var outstream = instream.pipe(app.dest(outpath));
-
-    outstream.on('error', done);
-    outstream.on('data', function(file) {
-      // data should be re-emitted correctly
-      should.exist(file);
-      should.exist(file.path);
-      path.join(file.path,'').should.equal(path.join(outpath, './generic'));
-    });
-
-    outstream.on('end', function() {
-      fs.exists(path.join(outpath, 'generic'), function(exists) {
-        /* jshint expr: true */
-        should(exists).be.ok;
-        /* jshint expr: false */
-        done();
-      });
-    });
-  }
-});
-

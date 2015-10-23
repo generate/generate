@@ -1,211 +1,116 @@
-'use strict';
-
-var fs = require('fs');
-var path = require('path');
-var options = require('./lib/options');
-var plugins = require('./lib/plugins');
-var utils = require('./lib');
-var dest = utils.dest;
-var Base = utils.Base;
-
-dest.normalize = function normalize(dir, file, opts, cb) {
-  opts = opts || {};
-  var cwd = path.resolve(opts.cwd);
-  var filepath;
-  var destDir;
-
-  if (opts.expand === true) {
-    if (typeof dir !== 'string') {
-      throw new TypeError('expected dest to be a string with expand=true');
-    }
-
-    filepath = dir;
-    destDir = path.dirname(filepath);
-
-  } else {
-    if (typeof dir === 'function') {
-      destDir = dir(file);
-
-    } else if (typeof dir === 'string') {
-      destDir = dir;
-
-    } else {
-      throw new TypeError('expected dest to be a string or function.');
-    }
-  }
-
-  var base = opts.base;
-  var basePath;
-
-  if (!base) {
-    basePath = path.resolve(cwd, destDir);
-
-  } else if (typeof base === 'function') {
-    basePath = base(file);
-
-  } else if (typeof base === 'string') {
-    basePath = base;
-
-  } else {
-    throw new TypeError('expected base to be a string, function or undefined.');
-  }
-
-  if (typeof filepath === 'undefined') {
-    filepath = path.resolve(basePath, file.relative);
-  }
-
-  // update stat properties
-  file.stat = (file.stat || new fs.Stats());
-  file.stat.mode = opts.mode;
-  file.flag = opts.flag;
-
-  // update path properties
-  file.cwd = cwd;
-  file.base = basePath;
-  file.path = filepath;
-  cb(null, filepath);
-};
-
-/**
- * Initialize `Generate`.
+/*!
+ * generate <https://github.com/jonschlinkert/generate>
  *
- * @param {Object} `context`
- * @api private
+ * Copyright (c) 2015, Jon Schlinkert.
+ * Licensed under the MIT License.
  */
 
-function Generate(opts) {
+'use strict';
+
+var ask = require('assemble-ask');
+var Core = require('assemble-core');
+var loader = require('assemble-loader');
+var plugin = require('./lib/plugins');
+var utils = require('./lib/utils');
+
+/**
+ * Create an instance of `Generate` with the given `options`
+ *
+ * ```js
+ * var Generate = require('generate');
+ * var generate = new Generate();
+ * ```
+ * @param {Object} `options`
+ * @api public
+ */
+
+function Generate(options) {
   if (!(this instanceof Generate)) {
-    return new Generate(opts);
+    return new Generate(options);
   }
-  this.options = opts || {};
-  Base.call(this);
-  this.use(plugins);
-  this.use(options);
+  Core.call(this, options);
+  this.name = this.options.name || 'generate';
+  this.initGenerate(this);
 }
 
 /**
- * Inherit `Base`
+ * Inherit assemble-core
  */
 
-Base.extend(Generate);
+Core.extend(Generate);
 
 /**
- * Run a plugin on the `generate` instance. Plugins are run immediately
- * upon initialization, and each time a plugin is run a `use` event
- * is emitted to allow listeners to trigger options or config reloading.
- *
- * ```js
- * var generate = new Generate()
- *   .use(require('foo'))
- *   .use(require('bar'))
- *   .use(require('baz'))
- * ```
- * @param {Function} `fn` plugin function to call
- * @return {Object} Returns the generate instance for chaining.
- * @api public
+ * Initialize Generater defaults
  */
 
-Generate.prototype.use = function(fn) {
-  fn.call(this, this);
-  this.emit('use');
-  return this;
+Generate.prototype.initGenerate = function(base) {
+  this.define('isGenerate', true);
+  this.set('generators', {});
+
+  this.use(plugin.locals({name: this.name}));
+  this.use(plugin.store({name: this.name}));
+  this.use(plugin.config());
+  this.use(loader());
+  this.use(ask());
+
+  this.engine(['md', 'tmpl'], require('engine-base'));
+  this.onLoad(/\.(md|tmpl)$/, function (view, next) {
+    view.content = view.contents.toString();
+    utils.matter.parse(view, next);
+  });
 };
 
 /**
- * Glob patterns or filepaths to source files.
+ * Register generator `name` with the given `generate`
+ * instance.
  *
- * ```js
- * app.src('*.js', {});
- * ```
- *
- * @param {String|Array} `glob` Glob patterns or file paths to source files.
- * @param {Object} `options` Options or locals to merge into the context and/or pass to `src` plugins
- * @api public
+ * @param {String} `name`
+ * @param {Object} `generate` Instance of generate
+ * @return {Object} Returns the instance for chaining
  */
 
-Generate.prototype.src = function(glob, opts) {
-  var fn = utils.combine(this, opts && opts.pipeline);
-  return utils.loader(this.defaults(opts), fn)(glob, opts);
-};
-
-/**
- * Specify a destination for processed files.
- *
- * ```js
- * generate.dest('foo/', {});
- * ```
- *
- * @param {String|Function} `dest` File path or rename function.
- * @param {Object} `options` Options or locals to pass to `dest` plugins
- * @api public
- */
-
-Generate.prototype.dest = function(dir, opts) {
-  return dest(dir, this.defaults(opts));
-};
-
-/**
- * Copy a `glob` of files to the specified `dest`.
- *
- * ```js
- * app.copy('assets/**', 'dist');
- * ```
- *
- * @param  {String|Array} `glob`
- * @param  {String|Function} `dest`
- * @return {Stream} Stream, to continue processing if necessary.
- * @api public
- */
-
-Generate.prototype.copy = function(glob, dest, options) {
-  return this.src(glob, options).pipe(this.dest(dest, options));
-};
-
-/**
- * Similar to [copy](#copy) but call a plugin `pipeline` if passed
- * on the `config` or `options`.
- *
- * @param {Object} `config`
- * @param {Object} `options`
- * @param {Function} `cb`
- * @return {Object}
- */
-
-Generate.prototype.process = function (config, options, cb) {
-  if (typeof options === 'function') {
-    return this.process(config, config.options, options);
+Generate.prototype.generator = function(name, generate) {
+  if (arguments.length === 1) {
+    return this.generators[name];
   }
-  this.src(config.src, options)
-    .pipe(this.dest(config.dest, options))
-    .on('error', cb)
-    .on('end', cb);
-  return this;
+  generate.use(utils.runtimes({
+    displayName: function(key) {
+      return utils.cyan(name + ':' + key);
+    }
+  }));
+  return (this.generators[name] = generate);
 };
 
-Generate.prototype.parallel = function(config, cb) {
-  utils.async.each(config.files, function (file, next) {
-    this.process(file, config, next);
-  }.bind(this), cb);
-  return this;
+Generate.prototype.build = function() {
+  var fn = Core.prototype.build;
+  this.emit('build');
+  return fn.apply(this, arguments);
 };
 
-Generate.prototype.series = function(config, cb) {
-  utils.async.eachSeries(config.files, function (file, next) {
-    this.process(file, config, next);
-  }.bind(this), cb);
-  return this;
+Generate.prototype.hasGenerater = function(name) {
+  return this.generators.hasOwnProperty(name);
+};
+
+Generate.prototype.hasTask = function(name) {
+  return this.taskMap.indexOf(name) > -1;
+};
+
+Generate.prototype.opts = function(prop, options) {
+  var args = [].concat.apply([], [].slice.call(arguments, 1));
+  args.unshift(this.option(prop));
+  return utils.extend.apply(utils.extend, args);
 };
 
 /**
- * Merge default options with user supplied options.
- */
-
-Generate.prototype.defaults = function(options) {
-  return utils.merge({}, this.options, options);
-};
-
-/**
- * Expose our instance of `generate`
+ * Expose `Generate`
  */
 
 module.exports = Generate;
+
+/**
+ * Expose `utils`
+ */
+
+module.exports.utils = utils;
+module.exports.meta = require('./package');
+module.exports.dir = __dirname;
