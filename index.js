@@ -10,6 +10,7 @@
 var ask = require('assemble-ask');
 var Core = require('assemble-core');
 var loader = require('assemble-loader');
+var config = require('base-config');
 var plugin = require('./lib/plugins');
 var utils = require('./lib/utils');
 
@@ -49,15 +50,9 @@ Generate.prototype.initGenerate = function(base) {
 
   this.use(plugin.locals({name: this.name}));
   this.use(plugin.store({name: this.name}));
-  this.use(plugin.config());
+  this.use(config());
   this.use(loader());
   this.use(ask());
-
-  this.engine(['md', 'tmpl'], require('engine-base'));
-  this.onLoad(/\.(md|tmpl)$/, function (view, next) {
-    view.content = view.contents.toString();
-    utils.matter.parse(view, next);
-  });
 };
 
 /**
@@ -81,18 +76,8 @@ Generate.prototype.generator = function(name, generate) {
   return (this.generators[name] = generate);
 };
 
-Generate.prototype.build = function() {
-  var fn = Core.prototype.build;
-  this.emit('build');
-  return fn.apply(this, arguments);
-};
-
 Generate.prototype.hasGenerater = function(name) {
   return this.generators.hasOwnProperty(name);
-};
-
-Generate.prototype.hasTask = function(name) {
-  return this.taskMap.indexOf(name) > -1;
 };
 
 Generate.prototype.opts = function(prop, options) {

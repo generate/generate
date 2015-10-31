@@ -33,6 +33,7 @@
     "assemble-core": "^0.1.4",
     "assemble-loader": "^0.2.4",
     "async": "^1.4.2",
+    "base-config": "^0.2.0",
     "composer-runtimes": "^0.5.1",
     "data-store": "^0.11.0",
     "expand-args": "^0.2.1",
