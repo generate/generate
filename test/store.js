@@ -12,7 +12,6 @@ var app;
 describe('store', function () {
   beforeEach(function () {
     app = new App();
-    app.store = new Store('generate-tests');
   });
 
   afterEach(function (cb) {
@@ -26,7 +25,6 @@ describe('store', function () {
 
   it('should create a store at the given `cwd`', function () {
     app = new App({store: {cwd: __dirname + '/actual'}});
-
     app.store.set('foo', 'bar');
     assert(path.basename(app.store.path) === 'generate.json');
     assert(app.store.data.hasOwnProperty('foo'));

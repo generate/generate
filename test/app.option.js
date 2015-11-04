@@ -20,10 +20,15 @@ describe('app.option', function () {
     assert(app.options.c === 'd');
   });
 
-  it('should throw on invalid args:', function () {
-    (function () {
+  it('should throw on invalid args:', function (cb) {
+    try {
       app.option(function () {});
-    }).should.throw('expected a string or object.');
+      cb(new Error('expected an error'));
+    } catch (err) {
+      assert(err);
+      assert(err.message === 'expected option to be a string, object or array');
+      cb();
+    }
   });
 
   it('should set an option.', function() {
