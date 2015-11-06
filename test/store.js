@@ -19,10 +19,6 @@ describe('store', function () {
     cb();
   });
 
-  it('should create an instance of Store', function () {
-    assert(app.store instanceof Store);
-  });
-
   it('should create a store at the given `cwd`', function () {
     app = new App({store: {cwd: __dirname + '/actual'}});
     app.store.set('foo', 'bar');
