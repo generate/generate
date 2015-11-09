@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 var path = require('path');
+var stamp = require('time-stamp');
+var gray = require('ansi-gray');
 var multi = require('../lib/multi')();
 var utils = require('../lib/utils');
 var argv = require('minimist')(process.argv.slice(2), {
@@ -30,5 +32,10 @@ cli.base.task('run', function (cb) {
 
 cli.base.build(task, function (err) {
   if (err) console.error(err);
-  utils.ok('Finished.');
+  timestamp('done');
 });
+
+function timestamp(msg) {
+  var time = ' ' + gray(stamp('HH:mm:ss.ms', new Date()));
+  return console.log(time, msg, utils.green(utils.successSymbol));
+}
