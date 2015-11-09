@@ -7,12 +7,16 @@
 
 'use strict';
 
-var expand = require('expand-args');
+var fs = require('fs');
+var path = require('path');
 var minimist = require('minimist');
+var expand = require('expand-args');
 var Core = require('assemble-core');
 var config = require('./lib/config');
 var locals = require('./lib/locals');
+var paths = require('./lib/paths');
 var utils = require('./lib/utils');
+var pkg = require('./lib/pkg');
 var cli = require('./lib/cli');
 
 /**
@@ -27,32 +31,52 @@ var cli = require('./lib/cli');
  */
 
 
-function Generate(opts) {
+function Generate(options) {
   if (!(this instanceof Generate)) {
-    return new Generate(opts);
+    return new Generate(options);
   }
 
-  Core.call(this, opts);
-  config(this);
-  cli(this);
+  Core.call(this, options);
+  this.options = options || {};
+  this.paths = this.options.paths || {};
 
   this.define('isGenerate', true);
   this.set('name', 'generate');
   this.set('generators', {});
-  this.option({cwd: process.cwd()});
+
+  config(this);
+  cli(this);
+
+  var data = utils.pkg(this.cwd) || {};
+  data.name = utils.project();
+  this.data(data || {});
+  this.data({
+    year: new Date().getFullYear()
+  });
 
   // parse command line arguments
   var argv = expand(minimist(process.argv.slice(3)));
   var opts = utils.extend({}, this.options, argv);
 
   this.use(locals('generate'));
+  this.use(paths());
   this.use(utils.loader());
   this.use(utils.store());
   this.use(utils.pipeline());
   this.use(utils.ask());
 
+  this.define('argv', function(prop) {
+    return utils.get(argv, prop);
+  });
   this.cli.map('process');
   this.cli.process(opts);
+
+  var exts = ['text', 'md'];
+  this.engine(exts, require('engine-base'));
+  // this.option('view engine', '*');
+  this.onLoad(/\.(md|tmpl)$/, function (view, next) {
+    utils.matter.parse(view, next);
+  });
 }
 
 /**
@@ -60,6 +84,15 @@ function Generate(opts) {
  */
 
 Core.extend(Generate);
+
+/**
+ * Resolve the cwd for the current project.
+ */
+
+// Generate.prototype.cwd = function(dir) {
+//   var cwd = this.options.cwd || this.options.path || process.cwd();
+//   return path.resolve(cwd, (dir || 'templates'));
+// };
 
 /**
  * Register generator `name` with the given `generate`
@@ -191,6 +224,21 @@ Generate.prototype.scaffold = function() {
 Generate.prototype.boilerplate = function() {
 
 };
+
+Object.defineProperty(Generate.prototype, 'cwd', {
+  set: function(dir) {
+    if (typeof dir === 'string') {
+      dir = utils.resolve(dir);
+    }
+    this.paths.cwd = dir;
+  },
+  get: function() {
+    var pgk = utils.lookup('package.json', {cwd: process.cwd()});
+    var cwd = path.resolve(path.dirname(pkg));
+    return cwd;
+  }
+});
+
 /**
  * Expose `Generate`
  */
@@ -198,9 +246,14 @@ Generate.prototype.boilerplate = function() {
 module.exports = Generate;
 
 /**
- * Expose `utils`
+ * Expose `utils` for tests
  */
 
 module.exports.utils = utils;
-module.exports.meta = require('./package');
+
+/**
+ * Expose project metadata
+ */
+
+module.exports.pkg = require('./package');
 module.exports.dir = __dirname;
