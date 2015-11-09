@@ -3,8 +3,7 @@
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var istanbul = require('gulp-istanbul');
-var jshint = require('gulp-jshint');
-require('jshint-stylish');
+var eslint = require('gulp-eslint');
 
 var lint = ['index.js', 'lib/*.js', 'test/*.js'];
 
@@ -20,10 +19,9 @@ gulp.task('mocha', ['coverage'], function () {
     .pipe(istanbul.writeReports());
 });
 
-gulp.task('jshint', function () {
+gulp.task('eslint', function () {
   return gulp.src(lint)
-    .pipe(jshint())
-    .pipe(jshint.reporter('jshint-stylish'))
+    .pipe(eslint())
 });
 
-gulp.task('default', ['mocha', 'jshint']);
+gulp.task('default', ['mocha', 'eslint']);
