@@ -4,25 +4,30 @@
   "version": "0.1.0",
   "homepage": "https://github.com/jonschlinkert/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "contributors": [
+    "Jon Schlinkert <github@sellside.com> (https://github.com/jonschlinkert)",
+    "Brian Woodward <brian.woodward@gmail.com> (https://github.com/doowb)"
+  ],
   "repository": "jonschlinkert/generate",
   "bugs": {
     "url": "https://github.com/jonschlinkert/generate/issues"
   },
   "license": "MIT",
   "files": [
-    "lib/",
-    "index.js"
+    "index.js",
+    "bin",
+    "lib/"
   ],
   "main": "index.js",
   "engines": {
     "node": ">=0.10.0"
   },
-  "preferGlobal": true,
-  "bin": {
-    "generate": "bin/generate.js"
-  },
   "scripts": {
     "test": "mocha"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "gen": "bin/generate.js"
   },
   "dependencies": {
     "ansi-cyan": "^0.1.1",
@@ -30,15 +35,17 @@
     "ansi-green": "^0.1.1",
     "ansi-red": "^0.1.1",
     "ansi-yellow": "^0.1.1",
+    "arr-flatten": "^1.0.1",
     "assemble-ask": "^0.1.4",
-    "assemble-core": "^0.1.8",
+    "assemble-core": "^0.1.11",
     "assemble-loader": "^0.2.4",
     "async": "^1.5.0",
     "base-cli": "^0.2.1",
     "base-config": "^0.2.0",
-    "base-pipeline": "^0.1.2",
-    "base-store": "^0.1.2",
-    "component-emitter": "^1.2.0",
+    "base-methods": "^0.4.1",
+    "base-options": "^0.5.4",
+    "base-pipeline": "^0.1.4",
+    "base-store": "^0.2.0",
     "composer-runtimes": "^0.5.1",
     "expand-args": "^0.3.0",
     "expand-object": "^0.4.0",
@@ -48,35 +55,36 @@
     "get-value": "^2.0.0",
     "global-modules": "^0.2.0",
     "lazy-cache": "^0.2.4",
-    "micromatch": "jonschlinkert/micromatch#2.3.0",
+    "micromatch": "^2.3.2",
     "minimist": "^1.2.0",
+    "namify": "^0.1.3",
     "object.omit": "^2.0.0",
     "parser-front-matter": "^1.3.0",
-    "project-name": "^0.2.0",
+    "project-name": "^0.2.1",
     "question-cache": "^0.3.3",
     "resolve-dir": "^0.1.0",
-    "set-value": "^0.3.0",
+    "set-value": "^0.3.1",
+    "stream-exhaust": "^1.0.1",
     "success-symbol": "^0.1.0",
-    "union-value": "^0.1.1"
+    "time-stamp": "^0.1.1",
+    "union-value": "^0.2.1"
   },
   "devDependencies": {
-    "base-methods": "^0.2.14",
     "buffer-equal": "0.0.1",
     "consolidate": "^0.13.1",
     "coveralls": "^2.11.4",
-    "data-store": "^0.11.1",
+    "data-store": "^0.12.0",
     "define-property": "^0.2.5",
     "engine-base": "^0.1.2",
     "engine-handlebars": "^0.8.0",
     "event-stream": "^3.3.2",
     "graceful-fs": "^4.1.2",
     "gulp": "^3.9.0",
+    "gulp-eslint": "^1.0.0",
     "gulp-istanbul": "^0.10.0",
-    "gulp-jshint": "^1.11.2",
     "gulp-mocha": "^2.1.3",
     "is-buffer": "^1.1.0",
     "istanbul": "^0.4.0",
-    "jshint-stylish": "^2.0.1",
     "kind-of": "^2.0.1",
     "load-pkg": "^2.0.1",
     "look-up": "^0.8.1",
@@ -89,7 +97,11 @@
     "through2": "^2.0.0",
     "vinyl": "^0.5.3"
   },
-  "keywords": [],
+  "keywords": [
+    "generate",
+    "generator",
+    "init"
+  ],
   "verb": {
     "related": {
       "list": [
@@ -116,17 +128,5 @@
     "plugins": {
       "@/foo": {}
     }
-  },
-  "contributors": [
-    {
-      "name": "Jon Schlinkert",
-      "email": "github@sellside.com",
-      "url": "https://github.com/jonschlinkert"
-    },
-    {
-      "name": "Brian Woodward",
-      "email": "brian.woodward@gmail.com",
-      "url": "https://github.com/doowb"
-    }
-  ]
+  }
 }

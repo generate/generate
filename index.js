@@ -20,7 +20,8 @@ var pkg = require('./lib/pkg');
 var cli = require('./lib/cli');
 
 /**
- * Create an instance of `Generate` with the given `options`
+ * Create an instance of `Generate`. This is the main function exported
+ * by the Generate module.
  *
  * ```js
  * var Generate = require('generate');
@@ -30,7 +31,6 @@ var cli = require('./lib/cli');
  * @api public
  */
 
-
 function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
@@ -39,13 +39,29 @@ function Generate(options) {
   Core.call(this, options);
   this.options = options || {};
   this.paths = this.options.paths || {};
+  this.on('error', function(err) {
+    console.log(err);
+  });
 
-  this.define('isGenerate', true);
+  this.initGenerate(this);
+}
+
+/**
+ * Inherit assemble-core
+ */
+
+Core.extend(Generate);
+
+
+Generate.prototype.initGenerate = function() {
+  this.isGenerate = true;
   this.set('name', 'generate');
   this.set('generators', {});
 
-  config(this);
-  cli(this);
+  // custom middleware handlers
+  this.handler('onStream');
+  this.handler('preWrite');
+  this.handler('postWrite');
 
   var data = utils.pkg(this.cwd) || {};
   data.name = utils.project();
@@ -57,33 +73,34 @@ function Generate(options) {
   // parse command line arguments
   var argv = expand(minimist(process.argv.slice(3)));
   var opts = utils.extend({}, this.options, argv);
+  config(this);
 
-  this.use(locals('generate'));
-  this.use(paths());
-  this.use(utils.loader());
-  this.use(utils.store());
-  this.use(utils.pipeline());
-  this.use(utils.ask());
+  this.use(utils.runtimes())
+    .use(locals('generate'))
+    .use(paths())
+    .use(utils.store())
+    .use(utils.pipeline())
+    .use(utils.loader())
+    .use(utils.ask());
+
+  cli(this);
+
+  this.on('onLoad', function() {
+    // console.log(arguments)
+  })
 
   this.define('argv', function(prop) {
     return utils.get(argv, prop);
   });
+
   this.cli.map('process');
   this.cli.process(opts);
 
-  var exts = ['text', 'md'];
-  this.engine(exts, require('engine-base'));
-  // this.option('view engine', '*');
+  this.engine(['md', 'text'], require('engine-base'));
   this.onLoad(/\.(md|tmpl)$/, function (view, next) {
     utils.matter.parse(view, next);
   });
-}
-
-/**
- * Inherit assemble-core
- */
-
-Core.extend(Generate);
+};
 
 /**
  * Resolve the cwd for the current project.
@@ -249,11 +266,11 @@ module.exports = Generate;
  * Expose `utils` for tests
  */
 
-module.exports.utils = utils;
+// module.exports.utils = utils;
 
 /**
  * Expose project metadata
  */
 
-module.exports.pkg = require('./package');
-module.exports.dir = __dirname;
+// module.exports.pkg = require('./package');
+// module.exports.dir = __dirname;
