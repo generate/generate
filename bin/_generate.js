@@ -3,26 +3,16 @@
 var path = require('path');
 var stamp = require('time-stamp');
 var gray = require('ansi-gray');
-var Generate = require('..');
-var expand = require('expand-args');
-var create = require('../lib/runner');
-var runnerArgv = require('../lib/argv');
+var multi = require('../lib/multi')();
 var utils = require('../lib/utils');
 var argv = require('minimist')(process.argv.slice(2), {
   alias: {verbose: 'v'}
 });
 
+var cmd = utils.commands(argv);
+var cli = multi(argv);
 
-var Runner = create(Generate);
-var cli = new Runner();
-
-
-var cmd = expand(argv);
-console.log(cmd);
-
-cli.on('error', function(err) {
-  console.log(err);
-});
+var task = cmd.list ? ['list', 'default'] : 'default';
 
 cli.on('*', function (method, key, val) {
   console.log(method + ':', key, val);
@@ -34,24 +24,13 @@ if (argv.verbose) {
   });
 }
 
-cli.resolve(['generate-*/generate.js'], {
-  resolveGlobal: true,
+cli.registerEach('generate-*', {cwd: utils.gm});
+
+cli.base.task('run', function (cb) {
+  cli.run(cb);
 });
 
-cli.use(runnerArgv(argv));
-
-console.log(cli.argv())
-
-// console.log(cmd)
-var task = cmd.list ? ['list', 'default'] : 'default';
-
-cli.task('default', function(cb) {
-  console.log('generate > "default" task');
-  cb();
-});
-
-
-cli.build(task, function (err) {
+cli.base.build(task, function (err) {
   if (err) console.error(err);
   timestamp('done');
 });
