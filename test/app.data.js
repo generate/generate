@@ -43,6 +43,28 @@ describe('app.data', function () {
     assert(app.cache.data.prefix_c.three.c === 'ccc');
   });
 
+  it('should use `namespace` defined on data opts:', function () {
+    app.data('test/fixtures/data/*.json', {
+      namespace: function (key) {
+        return 'prefix_' + path.basename(key, path.extname(key));
+      }
+    });
+    assert(app.cache.data.prefix_a.one.a === 'aaa');
+    assert(app.cache.data.prefix_b.two.b === 'bbb');
+    assert(app.cache.data.prefix_c.three.c === 'ccc');
+  });
+
+  it('should use `renameKey` defined on data opts:', function () {
+    app.data('test/fixtures/data/*.json', {
+      renameKey: function (key) {
+        return 'prefix_' + path.basename(key, path.extname(key));
+      }
+    });
+    assert(app.cache.data.prefix_a.one.a === 'aaa');
+    assert(app.cache.data.prefix_b.two.b === 'bbb');
+    assert(app.cache.data.prefix_c.three.c === 'ccc');
+  });
+
   it('should extend `cache.data`', function() {
     app.data({a: 'aaa', b: 'bbb', c: 'ccc'});
     app.data({x: 'xxx', y: 'yyy', z: 'zzz'});

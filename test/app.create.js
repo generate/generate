@@ -134,7 +134,7 @@ describe('create', function () {
 
       collection.addView('test/fixtures/templates/a.tmpl');
       collection.read('a.tmpl');
-      assert(collection.getView('a.tmpl').contents.toString() === 'a <%= name %> b');
+      assert(collection.getView('a.tmpl').contents.toString() === '<%= name %>');
     });
   });
 
@@ -171,6 +171,20 @@ describe('create', function () {
       app.create('layout');
       app.layout('one', {path: 'two', contents: '...'});
       assert(app.layouts.options.foo === 'bar');
+    });
+  });
+
+  describe('collection instantiation', function () {
+    it('should expose collection instance methods that are created after instantiation on the app collection loader', function () {
+      app.create('pages');
+      app.pages.use(function (collection) {
+        collection.define('foo', function (msg) {
+          return 'foo ' + msg;
+        });
+      });
+
+      assert(app.pages.foo);
+      assert(typeof app.pages.foo === 'function');
     });
   });
 });

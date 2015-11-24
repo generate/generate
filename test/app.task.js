@@ -68,7 +68,7 @@ describe('task()', function () {
     }
   });
 
-  it('should emit task events', function (done) {
+  it.skip('should emit task events', function (done) {
     var events = [];
     app.on('starting', function (task) {
       events.push('starting.' + task.name);

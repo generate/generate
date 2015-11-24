@@ -90,7 +90,7 @@ describe('app', function () {
       assert(typeof app.Collection ==='function');
     });
 
-    it('should generate constructors after init:', function () {
+    it('should update constructors after init:', function () {
       var Group = App.Group;
       function MyGroup() {
         Base.call(this);

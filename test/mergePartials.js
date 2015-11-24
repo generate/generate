@@ -6,8 +6,6 @@ var app;
 describe('mergePartials', function () {
   beforeEach(function () {
     app = new App();
-    // reset views
-    app.views = {};
   });
 
   it('should merge multiple partials collections onto one collection:', function () {

@@ -66,6 +66,10 @@ describe('group', function () {
       group = new Group();
     });
 
+    it('should expose options:', function () {
+      assert(typeof group.options === 'object');
+    });
+
     it('should set a value on the instance:', function () {
       group.set('a', 'b');
       assert(group.a ==='b');
@@ -124,7 +128,7 @@ describe('group', function () {
         .use(function (group) {
           group.options.foo = 'bar';
         })
-        .use(function (group) {
+        .use(function () {
           this.set('one', 'two');
         });
 
