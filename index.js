@@ -2,6 +2,8 @@
 
 var async = require('async');
 var Base = require('assemble-core');
+var generator = require('./lib/generator');
+var defaults = require('./lib/defaults');
 var config = require('./lib/config');
 var locals = require('./lib/locals');
 var utils = require('./lib/utils');
@@ -38,6 +40,7 @@ function Generate(options) {
   this.generators = {};
   this.config = {};
 
+  // this.use(generator(this.options));
   this.initGenerate();
 }
 
@@ -60,12 +63,14 @@ Generate.prototype.initGenerate = function() {
   this.use(locals('generate'))
     .use(utils.store())
     .use(utils.pipeline())
-    .use(utils.loader());
+    .use(utils.loader())
 
   this.engine(['md', 'text'], require('engine-base'));
   this.onLoad(/\.(md|tmpl)$/, function (view, next) {
     utils.matter.parse(view, next);
   });
+
+  this.use(defaults());
 };
 
 /**
@@ -81,15 +86,24 @@ Generate.prototype.initGenerate = function() {
 
 Generate.prototype.generator = function(name, config, base) {
   if (arguments.length === 1 && typeof name === 'string') {
-    return this.generators[name];
+    return this.generators[name] || this;
   }
 
-  base = base || this;
-  var filepath = config.configPath;
-  var modpath = config.modulePath;
+  if (!base) base = this.base;
+  base.loadMiddleware(require('./lib/middleware'));
+  base.loadTasks(require('./lib/tasks/base'));
 
-  // get the generator
-  var fn = require(filepath);
+  var fn;
+  if (typeof config === 'function') {
+    fn = config;
+    config = { alias: name };
+  } else {
+    var filepath = config.configPath;
+    var modpath = config.modulePath;
+
+    // get the generator function
+    fn = require(filepath);
+  }
 
   if (typeof fn !== 'function') {
     throw new Error('failed to require generator ' + filepath);
@@ -99,22 +113,42 @@ Generate.prototype.generator = function(name, config, base) {
   var pkg = utils.tryRequire(config.pkg);
 
   // get the module to instantiate for the generator
+  // var Generator = modpath ? require(modpath) : this.Generator;// this.constructor;
   var Generator = modpath ? require(modpath) : this.constructor;
-  var generator = new Generator(pkg.generate);
+  var app = new Generator();
+  app.define('paths', config);
 
-  generator.isGenerator = true;
-  generator.define('parent', base);
+  require('./lib/tasks/app/templates')(app);
 
-  generator.use(utils.runtimes({
+  app.isGenerator = true;
+  app.define('parent', base);
+
+  app.use(utils.runtimes({
     displayName: function(key) {
       return utils.cyan(name + ':' + key);
     }
   }));
 
-  // call the generator function
-  fn.call(generator, generator, base, base.env);
-  this.emit('register', config.alias, generator);
-  return (base.generators[config.alias] = generator);
+  this.invoke(fn, app, base);
+
+  this.emit('register', config.alias, app);
+  return (base.generators[config.alias] = app);
+};
+
+Generate.prototype.invoke = function(fn, app, base) {
+  if (typeof fn !== 'function') {
+    throw new TypeError('expected generator to be a function');
+  }
+  try {
+    base = base || this.base || this;
+    fn.call(app, app, base, base.env);
+
+  } catch (err) {
+    err.message = 'Generator "'
+      + config.alias + '": '
+      + err.message;
+    this.emit('error', err);
+  }
 };
 
 /**
@@ -143,11 +177,17 @@ Generate.prototype.generate = function(generators, done) {
 
   async.each(generators, function(generator, cb) {
     async.eachOf(generator, function(tasks, name, next) {
-      setImmediate(function() {
-        this.generator(name).build(tasks, next);
-      }.bind(this));
+      this.runTasks(name, tasks, next);
     }.bind(this), cb);
   }.bind(this), done);
+};
+
+Generate.prototype.runTasks = function(name, tasks, cb) {
+  var generator = this.generator(name);
+  if (!generator) {
+    return cb(new Error('cannot find generator ' + name));
+  }
+  return generator.build(tasks, cb);
 };
 
 /**
@@ -263,3 +303,10 @@ Generate.prototype.eachSeries = function(config, cb) {
   }.bind(this), cb);
   return this;
 };
+
+
+Object.defineProperty(Generate.prototype, 'base', {
+  get: function() {
+    return this.parent ? this.parent.base : this;
+  }
+});
