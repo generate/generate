@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var Resolver = require('resolve-modules');
-var defaults = require('../lib/defaults');
-var utils = require('../lib/utils');
 var Generate = require('..');
+var utils = require('../lib/utils');
+var defaults = require('../lib/defaults');
+var Resolver = require('resolve-modules');
 var argv = require('base-argv');
 var args = require('minimist')(process.argv.slice(2), {
   alias: {verbose: 'v'}

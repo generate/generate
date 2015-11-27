@@ -42,7 +42,7 @@ describe('list', function () {
       app.pages('test/fixtures/pages/a.hbs');
       var list = app.list();
       list.addItem(app.pages.getView('test/fixtures/pages/a.hbs'));
-      assert(list.hasItem(path.resolve('test/fixtures/pages/a.hbs')));
+      assert(list.hasItem('test/fixtures/pages/a.hbs'));
     });
 
     it('should expose the `option` method from a list:', function () {
@@ -92,7 +92,7 @@ describe('list', function () {
     it('should render a item with inherited app.render', function (done) {
       app.page('test/fixtures/templates/a.tmpl')
         .use(function (item) {
-          if (!item.contents) {
+          if (!item.contents.toString()) {
             item.contents = fs.readFileSync(item.path);
           }
         })

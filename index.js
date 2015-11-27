@@ -3,12 +3,13 @@
 var async = require('async');
 var Base = require('assemble-core');
 var argv = require('base-argv');
-var tasks = require('./lib/tasks/base');
 var middleware = require('./lib/middleware');
 // var generator = require('./lib/generator');
+var runtimes = require('./lib/runtimes');
 var defaults = require('./lib/defaults');
 var config = require('./lib/config');
 var locals = require('./lib/locals');
+var tasks = require('./lib/tasks');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
 
@@ -41,7 +42,6 @@ function Generate(options) {
   this.isGenerate = true;
   this.isGenerator = false;
   this.generators = {};
-  this.config = {};
   this.initGenerate();
 }
 
@@ -75,12 +75,12 @@ Generate.prototype.initGenerate = function() {
 
   this.once('base-loaded', function(base) {
     base.loadMiddleware(middleware);
-    base.loadTasks(tasks);
+    // base.loadTasks(tasks);
+    require('./lib/tasks')(this, base);
   });
 
   this.on('generator', function(app) {
     require('./lib/templates')(app);
-    console.log(app.views)
   });
 };
 
@@ -131,22 +131,30 @@ Generate.prototype.generator = function(name, config, base) {
   // var Generator = modpath ? require(modpath) : this.Generator;// this.constructor;
   var Generator = modpath ? require(modpath) : this.constructor;
   var app = new Generator();
-  app.define('paths', config);
-  this.emit('generator', app);
 
+  var pkg = require('load-pkg')(process.cwd());
+  if (pkg) app.data(pkg);
+
+  app.set('paths', config);
   app.isGenerator = true;
   app.define('parent', base);
 
   app.use(utils.runtimes({
     displayName: function(key) {
-      return utils.cyan(name + ':' + key);
+      console.log(key)
+      return 'generator ' + name + ':' + key;
     }
   }));
 
   this.invoke(fn, app, base);
-
   this.emit('register', config.alias, app);
+  this.emit('generator', app);
+
   return (base.generators[config.alias] = app);
+};
+
+Generate.prototype.register = function() {
+  return this.generator.apply(this, arguments);
 };
 
 /**

@@ -101,9 +101,9 @@ describe('create', function () {
       app.page('test/fixtures/pages/c.hbs');
 
       app.views.pages.should.have.properties([
-        path.resolve('test/fixtures/pages/a.hbs'),
-        path.resolve('test/fixtures/pages/b.hbs'),
-        path.resolve('test/fixtures/pages/c.hbs'),
+        'test/fixtures/pages/a.hbs',
+        'test/fixtures/pages/b.hbs',
+        'test/fixtures/pages/c.hbs'
       ]);
     });
   });
@@ -126,15 +126,15 @@ describe('create', function () {
         .use(function (views) {
           views.read = function (name) {
             var view = this.getView(name);
-            if (!view.contents) {
-              view.contents = fs.readFileSync(view.path);
+            if (!view.content) {
+              view.content = fs.readFileSync(view.path);
             }
           };
         });
 
       collection.addView('test/fixtures/templates/a.tmpl');
       collection.read('a.tmpl');
-      assert(collection.getView('a.tmpl').contents.toString() === '<%= name %>');
+      assert(collection.getView('a.tmpl').content === '<%= name %>');
     });
   });
 
