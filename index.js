@@ -2,7 +2,10 @@
 
 var async = require('async');
 var Base = require('assemble-core');
-var generator = require('./lib/generator');
+var argv = require('base-argv');
+var tasks = require('./lib/tasks/base');
+var middleware = require('./lib/middleware');
+// var generator = require('./lib/generator');
 var defaults = require('./lib/defaults');
 var config = require('./lib/config');
 var locals = require('./lib/locals');
@@ -19,7 +22,7 @@ module.exports = Generate;
  * Create an instance of `Generate` with the given `options`.
  *
  * ```js
- * var generators = new Generate();
+ * var generators = new Generate(options);
  * ```
  * @param {Object} `options`
  * @api public
@@ -39,8 +42,6 @@ function Generate(options) {
   this.isGenerator = false;
   this.generators = {};
   this.config = {};
-
-  // this.use(generator(this.options));
   this.initGenerate();
 }
 
@@ -60,23 +61,40 @@ Generate.prototype.initGenerate = function() {
   this.handler('preWrite');
   this.handler('postWrite');
 
-  this.use(locals('generate'))
+  this.use(argv({plural: 'generators'}))
+    .use(locals('generate'))
     .use(utils.store())
     .use(utils.pipeline())
-    .use(utils.loader())
 
   this.engine(['md', 'text'], require('engine-base'));
-  this.onLoad(/\.(md|tmpl)$/, function (view, next) {
+  this.onLoad(/\.(md|tmpl)$/, function(view, next) {
     utils.matter.parse(view, next);
   });
 
   this.use(defaults());
+
+  this.once('base-loaded', function(base) {
+    base.loadMiddleware(middleware);
+    base.loadTasks(tasks);
+  });
+
+  this.on('generator', function(app) {
+    require('./lib/templates')(app);
+    console.log(app.views)
+  });
 };
 
 /**
  * Register generator `name` with the given `config` and optionally
  * a `base` instance of `Generate` for storing the generator.
  *
+ * ```js
+ * generate.generator('gulp', function(app, base, env) {
+ *   // `app` is the generator instance
+ *   // `base` is a shared instance (across all generators)
+ *   // `env` is an object with user and generator details
+ * });
+ * ```
  * @param {String} `name`
  * @param {Object} `config`
  * @param {Object} `base`
@@ -89,9 +107,9 @@ Generate.prototype.generator = function(name, config, base) {
     return this.generators[name] || this;
   }
 
+  // get the base instance when the first generator is loaded.
   if (!base) base = this.base;
-  base.loadMiddleware(require('./lib/middleware'));
-  base.loadTasks(require('./lib/tasks/base'));
+  this.emit('base-loaded', base);
 
   var fn;
   if (typeof config === 'function') {
@@ -109,16 +127,12 @@ Generate.prototype.generator = function(name, config, base) {
     throw new Error('failed to require generator ' + filepath);
   }
 
-  // get the package.json for the module
-  var pkg = utils.tryRequire(config.pkg);
-
   // get the module to instantiate for the generator
   // var Generator = modpath ? require(modpath) : this.Generator;// this.constructor;
   var Generator = modpath ? require(modpath) : this.constructor;
   var app = new Generator();
   app.define('paths', config);
-
-  require('./lib/tasks/app/templates')(app);
+  this.emit('generator', app);
 
   app.isGenerator = true;
   app.define('parent', base);
@@ -135,6 +149,18 @@ Generate.prototype.generator = function(name, config, base) {
   return (base.generators[config.alias] = app);
 };
 
+/**
+ * Invoke a generator `fn` with the given `app` and `base instances.
+ *
+ * ```js
+ * fn.call(app, app, base);
+ * ```
+ * @param {Function} `fn`
+ * @param {Object} `app`
+ * @param {Object} `base`
+ * @return {Object}
+ */
+
 Generate.prototype.invoke = function(fn, app, base) {
   if (typeof fn !== 'function') {
     throw new TypeError('expected generator to be a function');
@@ -149,18 +175,26 @@ Generate.prototype.invoke = function(fn, app, base) {
       + err.message;
     this.emit('error', err);
   }
+  return this;
 };
 
 /**
  * Run one or more generators and the specified tasks for each.
  *
  * ```js
+ * // run the default tasks for generators `foo` and `bar`
+ * generate.runGenerators(['foo', 'bar'], function(err) {
+ *   if (err) return console.log(err);
+ *   console.log('done!');
+ * });
+ *
  * // run the specified tasks for generators `foo` and `bar`
  * var generators = {
  *   foo: ['a', 'b', 'c'],
  *   bar: ['x', 'y', 'z']
  * };
- * generate.generate(generators, function(err) {
+ *
+ * generate.runGenerators(generators, function(err) {
  *   if (err) return console.log(err);
  *   console.log('done!');
  * });
@@ -170,24 +204,20 @@ Generate.prototype.invoke = function(fn, app, base) {
  * @api public
  */
 
-Generate.prototype.generate = function(generators, done) {
+Generate.prototype.runGenerators = function(generators, done) {
   if (!Array.isArray(generators) || !utils.isObject(generators[0])) {
     generators = this.argv(generators).generators;
   }
 
   async.each(generators, function(generator, cb) {
     async.eachOf(generator, function(tasks, name, next) {
-      this.runTasks(name, tasks, next);
+      var generator = this.generator(name);
+      if (!generator) {
+        return cb(new Error('cannot find generator ' + name));
+      }
+      return generator.build(tasks, cb);
     }.bind(this), cb);
   }.bind(this), done);
-};
-
-Generate.prototype.runTasks = function(name, tasks, cb) {
-  var generator = this.generator(name);
-  if (!generator) {
-    return cb(new Error('cannot find generator ' + name));
-  }
-  return generator.build(tasks, cb);
 };
 
 /**
@@ -212,45 +242,26 @@ Generate.prototype.getGenerator = function(key) {
 };
 
 /**
- * Generate a single `file` with the given `options`.
+ * Generate `src` patterns on a single `file` object.
+ *
+ * @param {Object} `file`
+ * @param {Object} `options`
+ * @return {Stream}
+ * @api public
  */
 
 Generate.prototype.file = function(file, options) {
-  options = options || {};
-  var opts = utils.extend({}, this.options, options, {
-    expand: true
-  });
-  file = new File(file, opts);
-  var pipeline = file.options.pipeline || options.pipeline;
+  var opts = utils.extend({}, this.options, options, {expand: true});
+  file = new utils.File(file, opts);
+  var pipeline = file.options.pipeline || (options && options.pipeline);
   return utils.toStream(file)
     .pipe(utils.contents(opts))
     .pipe(this.pipeline(pipeline, opts))
-    .pipe(this.dest(file.dest, opts))
+    .pipe(this.dest(file.dest, opts));
 };
 
-function File(file, opts) {
-  var dest = path.relative(process.cwd(), file.dest || opts.dest);
-  for (var prop in file) {
-    if (!opts.hasOwnProperty(prop)) {
-      if (prop === 'src' || prop === 'dest' || prop === 'path') {
-        continue;
-      }
-      opts[prop] = file[prop];
-    }
-  }
-  file.path = file.path || file.src;
-  opts.flatten = true;
-  var res = utils.mapDest(file.path, dest, opts)[0];
-  file = new utils.Vinyl({path: res.src});
-  for (var key in res) {
-    file[key] = res[key];
-  }
-  file.options = utils.extend({}, opts.options, opts);
-  return file;
-}
-
 /**
- * Similar to [copy](#copy) but call a plugin `pipeline` if passed
+ * Similar to [copy](#copy) but calls a plugin `pipeline` if passed
  * on the `config` or `options`.
  *
  * @param {Object} `config`
@@ -263,19 +274,24 @@ Generate.prototype.process = function(files, options) {
   options = options || {};
   files.options = files.options || {};
   var pipeline = files.options.pipeline || options.pipeline;
-  var opts = this.defaults(options);
+  var opts = utils.extend({}, this.options, files.options, options);
 
   return this.src(files.src, opts)
     .pipe(this.pipeline(pipeline, opts))
-    .pipe(this.dest(files.dest, opts))
+    .pipe(this.dest(files.dest, opts));
 };
 
 /**
- * Parallel
+ * Generate `files` configurations in parallel.
  *
+ * ```js
+ * generate.eachSeries(files, function(err) {
+ *   if (err) console.log(err);
+ * });
+ * ```
  * @param {Object} `config`
  * @param {Function} `cb`
- * @return {Object} Returns the instance for chaining
+ * @api public
  */
 
 Generate.prototype.each = function(config, cb) {
@@ -288,11 +304,16 @@ Generate.prototype.each = function(config, cb) {
 };
 
 /**
- * eachSeries
+ * Generate `files` configurations in series.
  *
+ * ```js
+ * generate.eachSeries(files, function(err) {
+ *   if (err) console.log(err);
+ * });
+ * ```
  * @param {Object} `config`
  * @param {Function} `cb`
- * @return {Object} Returns the instance for chaining
+ * @api public
  */
 
 Generate.prototype.eachSeries = function(config, cb) {
@@ -301,9 +322,43 @@ Generate.prototype.eachSeries = function(config, cb) {
       .on('error', next)
       .on('end', next);
   }.bind(this), cb);
-  return this;
 };
 
+/**
+ * Generate a scaffold. See the [scaffold][] library for details.
+ *
+ * ```js
+ * var Scaffold = require('scaffold');
+ * var scaffold = new Scaffold({
+ *   options: {cwd: 'source'},
+ *   posts: {
+ *     src: ['content/*.md']
+ *   },
+ *   pages: {
+ *     src: ['templates/*.hbs']
+ *   }
+ * });
+ *
+ * generate.scaffold(scaffold, function(err) {
+ *   if (err) console.log(err);
+ * });
+ * ```
+ * @param {Object} `scaffold` Scaffold configuration
+ * @param {Function} `cb` Callback function
+ * @api public
+ */
+
+Generate.prototype.scaffold = function(scaffold, cb) {
+  utils.async.eachOf(scaffold, function(target, name, next) {
+    this.each(target, next);
+  }.bind(this), cb);
+};
+
+/**
+ * Get the base generate instance. Each Generator is an instance of
+ * Generate that is cached on the first instance of Generate. This
+ * getter ensures that `base` is always the first instance.
+ */
 
 Object.defineProperty(Generate.prototype, 'base', {
   get: function() {
