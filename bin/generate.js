@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
+var Resolver = require('resolve-modules');
+var defaults = require('../lib/defaults');
+var utils = require('../lib/utils');
+var Generate = require('..');
+var argv = require('base-argv');
 var args = require('minimist')(process.argv.slice(2), {
   alias: {verbose: 'v'}
 });
-var Resolver = require('resolve-modules');
-var utils = require('../lib/utils');
-var defaults = require('../lib/defaults');
-var Generate = require('..');
 
 function runner(options) {
   options = options || {};
   var resolver = new Resolver(options);
-  var argv = require('base-argv');
 
   return function(base) {
     // this.use(plugins.env());
@@ -29,7 +29,15 @@ function runner(options) {
   };
 };
 
+/**
+ * Initialize Generate
+ */
+
 var generate = new Generate();
+
+/**
+ * Listen for errors
+ */
 
 generate.on('error', function(err) {
   console.log('error:', err.stack);
@@ -38,6 +46,11 @@ generate.on('error', function(err) {
 generate.on('config', function(config) {
   if (args.v) console.log('registered:', config.alias);
 });
+
+/**
+ * Initialize the "runner" plugin, and find generators that
+ * match `searchPattern`
+ */
 
 generate.use(runner({
   searchPattern: 'generate-*/generate.js',
@@ -48,17 +61,26 @@ generate.use(runner({
 
 generate.runner();
 
+/**
+ * Process command line arguments
+ */
+
 var argv = generate.argv(args);
 generate.cli.process(argv);
 
+/**
+ * Run any generators specified by `argv`
+ */
+
 generate.task('run', function(cb) {
-  generate.generate(argv.generators, function(err) {
-    if (err) return cb(err);
-    cb();
-  });
+  generate.runGenerators(argv.generators, cb);
 });
 
-generate.build(['files', 'templates', 'run', 'dest'], function(err) {
+/**
+ * Default tasks to run
+ */
+
+generate.build(['files', 'run', 'dest'], function(err) {
   if (err) return console.log(err);
   utils.timestamp('done');
 });
