@@ -131,8 +131,11 @@ Generate.prototype.generator = function(name, config, base) {
   // var Generator = modpath ? require(modpath) : this.Generator;// this.constructor;
   var Generator = modpath ? require(modpath) : this.constructor;
   var app = new Generator();
+  if (!app.isGenerate) {
+    app = new this.constructor();
+  }
 
-  var pkg = require('load-pkg')(process.cwd());
+  var pkg = require('load-pkg').sync(process.cwd());
   if (pkg) app.data(pkg);
 
   app.set('paths', config);
