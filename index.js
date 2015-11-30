@@ -1,14 +1,17 @@
 'use strict';
 
 var async = require('async');
-var Base = require('assemble-core');
 var argv = require('base-argv');
-var middleware = require('./lib/middleware');
+var Base = require('assemble-core');
+var proto = Base.prototype;
+
 // var generator = require('./lib/generator');
+var middleware = require('./lib/middleware');
+var templates = require('./lib/templates');
+var metadata = require('./lib/metadata');
 var runtimes = require('./lib/runtimes');
 var defaults = require('./lib/defaults');
 var config = require('./lib/config');
-var locals = require('./lib/locals');
 var tasks = require('./lib/tasks');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
@@ -56,13 +59,10 @@ Base.extend(Generate);
  */
 
 Generate.prototype.initGenerate = function() {
-  // custom middleware handlers
-  this.handler('onStream');
-  this.handler('preWrite');
-  this.handler('postWrite');
+  this.use(defaults());
 
   this.use(argv({plural: 'generators'}))
-    .use(locals('generate'))
+    .use(metadata('generate'))
     .use(utils.store())
     .use(utils.pipeline())
 
@@ -71,16 +71,14 @@ Generate.prototype.initGenerate = function() {
     utils.matter.parse(view, next);
   });
 
-  this.use(defaults());
-
   this.once('base-loaded', function(base) {
     base.loadMiddleware(middleware);
     // base.loadTasks(tasks);
-    require('./lib/tasks')(this, base);
+    tasks(this, base);
   });
 
   this.on('generator', function(app) {
-    require('./lib/templates')(app);
+    templates(app);
   });
 };
 
@@ -127,6 +125,7 @@ Generate.prototype.generator = function(name, config, base) {
     throw new Error('failed to require generator ' + filepath);
   }
 
+
   // get the module to instantiate for the generator
   // var Generator = modpath ? require(modpath) : this.Generator;// this.constructor;
   var Generator = modpath ? require(modpath) : this.constructor;
@@ -144,8 +143,7 @@ Generate.prototype.generator = function(name, config, base) {
 
   app.use(utils.runtimes({
     displayName: function(key) {
-      console.log(key)
-      return 'generator ' + name + ':' + key;
+      return name + ':' + key;
     }
   }));
 
