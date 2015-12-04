@@ -1,22 +1,18 @@
 {
   "name": "generate",
-  "description": "Generate",
+  "description": "The most interesting project in the world > Verb",
   "version": "0.1.0",
   "homepage": "https://github.com/jonschlinkert/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
-  "contributors": [
-    "Jon Schlinkert <github@sellside.com> (https://github.com/jonschlinkert)",
-    "Brian Woodward <brian.woodward@gmail.com> (https://github.com/doowb)"
-  ],
   "repository": "jonschlinkert/generate",
   "bugs": {
     "url": "https://github.com/jonschlinkert/generate/issues"
   },
   "license": "MIT",
   "files": [
+    "lib/",
     "index.js",
-    "bin",
-    "lib/"
+    "utils.js"
   ],
   "main": "index.js",
   "engines": {
@@ -27,86 +23,34 @@
   },
   "preferGlobal": true,
   "bin": {
-    "gen": "bin/generate.js"
+    "gen": "cli.js",
+    "generate": "cli.js"
   },
   "dependencies": {
-    "arr-flatten": "^1.0.1",
-    "assemble-core": "^0.3.0",
-    "async": "^1.5.0",
-    "base-argv": "^0.1.1",
-    "base-cli": "^0.4.0",
-    "base-config": "^0.3.0",
-    "base-pipeline": "^0.1.4",
-    "base-store": "^0.2.0",
-    "chalk": "^1.1.1",
-    "composer-runtimes": "^0.6.0",
-    "define-property": "^0.2.5",
+    "ansi-colors": "^0.1.0",
+    "assemble-core": "^0.5.0",
+    "base-runner": "^0.2.2",
+    "common-middleware": "^0.1.3",
     "engine-base": "^0.1.2",
-    "export-files": "^2.1.0",
     "extend-shallow": "^2.0.1",
-    "get-value": "^2.0.0",
-    "isobject": "^2.0.0",
     "lazy-cache": "^0.2.4",
-    "load-pkg": "^3.0.0",
     "matched": "^0.3.2",
     "minimist": "^1.2.0",
-    "parser-front-matter": "^1.3.0",
-    "pretty-time": "^0.2.0",
-    "question-store": "^0.2.2",
-    "resolve-modules": "^0.1.0",
-    "set-value": "^0.3.1",
-    "stream-exhaust": "^1.0.1",
     "success-symbol": "^0.1.0",
-    "through2": "^2.0.0",
     "time-stamp": "^0.1.2"
   },
   "devDependencies": {
-    "base-methods": "^0.5.0",
-    "buffer-equal": "0.0.1",
-    "consolidate": "^0.13.1",
-    "coveralls": "^2.11.4",
-    "data-store": "^0.12.0",
-    "engine-handlebars": "^0.8.0",
-    "event-stream": "^3.3.2",
-    "graceful-fs": "^4.1.2",
-    "gulp": "^3.9.0",
-    "gulp-eslint": "^1.1.1",
-    "gulp-istanbul": "^0.10.3",
-    "gulp-mocha": "^2.2.0",
-    "is-buffer": "^1.1.0",
-    "istanbul": "^0.4.1",
-    "kind-of": "^3.0.2",
-    "mocha": "^2.3.4",
-    "resolve-glob": "^0.1.7",
-    "rimraf": "^2.4.4",
-    "scaffold": "^0.2.1",
-    "should": "^7.1.1",
-    "sinon": "^1.17.2",
-    "swig": "^1.4.2",
-    "vinyl": "^1.1.0"
+    "mocha": "*"
   },
-  "keywords": [
-    "generate",
-    "generator",
-    "init"
-  ],
   "verb": {
     "related": {
       "list": [
-        "composer",
-        "generate",
-        "boilerplate",
-        "scaffold",
-        "templates",
-        "verb"
+        "base-methods",
+        "assemble-core",
+        "resolve-modules",
+        "base-runner",
+        "base-resolver"
       ]
-    },
-    "reflinks": [
-      "scaffold",
-      "boilerplate",
-      "template",
-      "template",
-      "verb"
-    ]
+    }
   }
 }
