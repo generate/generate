@@ -9,7 +9,7 @@ var assert = require('assert');
 var App = require('../');
 var app;
 
-describe('store', function () {
+describe.skip('store', function () {
   beforeEach(function () {
     app = new App();
   });
