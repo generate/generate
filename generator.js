@@ -2,16 +2,16 @@
 
 var fs = require('fs');
 var path = require('path');
-var glob = require('matched');
+var utils = require('./lib/utils');
 
 module.exports = function(generate, base, env) {
-  generate.task('default', function(cb) {
-    console.log('base > default');
+  generate.task('init', function(cb) {
+    // todo
     cb();
   });
 
-  generate.task('readme', function(cb) {
-    console.log('base > readme');
+  generate.task('help', function(cb) {
+    // todo
     cb();
   });
 
@@ -22,26 +22,18 @@ module.exports = function(generate, base, env) {
     glob('templates/*', opts, function(err, files) {
       if (err) return cb(err);
 
-      files.forEach(function(name) {
+      async.map(files, function(name, next) {
         var fp = path.join(env.cwd, name);
-        base.template(name, {
-          path: fp,
-          content: fs.readFileSync(fp)
-        });
-      });
-      cb();
+        var contents = fs.readFileSync(fp);
+        base.template(name, {contents: contents, path: fp});
+        next();
+      }, cb);
     });
   });
 
-  generate.register('docs', function(app) {
-    app.task('x', function() {});
-    app.task('y', function() {});
-    app.task('z', function() {});
+  /**
+   * Run the default task
+   */
 
-    app.register('foo', function(app) {
-      app.task('x', function() {});
-      app.task('y', function() {});
-      app.task('z', function() {});
-    });
-  });
+  generate.task('default', ['help']);
 };
