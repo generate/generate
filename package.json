@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "The most interesting project in the world > Verb",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "homepage": "https://github.com/jonschlinkert/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/generate",
