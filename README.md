@@ -2,23 +2,7 @@
 
 > Fast, composable, highly extendable project generator for node.js
 
-**TODO**
-
-* [x] publish a fast, composable, highly extendable project generator with a user-friendly and expressive API
-* [x] support sub-generators (to any level of nesting)
-* [x] support streams, tasks, and plugins compatible with both [gulp](http://gulpjs.com) and [assemble](https://github.com/assemble/assemble-core)
-* [x] make it super easy to run specific tasks from any generator or sub-generator, programmatically or via CLI
-* [x] support _instance plugins_ that allow you to easily add functionality and features to generate
-* [x] support any template engine
-* [x] support using any number of template engines at once, so that different file types can simultaneously be handled by the engine that was registered for that file type
-* [x] support templates as [vinyl](http://github.com/gulpjs/vinyl) files, simple to use template collections and lists (for pagination, sorting, groups etc)
-* [x] support middleware that can be run on all files or specific files, and at specific points during the _build process_ (like `onLoad`, `preRender`, `postRender`, etc)
-* [x] 820+ unit tests
-* [ ] create and publish generators (we created a handful of generators that we've been using locally, these will be published shortly)
-* [ ] CLI docs (started)
-* [ ] User help (e.g. when the user does `gen help` or just `gen`)
-* [ ] API docs
-* [ ] Generator guidelines and conventions
+## toc
 
 - [Install](#install)
 - [Usage](#usage)
@@ -45,6 +29,24 @@
 - [Contributing](#contributing)
 - [Author](#author)
 - [License](#license)
+
+**TODO**
+
+* [x] publish a fast, composable, highly extendable project generator with a user-friendly and expressive API
+* [x] support sub-generators (to any level of nesting)
+* [x] support streams, tasks, and plugins compatible with both [gulp](http://gulpjs.com) and [assemble](https://github.com/assemble/assemble-core)
+* [x] make it super easy to run specific tasks from any generator or sub-generator, programmatically or via CLI
+* [x] support _instance plugins_ that allow you to easily add functionality and features to generate
+* [x] support any template engine
+* [x] support using any number of template engines at once, so that different file types can simultaneously be handled by the engine that was registered for that file type
+* [x] support templates as [vinyl](http://github.com/gulpjs/vinyl) files, simple to use template collections and lists (for pagination, sorting, groups etc)
+* [x] support middleware that can be run on all files or specific files, and at specific points during the _build process_ (like `onLoad`, `preRender`, `postRender`, etc)
+* [x] 820+ unit tests
+* [ ] create and publish generators (we created a handful of generators that we've been using locally, these will be published shortly)
+* [ ] CLI docs (started)
+* [ ] User help (e.g. when the user does `gen help` or just `gen`)
+* [ ] API docs
+* [ ] Generator guidelines and conventions
 
 ## Install
 
