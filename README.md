@@ -1,6 +1,6 @@
 # generate [![NPM version](https://badge.fury.io/js/generate.svg)](http://badge.fury.io/js/generate)
 
-> The most interesting project in the world > Verb
+> Fast, composable, highly extendable project generator for node.js
 
 ## Install
 

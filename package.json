@@ -1,6 +1,6 @@
 {
   "name": "generate",
-  "description": "The most interesting project in the world > Verb",
+  "description": "Fast, composable, highly extendable project generator for node.js",
   "version": "0.3.0",
   "homepage": "https://github.com/jonschlinkert/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
@@ -63,12 +63,27 @@
     "resolve-glob": "^0.1.7",
     "rimraf": "^2.4.4",
     "scaffold": "^0.2.1",
-    "should": "^7.1.1",
+    "should": "*",
     "sinon": "^1.17.2",
     "swig": "^1.4.2",
     "through2": "^2.0.0",
     "vinyl": "^1.1.0"
   },
+  "keywords": [
+    "app",
+    "boilerplate",
+    "create",
+    "generate",
+    "generator",
+    "init",
+    "initialize",
+    "project",
+    "scaffold",
+    "template",
+    "templates",
+    "webapp",
+    "yeoman"
+  ],
   "verb": {
     "related": {
       "list": [
