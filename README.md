@@ -213,9 +213,9 @@ var Generate = require('generate');
 var generate = new Generate(options);
 ```
 
-### [.process](index.js#L66)
+### [.process](index.js#L59)
 
-Similar to [copy](#copy) but calls a plugin `pipeline` if passed on the `config` or `options`.
+Similar to [copy](#copy) but calls a plugin `pipeline` if passed on the `options`. This allows plugin pipelines to be programmatically built-up and dynamically changed on-the-fly.
 
 **Params**
 
@@ -230,7 +230,7 @@ Similar to [copy](#copy) but calls a plugin `pipeline` if passed on the `config`
 generate.process({src: ['a.txt', 'b.txt']}, options);
 ```
 
-### [.each](index.js#L90)
+### [.each](index.js#L83)
 
 Generate `files` configurations in parallel.
 
@@ -247,7 +247,7 @@ generate.each(files, function(err) {
 });
 ```
 
-### [.eachSeries](index.js#L112)
+### [.eachSeries](index.js#L105)
 
 Generate `files` configurations in series.
 
@@ -264,9 +264,9 @@ generate.eachSeries(files, function(err) {
 });
 ```
 
-### [.scaffold](index.js#L144)
+### [.scaffold](index.js#L137)
 
-Generate a scaffold. See the [scaffold](https://github.com/jonschlinkert/scaffold) library for details.
+Generate files from a declarative [scaffold](https://github.com/jonschlinkert/scaffold) configuration.
 
 **Params**
 

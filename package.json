@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "Fast, composable, highly extendable project generator for node.js",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "homepage": "https://github.com/jonschlinkert/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/generate",
@@ -11,6 +11,7 @@
   "license": "MIT",
   "files": [
     "lib/",
+    "cli.js",
     "index.js"
   ],
   "main": "index.js",
