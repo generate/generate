@@ -1,7 +1,6 @@
 require('mocha');
 require('should');
 var fs = require('fs');
-var path = require('path');
 var assert = require('assert');
 var define = require('define-property');
 var support = require('./support');
@@ -64,7 +63,7 @@ describe('collection', function () {
       app.views.pages.should.have.properties([
         'test/fixtures/pages/a.hbs',
         'test/fixtures/pages/b.hbs',
-        'test/fixtures/pages/c.hbs',
+        'test/fixtures/pages/c.hbs'
       ]);
     });
 
@@ -78,7 +77,7 @@ describe('collection', function () {
       app.views.pages.should.have.properties([
         'test/fixtures/pages/a.hbs',
         'test/fixtures/pages/b.hbs',
-        'test/fixtures/pages/c.hbs',
+        'test/fixtures/pages/c.hbs'
       ]);
     });
 
@@ -131,7 +130,7 @@ describe('collection', function () {
     it('should render a view with inherited app.render', function (done) {
       app.page('test/fixtures/templates/a.tmpl')
         .use(function (view) {
-          if (!view.content) {
+          if (!view.contents) {
             view.contents = fs.readFileSync(view.path);
           }
         })
