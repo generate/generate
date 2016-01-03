@@ -3,12 +3,12 @@ var support = require('./support');
 var App = support.resolve();
 var app;
 
-describe('mergePartials', function () {
-  beforeEach(function () {
+describe('mergePartials', function() {
+  beforeEach(function() {
     app = new App();
   });
 
-  it('should merge multiple partials collections onto one collection:', function () {
+  it('should merge multiple partials collections onto one collection:', function() {
     var opts = { viewType: 'partial' };
     app.create('foo', opts);
     app.create('bar', opts);
@@ -23,7 +23,7 @@ describe('mergePartials', function () {
     actual.partials.should.have.properties(['a', 'b', 'c']);
   });
 
-  it('should keep partials collections on separate collections:', function () {
+  it('should keep partials collections on separaet collections:', function() {
     var opts = { viewType: 'partial' };
     app.create('foo', opts);
     app.create('bar', opts);
@@ -38,14 +38,14 @@ describe('mergePartials', function () {
     actual.should.eql({ foos: { a: 'aaa' }, bars: { b: 'bbb' }, bazs: { c: 'ccc' } });
   });
 
-  it('should emit `mergePartials`:', function () {
+  it('should emit `mergePartials`:', function() {
     var opts = { viewType: 'partial' };
     app.create('foo', opts);
     app.create('bar', opts);
     app.create('baz', opts);
     var arr = [];
 
-    app.on('onMerge', function (view) {
+    app.on('onMerge', function(view) {
       arr.push(view.content);
     });
 
@@ -59,13 +59,13 @@ describe('mergePartials', function () {
     arr.should.eql(['aaa', 'bbb', 'ccc']);
   });
 
-  it('should handle `onMerge` middleware:', function () {
+  it('should handle `onMerge` middleware:', function() {
     var opts = { viewType: 'partial' };
     app.create('foo', opts);
     app.create('bar', opts);
     app.create('baz', opts);
 
-    app.onMerge(/./, function (view, next) {
+    app.onMerge(/./, function(view, next) {
       view.content += ' onMerge';
       next();
     });
@@ -82,14 +82,14 @@ describe('mergePartials', function () {
     });
   });
 
-  it('should skip views with `nomerge=true`:', function () {
+  it('should skip views with `nomerge=true`:', function() {
     var opts = { viewType: 'partial' };
 
     app.create('foo', opts);
     app.create('bar', opts);
     app.create('baz', opts);
 
-    app.onMerge(/[ab]/, function (view, next) {
+    app.onMerge(/[ab]/, function(view, next) {
       view.options.nomerge = true;
       next();
     });
@@ -102,5 +102,3 @@ describe('mergePartials', function () {
     actual.should.eql({ bazs: { c: 'ccc' } });
   });
 });
-
-

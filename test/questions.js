@@ -6,12 +6,12 @@ var support = require('./support');
 var App = support.resolve();
 var app;
 
-describe.skip('content', function () {
-  beforeEach(function () {
+describe.skip('content', function() {
+  beforeEach(function() {
     app = new App();
   });
 
-  it('should store a question:', function () {
+  it('should store a question:', function() {
     app.question('a', 'b');
     assert(app.questions);
     assert(app.questions.cache);
@@ -20,11 +20,11 @@ describe.skip('content', function () {
     assert(app.questions.cache.a.message === 'b');
   });
 
-  it('should ask a question and use data value to answer:', function (done) {
+  it('should ask a question and use data value to answer:', function(done) {
     app.question('a', 'b');
     app.data('a', 'b');
 
-    app.ask('a', function (err, answer) {
+    app.ask('a', function(err, answer) {
       assert(!err);
       assert(answer);
       assert(answer === 'b');
@@ -32,11 +32,11 @@ describe.skip('content', function () {
     })
   });
 
-  it('should ask a question and use store value to answer:', function (done) {
+  it('should ask a question and use store value to answer:', function(done) {
     app.question('a', 'b');
     app.store.set('a', 'c');
 
-    app.ask('a', function (err, answer) {
+    app.ask('a', function(err, answer) {
       assert(!err);
       assert(answer);
       assert(answer === 'c');
@@ -44,11 +44,11 @@ describe.skip('content', function () {
     })
   });
 
-  it('should ask a question and use config value to answer:', function (done) {
+  it('should ask a question and use config value to answer:', function(done) {
     app.question('a', 'b');
     app.store.set('a', 'c');
 
-    app.ask('a', function (err, answer) {
+    app.ask('a', function(err, answer) {
       assert(!err);
       assert(answer);
       assert(answer === 'c');

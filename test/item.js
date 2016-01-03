@@ -2,7 +2,6 @@ require('mocha');
 var should = require('should');
 var fs = require('fs');
 var path = require('path');
-var util = require('util');
 var assert = require('assert');
 var es = require('event-stream');
 var Stream = require('stream');
@@ -11,107 +10,107 @@ var App = support.resolve();
 var Item = App.Item;
 var item;
 
-describe('Item', function () {
-  describe('instance', function () {
-    it('should create an instance of Item:', function () {
+describe('Item', function() {
+  describe('instance', function() {
+    it('should create an instance of Item:', function() {
       item = new Item();
       assert(item instanceof Item);
     });
 
-    it('should instantiate without new:', function () {
+    it('should instantiate without new:', function() {
       item = Item();
       assert(item instanceof Item);
     });
 
     it('inspect should not double name `Stream` when ctor is `Stream`', function(done) {
       var val = new Stream();
-      var item = new Item({contents: val});
+      item = new Item({contents: val});
       done();
     });
   });
 
-  describe('static methods', function () {
-    it('should expose `extend`:', function () {
+  describe('static methods', function() {
+    it('should expose `extend`:', function() {
       assert(typeof Item.extend === 'function');
     });
   });
 
-  describe('prototype methods', function () {
-    beforeEach(function () {
+  describe('prototype methods', function() {
+    beforeEach(function() {
       item = new Item();
     });
 
-    it('should expose `set`:', function () {
+    it('should expose `set`:', function() {
       assert(typeof item.set === 'function');
     });
-    it('should expose `get`:', function () {
+    it('should expose `get`:', function() {
       assert(typeof item.get === 'function');
     });
-    it('should expose `del`:', function () {
+    it('should expose `del`:', function() {
       assert(typeof item.del === 'function');
     });
-    it('should expose `define`:', function () {
+    it('should expose `define`:', function() {
       assert(typeof item.define === 'function');
     });
-    it('should expose `visit`:', function () {
+    it('should expose `visit`:', function() {
       assert(typeof item.visit === 'function');
     });
   });
 
-  describe('properties', function () {
-    it('should expose an `options` property', function () {
+  describe('properties', function() {
+    it('should expose an `options` property', function() {
       item = new Item({});
       assert.deepEqual(item.options, {});
       assert(item.hasOwnProperty('options'));
     });
 
-    it('should add `options` when passed on the constructor', function () {
+    it('should add `options` when passed on the constructor', function() {
       item = new Item({options: {foo: 'bar'}});
       assert(item.options.foo === 'bar');
     });
 
-    it('should expose a `data` property', function () {
+    it('should expose a `data` property', function() {
       item = new Item({app: {}});
       assert.deepEqual(item.data, {});
       assert(item.hasOwnProperty('data'));
     });
 
-    it('should add `data` when passed on the constructor', function () {
+    it('should add `data` when passed on the constructor', function() {
       item = new Item({data: {foo: 'bar'}});
       assert(item.data.foo === 'bar');
     });
 
-    it('should add `locals` when passed on the constructor', function () {
+    it('should add `locals` when passed on the constructor', function() {
       item = new Item({locals: {foo: 'bar'}});
       assert(item.locals.foo === 'bar');
     });
   });
 
-  describe('set', function () {
-    it('should set properties on the object', function () {
+  describe('set', function() {
+    it('should set properties on the object', function() {
       item = new Item();
       item.set('foo', 'bar');
       assert.equal(item.foo, 'bar');
     });
   });
 
-  describe('get', function () {
-    it('should get properties from the object', function () {
+  describe('get', function() {
+    it('should get properties from the object', function() {
       item = new Item();
       item.set('foo', 'bar');
       assert.equal(item.get('foo'), 'bar');
     });
   });
 
-  describe('cwd', function () {
-    it('should get properties from the object', function () {
+  describe('cwd', function() {
+    it('should get properties from the object', function() {
       item = new Item({cwd: 'test/fixtures'});
       assert(item.cwd === 'test/fixtures');
     });
   });
 
-  describe('clone', function () {
-    it('should clone the item:', function () {
+  describe('clone', function() {
+    it('should clone the item:', function() {
       item = new Item({content: 'foo'});
       item.set({path: 'foo/bar'});
       item.set('options.one', 'two');
@@ -127,7 +126,7 @@ describe('Item', function () {
       assert(item.get('options.three') === 'four');
     });
 
-    it('should deep clone the entire object', function () {
+    it('should deep clone the entire object', function() {
       item = new Item({content: 'foo'});
       item.set({path: 'foo/bar'});
       item.set('options.one', 'two');
@@ -140,8 +139,8 @@ describe('Item', function () {
     });
   });
 
-  describe('visit', function () {
-    it('should visit all properties on an object and call the specified method', function () {
+  describe('visit', function() {
+    it('should visit all properties on an object and call the specified method', function() {
       item = new Item();
       var obj = {
         foo: 'bar',
@@ -154,7 +153,7 @@ describe('Item', function () {
       assert.equal(item.get('baz'), 'bang');
     });
 
-    it('should visit all properties on all objects in an array and call the specified method', function () {
+    it('should visit all properties on all objects in an array and call the specified method', function() {
       item = new Item();
       var arr = [{foo: 'bar', bar: 'baz', baz: 'bang'}];
       item.visit('set', arr);
@@ -174,7 +173,7 @@ describe('Item', function () {
 describe('Item', function() {
   describe('isVinyl()', function() {
     it('should return true on a vinyl object', function(done) {
-      var item = new Item();
+      item = new Item();
       assert(Item.isVinyl(item) === true);
       done();
     });
@@ -190,65 +189,65 @@ describe('Item', function() {
 
   describe('constructor()', function() {
     it('should default cwd to process.cwd', function(done) {
-      var item = new Item();
+      item = new Item();
       item.cwd.should.equal(process.cwd());
       done();
     });
 
     it('should default base to cwd', function(done) {
       var cwd = '/';
-      var item = new Item({cwd: cwd});
+      item = new Item({cwd: cwd});
       item.base.should.equal(cwd);
       done();
     });
 
     it('should default base to cwd even when none is given', function(done) {
-      var item = new Item();
+      item = new Item();
       item.base.should.equal(process.cwd());
       done();
     });
 
     it('should default path to null', function(done) {
-      var item = new Item();
+      item = new Item();
       should.not.exist(item.path);
       done();
     });
 
     it('should default history to []', function(done) {
-      var item = new Item();
+      item = new Item();
       item.history.should.eql([]);
       done();
     });
 
     it('should default stat to null', function(done) {
-      var item = new Item();
+      item = new Item();
       should.not.exist(item.stat);
       done();
     });
 
     it('should default contents to null', function(done) {
-      var item = new Item();
+      item = new Item();
       should.not.exist(item.contents);
       done();
     });
 
     it('should set base to given value', function(done) {
       var val = '/';
-      var item = new Item({base: val});
+      item = new Item({base: val});
       item.base.should.equal(val);
       done();
     });
 
     it('should set cwd to given value', function(done) {
       var val = '/';
-      var item = new Item({cwd: val});
+      item = new Item({cwd: val});
       item.cwd.should.equal(val);
       done();
     });
 
     it('should set path to given value', function(done) {
       var val = '/test.coffee';
-      var item = new Item({path: val});
+      item = new Item({path: val});
       item.path.should.equal(val);
       item.history.should.eql([val]);
       done();
@@ -256,7 +255,7 @@ describe('Item', function() {
 
     it('should set history to given value', function(done) {
       var val = '/test.coffee';
-      var item = new Item({history: [val]});
+      item = new Item({history: [val]});
       item.path.should.equal(val);
       item.history.should.eql([val]);
       done();
@@ -264,14 +263,14 @@ describe('Item', function() {
 
     it('should set stat to given value', function(done) {
       var val = {};
-      var item = new Item({stat: val});
+      item = new Item({stat: val});
       item.stat.should.equal(val);
       done();
     });
 
     it('should set contents to given value', function(done) {
       var val = new Buffer('test');
-      var item = new Item({contents: val});
+      item = new Item({contents: val});
       item.contents.should.equal(val);
       done();
     });
@@ -280,7 +279,7 @@ describe('Item', function() {
   describe('isBuffer()', function() {
     it('should return true when the contents are a Buffer', function(done) {
       var val = new Buffer('test');
-      var item = new Item({contents: val});
+      item = new Item({contents: val});
       item.isBuffer().should.equal(true);
       done();
     });
@@ -437,7 +436,9 @@ describe('Item', function() {
       item2.path.should.equal(item.path);
       item2.contents.should.not.equal(item.contents, 'stream ref should not be the same');
       item.contents.pipe(es.wait(function(err, data) {
+        if (err) return done(err);
         item2.contents.pipe(es.wait(function(err, data2) {
+          if (err) return done(err);
           data2.should.not.equal(data, 'stream contents ref should not be the same');
           data2.should.eql(data, 'stream contents should be the same');
         }));
@@ -477,8 +478,6 @@ describe('Item', function() {
 
       assert(copy.stat.isFile());
       assert(!copy.stat.isDirectory());
-      assert(item.stat instanceof fs.Stats);
-      assert(copy.stat instanceof fs.Stats);
       done();
     });
 
@@ -825,11 +824,10 @@ describe('Item', function() {
     });
 
     it('should error on get when no base', function(done) {
-      var a;
       var item = new Item();
       delete item.base;
       try {
-        a = item.relative;
+        item.relative;
       } catch (err) {
         should.exist(err);
         done();
@@ -837,10 +835,9 @@ describe('Item', function() {
     });
 
     it('should error on get when no path', function(done) {
-      var a;
       var item = new Item();
       try {
-        a = item.relative;
+        item.relative;
       } catch (err) {
         should.exist(err);
         done();
@@ -862,17 +859,16 @@ describe('Item', function() {
         cwd: '/',
         path: '/test/test.coffee'
       });
-      item.relative.should.equal(path.join('test','test.coffee'));
+      item.relative.should.equal(path.join('test', 'test.coffee'));
       done();
     });
   });
 
   describe('dirname get/set', function() {
     it('should error on get when no path', function(done) {
-      var a;
       var item = new Item();
       try {
-        a = item.dirname;
+        item.dirname;
       } catch (err) {
         should.exist(err);
         done();
@@ -913,10 +909,9 @@ describe('Item', function() {
 
   describe('basename get/set', function() {
     it('should error on get when no path', function(done) {
-      var a;
-      var item = new Item();
+      item = new Item();
       try {
-        a = item.basename;
+        item.basename;
       } catch (err) {
         should.exist(err);
         done();
@@ -924,7 +919,7 @@ describe('Item', function() {
     });
 
     it('should return the basename of the path', function(done) {
-      var item = new Item({
+      item = new Item({
         cwd: '/',
         base: '/test/',
         path: '/test/test.coffee'
@@ -934,7 +929,7 @@ describe('Item', function() {
     });
 
     it('should error on set when no path', function(done) {
-      var item = new Item();
+      item = new Item();
       try {
         item.basename = 'test.coffee';
       } catch (err) {
@@ -944,7 +939,7 @@ describe('Item', function() {
     });
 
     it('should set the basename of the path', function(done) {
-      var item = new Item({
+      item = new Item({
         cwd: '/',
         base: '/test/',
         path: '/test/test.coffee'
@@ -957,10 +952,9 @@ describe('Item', function() {
 
   describe('extname get/set', function() {
     it('should error on get when no path', function(done) {
-      var a;
-      var item = new Item();
+      item = new Item();
       try {
-        a = item.extname;
+        item.extname;
       } catch (err) {
         should.exist(err);
         done();
@@ -968,7 +962,7 @@ describe('Item', function() {
     });
 
     it('should return the extname of the path', function(done) {
-      var item = new Item({
+      item = new Item({
         cwd: '/',
         base: '/test/',
         path: '/test/test.coffee'
@@ -978,7 +972,7 @@ describe('Item', function() {
     });
 
     it('should error on set when no path', function(done) {
-      var item = new Item();
+      item = new Item();
       try {
         item.extname = '.coffee';
       } catch (err) {
@@ -988,7 +982,7 @@ describe('Item', function() {
     });
 
     it('should set the extname of the path', function(done) {
-      var item = new Item({
+      item = new Item({
         cwd: '/',
         base: '/test/',
         path: '/test/test.coffee'
@@ -1045,7 +1039,7 @@ describe('Item', function() {
 
     it('should throw when set path null in constructor', function() {
       (function() {
-        new Item({
+        Item({
           cwd: '/',
           path: null
         });
@@ -1053,7 +1047,7 @@ describe('Item', function() {
     });
 
     it('should throw when set path null', function() {
-      var item = new Item({
+      item = new Item({
         cwd: '/',
         path: 'foo'
       });
