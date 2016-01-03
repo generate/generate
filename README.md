@@ -1,5 +1,6 @@
-# generate [![NPM version](https://img.shields.io/npm/v/generate.svg)](https://www.npmjs.com/package/generate) [![Build Status](https://img.shields.io/travis/jonschlinkert/generate.svg)](https://travis-ci.org/jonschlinkert/generate)
+# generate [![NPM version](https://img.shields.io/npm/v/generate.svg)](https://www.npmjs.com/package/generate)
 
+[![Build Status](https://img.shields.io/travis/jonschlinkert/generate.svg)](https://travis-ci.org/jonschlinkert/generate)
 > Fast, composable, highly extendable project generator for node.js
 
 - [Getting started](#getting-started)
@@ -20,13 +21,6 @@
   * [[.each](index.js#L168)](#-each--indexjs-l168-)
   * [[.eachSeries](index.js#L190)](#-eachseries--indexjs-l190-)
   * [[.scaffold](index.js#L222)](#-scaffold--indexjs-l222-)
-  * [.getConfig](#getconfig)
-  * [.getTask](#gettask)
-  * [.addGenerator](#addgenerator)
-  * [.hasGenerator](#hasgenerator)
-  * [.getGenerator](#getgenerator)
-  * [.extendGenerator](#extendgenerator)
-  * [.invoke](#invoke)
 - [Authoring generators](#authoring-generators)
   * [Generator naming conventions](#generator-naming-conventions)
 - [TODO](#todo)
@@ -282,126 +276,6 @@ var scaffold = new Scaffold({
 generate.scaffold(scaffold, function(err) {
   if (err) console.log(err);
 });
-```
-
-### .getConfig
-
-Static method for getting the very first instance to be used as the `base` instance. The first instance will either be defined by the user, like in local `node_modules`, or a globally installed module that serves as a default/fallback.
-
-**Params**
-
-* `filename` **{String}**: Then name of the config file to lookup.
-* `returns` **{Object}**: Returns the "base" instance.
-
-**Example**
-
-```js
-var base = Generate.getConfig('generator.js');
-```
-
-### .getTask
-
-Get task `name` from the `generate.tasks` object.
-
-**Params**
-
-* `name` **{String}**
-* `returns` **{Object}**
-
-**Example**
-
-```js
-generate.getTask('abc');
-
-// get a task from generator `foo`
-generate.getTask('foo:abc');
-
-// get a task from sub-generator `foo.bar`
-generate.getTask('foo.bar:abc');
-```
-
-### .addGenerator
-
-Alias for `register`. Adds a `generator` with the given `name` to the `generate.generators` object.
-
-**Params**
-
-* `name` **{String}**: The name of the config object to register
-* `config` **{Object|Function}**: The config object or function
-
-**Example**
-
-```js
-base.addGenerator('foo', function(app, base, env) {
-  // `app` is a `Generate` instance created for the generator
-  // `base` is a "shared" instance that provides access to all loaded generators
-  // `env` is a configuration/environment object with details about the generator,
-  // user cwd, etc
-});
-```
-
-### .hasGenerator
-
-Return true if generator `name` is registered. Dot-notation may be used to check for [sub-generators](#sub-generators).
-
-**Params**
-
-* `name` **{String}**
-* `returns` **{Boolean}**
-
-**Example**
-
-```js
-base.hasGenerator('foo.bar.baz');
-```
-
-### .getGenerator
-
-Return generator `name` is registered. Dot-notation may be used to get [sub-generators](#sub-generators).
-
-**Params**
-
-* `name` **{String}**
-* `returns` **{Boolean}**
-
-**Example**
-
-```js
-base.getGenerator('foo');
-// or
-base.getGenerator('foo.bar.baz');
-```
-
-### .extendGenerator
-
-Extend an generator.
-
-**Params**
-
-* `generator` **{Object}**
-* `returns` **{Object}**: Returns the instance for chaining.
-
-**Example**
-
-```js
-var foo = base.getGenerator('foo');
-foo.extendGenerator(generator);
-```
-
-### .invoke
-
-Invoke generator `fn` with the given `base` instance.
-
-**Params**
-
-* `fn` **{Function}**: The generator function.
-* `generator` **{Object}**: The "base" instance to use with the generator.
-* `returns` **{Object}**
-
-**Example**
-
-```js
-generate.invoke(generator.fn, generator);
 ```
 
 ## Authoring generators
