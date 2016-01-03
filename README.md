@@ -1,6 +1,6 @@
 # generate [![NPM version](https://img.shields.io/npm/v/generate.svg)](https://www.npmjs.com/package/generate)
 
-[![Build Status](https://img.shields.io/travis/jonschlinkert/generate.svg)](https://travis-ci.org/jonschlinkert/generate)
+[![Build Status](https://img.shields.io/travis/generate/generate.svg)](https://travis-ci.org/generate/generate)
 > Fast, composable, highly extendable project generator for node.js
 
 - [Getting started](#getting-started)
