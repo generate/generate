@@ -9,13 +9,14 @@ var assert = require('assert');
 var App = require('../');
 var app;
 
-describe.skip('store', function() {
+describe('store', function() {
   beforeEach(function() {
     app = new App();
   });
 
   afterEach(function(cb) {
     app.store.del({force: true});
+    app.store.data = {};
     cb();
   });
 
@@ -75,32 +76,36 @@ describe.skip('store', function() {
     app.store.data.one.should.eql(['a', 'b', 'c', 'd']);
   });
 
-  it('should return true if a key `.has()` on the store', function() {
+  it('should return true if a key exists on the store', function() {
     app.store.set('foo', 'bar');
-    app.store.set('baz', null);
-    app.store.set('qux', undefined);
-
-    app.store.has('foo').should.eql(true);
-    app.store.has('bar').should.eql(false);
-    app.store.has('baz').should.eql(false);
-    app.store.has('qux').should.eql(false);
+    assert(app.store.has('foo'));
   });
 
-  it('should return true if a nested key `.has()` on the store', function() {
+  it('should return true when the value is null', function() {
+    app.store.set('baz', null);
+    assert(app.store.has('baz'));
+  });
+
+  it('should return false when the value is undefined', function() {
+    app.store.set('qux', undefined);
+    assert(!app.store.has('qux'));
+  });
+
+  it('should return true if a nested key exists on the store', function() {
     app.store.set('a.b.c.d', {x: 'zzz'});
     app.store.set('a.b.c.e', {f: null});
     app.store.set('a.b.g.j', {k: undefined});
 
-    app.store.has('a.b.bar').should.eql(false);
-    app.store.has('a.b.c.d').should.eql(true);
-    app.store.has('a.b.c.d.x').should.eql(true);
-    app.store.has('a.b.c.d.z').should.eql(false);
-    app.store.has('a.b.c.e').should.eql(true);
-    app.store.has('a.b.c.e.f').should.eql(false);
-    app.store.has('a.b.c.e.z').should.eql(false);
-    app.store.has('a.b.g.j').should.eql(true);
-    app.store.has('a.b.g.j.k').should.eql(false);
-    app.store.has('a.b.g.j.z').should.eql(false);
+    assert(!app.store.has('a.b.bar'));
+    assert(app.store.has('a.b.c.d'));
+    assert(app.store.has('a.b.c.d.x'));
+    assert(!app.store.has('a.b.c.d.z'));
+    assert(app.store.has('a.b.c.e'));
+    assert(app.store.has('a.b.c.e.f'));
+    assert(!app.store.has('a.b.c.e.z'));
+    assert(app.store.has('a.b.g.j'));
+    assert(!app.store.has('a.b.g.j.k'));
+    assert(!app.store.has('a.b.g.j.z'));
   });
 
    it('should return true if a key exists `.hasOwn()` on the store', function() {
@@ -108,10 +113,10 @@ describe.skip('store', function() {
     app.store.set('baz', null);
     app.store.set('qux', undefined);
 
-    app.store.hasOwn('foo').should.eql(true);
-    app.store.hasOwn('bar').should.eql(false);
-    app.store.hasOwn('baz').should.eql(true);
-    app.store.hasOwn('qux').should.eql(true);
+    assert(app.store.hasOwn('foo'));
+    assert(!app.store.hasOwn('bar'));
+    assert(app.store.hasOwn('baz'));
+    assert(app.store.hasOwn('qux'));
   });
 
   it('should return true if a nested key exists `.hasOwn()` on the store', function() {
@@ -119,16 +124,17 @@ describe.skip('store', function() {
     app.store.set('a.b.c.e', {f: null});
     app.store.set('a.b.g.j', {k: undefined});
 
-    app.store.hasOwn('a.b.bar').should.eql(false);
-    app.store.hasOwn('a.b.c.d').should.eql(true);
-    app.store.hasOwn('a.b.c.d.x').should.eql(true);
-    app.store.hasOwn('a.b.c.d.z').should.eql(false);
-    app.store.has('a.b.c.e.f').should.eql(false);
-    app.store.hasOwn('a.b.c.e.f').should.eql(true);
-    app.store.hasOwn('a.b.c.e.bar').should.eql(false);
-    app.store.has('a.b.g.j.k').should.eql(false);
-    app.store.hasOwn('a.b.g.j.k').should.eql(true);
-    app.store.hasOwn('a.b.g.j.foo').should.eql(false);
+    assert(app.store.hasOwn('a.b.c.d'));
+    assert(app.store.hasOwn('a.b.c.d.x'));
+    assert(app.store.has('a.b.c.e.f'));
+    assert(app.store.hasOwn('a.b.c.e.f'));
+    assert(app.store.hasOwn('a.b.g.j.k'));
+
+    assert(!app.store.hasOwn('a.b.bar'));
+    assert(!app.store.hasOwn('a.b.c.d.z'));
+    assert(!app.store.hasOwn('a.b.c.e.bar'));
+    assert(!app.store.has('a.b.g.j.k'));
+    assert(!app.store.hasOwn('a.b.g.j.foo'));
   });
 
   it('should `.get()` a stored value', function() {
@@ -145,7 +151,7 @@ describe.skip('store', function() {
     app.store.set('a', 'b');
     app.store.set('c', 'd');
     app.store.del('a');
-    app.store.should.not.have.property('a');
+    assert(!app.store.hasOwnProperty('a'));
   });
 
   it('should `.del()` multiple stored values', function() {
@@ -157,7 +163,7 @@ describe.skip('store', function() {
   });
 });
 
-describe.skip('events', function() {
+describe('events', function() {
   beforeEach(function() {
     app = new App();
     app.store = new Store('generate-tests');
@@ -175,7 +181,7 @@ describe.skip('events', function() {
     });
 
     app.store.set({a: {b: {c: 'd'}}});
-    keys.should.eql(['a']);
+    assert(keys[0] === 'a');
   });
 
   it('should emit `set` when a key/value pair is set:', function() {
@@ -185,7 +191,7 @@ describe.skip('events', function() {
     });
 
     app.store.set('a', 'b');
-    keys.should.eql(['a']);
+    assert(keys[0] === 'a');
   });
 
   it('should emit `set` when an object value is set:', function() {
@@ -195,7 +201,7 @@ describe.skip('events', function() {
     });
 
     app.store.set('a', {b: 'c'});
-    keys.should.eql(['a']);
+    assert(keys[0] === 'a');
   });
 
   it('should emit `set` when an array of objects is passed:', function() {
@@ -205,14 +211,14 @@ describe.skip('events', function() {
     });
 
     app.store.set([{a: 'b'}, {c: 'd'}]);
-    keys.should.eql(['a', 'c']);
+    assert(keys[0] === 'a');
+    assert(keys[1] === 'c');
   });
 
-  it.skip('should emit `del` when a value is deleted:', function() {
-    app.store.on('del', function(keys) {
-      // keys.should.equal('a');
-      // assert(typeof app.store.get('a') === 'undefined');
-      // cb();
+  it('should emit `del` when a value is deleted:', function(cb) {
+    app.store.on('del', function(key) {
+      assert(key === 'a');
+      cb();
     });
 
     app.store.set('a', {b: 'c'});
@@ -221,16 +227,16 @@ describe.skip('events', function() {
   });
 
   it('should emit deleted keys on `del`:', function(cb) {
-    app.store.on('del', function(keys) {
-      keys.should.eql(['a', 'c', 'e']);
-      assert(Object.keys(app.store.data).length === 0);
+    app.store.once('del', function(key) {
+      assert(key === 'a');
       cb();
     });
 
     app.store.set('a', 'b');
     app.store.set('c', 'd');
     app.store.set('e', 'f');
-    app.store.data.should.have.properties(['a', 'c', 'e']);
+    assert.deepEqual(Object.keys(app.store.data), ['a', 'c', 'e']);
     app.store.del({force: true});
+    assert.deepEqual(Object.keys(app.store.data), []);
   });
 });
