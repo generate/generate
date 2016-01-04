@@ -1,10 +1,10 @@
 'use strict';
 
-// require('time-require');
 var path = require('path');
 var async = require('async');
-var exhaust = require('stream-exhaust')
+var exhaust = require('stream-exhaust');
 var Base = require('assemble-core');
+var Logger = require('./lib/logger');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
@@ -20,32 +20,21 @@ var cli = require('./lib/cli');
  * @api public
  */
 
-function Generate(options, preload) {
+function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
   }
 
-  var self = this;
   this.env = {};
   this.fn = null;
 
   Base.apply(this, arguments);
+  this.name = 'generate';
   this.isGenerate = true;
   this.generators = {};
   this.tree = {};
 
-  this
-    .use(utils.store())
-    .use(utils.pipeline())
-    .use(utils.ask({storeName: 'generate'}))
-    .use(utils.middleware())
-    .use(utils.runtimes())
-    .use(utils.list('generators', {
-      method: 'generator'
-    }))
-    .use(cli())
-
-  this.store.create('config');
+  this.initPlugins();
   build.runTasks(this);
 }
 
@@ -55,6 +44,43 @@ function Generate(options, preload) {
 
 Base.extend(Generate);
 
+/**
+ * Initialize `Generate` plugins.
+ *  | store
+ *  | pipeline
+ *  | ask
+ *  | common middleware
+ *  | runtimes
+ *  | cli
+ *  | list / tree
+ *  | config.store
+ */
+
+Generate.prototype.initPlugins = function() {
+  this.logger = new Logger(this.options);
+
+  this.use(utils.store())
+    .use(utils.pipeline())
+    .use(utils.ask({storeName: 'generate'}))
+    .use(utils.middleware())
+    .use(utils.runtimes())
+    .use(cli())
+    .use(utils.list('generators', {
+      method: 'generator'
+    }));
+
+  this.store.create('config');
+};
+
+/**
+ * Add a generator and its tasks to the tree object.
+ * Mostly used for debugging, but also useful for
+ * creating custom-formatted visual trees.
+ *
+ * @param {String} `name`
+ * @param {Object} `app`
+ */
+
 Generate.prototype.addLeaf = function(name, app) {
   this.tree[name] = {};
   this.tree[name].tasks = Object.keys(app.tasks);
@@ -62,21 +88,24 @@ Generate.prototype.addLeaf = function(name, app) {
   return this;
 };
 
-Generate.prototype.compose = function(name, app) {
-  if (utils.typeOf(name) === 'object') {
-    this.extendGenerator(name);
-    return this;
-  }
-  this.generator(name).extendGenerator(app);
-  return this;
-};
+/**
+ * Get or register a generator.
+ *
+ * @param {[type]} name
+ * @param {[type]} app
+ * @param {[type]} env
+ * @return {[type]}
+ */
 
 Generate.prototype.generator = function(name, app, env) {
   if (typeof name === 'string' && arguments.length === 1) {
-    var key = 'generators.' + name.split('.').join('.generators.');
-    return this.get(key);
+    return this.getGenerator(name);
   }
   return this.register.apply(this, arguments);
+};
+
+Generate.prototype.getGenerator = function(name) {
+  return this.get(utils.toKey('generators', name));
 };
 
 Generate.prototype.registerPath = function(name, app, env) {
@@ -101,7 +130,7 @@ Generate.prototype.register = function(name, app, env) {
 
   if (typeof app === 'function') {
     var fn = app;
-    app = new Generate();
+    app = new Generate({name: name});
     createInstance(app, this.base, fn);
   } else {
     createInstance(app, this.base);
@@ -117,6 +146,16 @@ Generate.prototype.extendGenerator = function(generator) {
     throw new Error('generators must export a function to extend other generators');
   }
   this.fn.call(generator, generator, this.base, generator.env);
+  return this;
+};
+
+Generate.prototype.compose = function(name, app) {
+  if (utils.typeOf(name) === 'object') {
+    this.extendGenerator(name);
+    return this;
+  }
+  var generator = this.generator(name);
+  generator.extendGenerator(app);
   return this;
 };
 
@@ -145,15 +184,11 @@ Generate.prototype.mkdirSync = function(dir) {
  */
 
 Generate.prototype.process = function(files, options) {
-  options = options || {};
-  files.options = files.options || {};
-  var pipeline = files.options.pipeline || options.pipeline;
-  var opts = utils.merge({}, this.options, files.options, options);
-  this.data(opts.data || {});
-
+  var opts = createOptions(this, files, options);
   return this.src(files.src, opts)
-    .pipe(this.pipeline(pipeline, opts))
-    .pipe(exhaust(this.dest(files.dest, opts)))
+    .pipe(this.pipeline(opts.pipeline, opts))
+    .on('error', this.emit.bind(this, 'error'))
+    .pipe(exhaust(this.dest(files.dest, opts)));
 };
 
 /**
@@ -232,6 +267,7 @@ Generate.prototype.scaffold = function(scaffold, cb) {
       next();
       return;
     }
+
     utils.timestamp('building target ' + name);
     this.each(target, next);
   }.bind(this), cb);
@@ -247,7 +283,11 @@ Object.defineProperty(Generate.prototype, 'name', {
     this.define('_name', val);
   },
   get: function() {
-    return this._name || this.options.name || 'base';
+    if (this._name) {
+      return this._name;
+    }
+    var name = this._appname || this._name || this.options.name || 'base';
+    return (this._name = name);
   }
 });
 
@@ -261,6 +301,19 @@ Object.defineProperty(Generate.prototype, 'base', {
     return this.generators.base || (this.parent ? this.parent.base : this);
   }
 });
+
+/**
+ * Create the options object to used by the `process` method
+ */
+
+function createOptions(app, files, options) {
+  options = options || {};
+  files.options = files.options || {};
+  var opts = utils.merge({}, app.options, files.options, options);
+  opts.cwd = path.resolve(opts.cwd || process.cwd());
+  app.data(opts.data || {});
+  return opts;
+}
 
 /**
  * Expose `Generate`
