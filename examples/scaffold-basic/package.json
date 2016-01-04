@@ -1,0 +1,8 @@
+{
+  "name": "basic-scaffold",
+  "private": true,
+  "dependencies": {
+    "scaffold": "^0.2.1",
+    "through2": "^2.0.0"
+  }
+}
