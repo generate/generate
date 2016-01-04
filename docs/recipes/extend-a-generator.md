@@ -21,7 +21,6 @@ generate.register('xyz', function(app, base, env) {
 });
 ```
 
-
 Run _both_ generators in different contexts:
 
 ```js
