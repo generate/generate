@@ -3,6 +3,7 @@
 // require('time-require');
 var path = require('path');
 var async = require('async');
+var exhaust = require('stream-exhaust')
 var Base = require('assemble-core');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
@@ -147,11 +148,12 @@ Generate.prototype.process = function(files, options) {
   options = options || {};
   files.options = files.options || {};
   var pipeline = files.options.pipeline || options.pipeline;
-  var opts = utils.extend({}, this.options, files.options, options);
+  var opts = utils.merge({}, this.options, files.options, options);
+  this.data(opts.data || {});
 
   return this.src(files.src, opts)
     .pipe(this.pipeline(pipeline, opts))
-    .pipe(this.dest(files.dest, opts));
+    .pipe(exhaust(this.dest(files.dest, opts)))
 };
 
 /**
@@ -168,6 +170,7 @@ Generate.prototype.process = function(files, options) {
  */
 
 Generate.prototype.each = function(config, cb) {
+  this.data(config.data || config.options.data || {});
   async.each(config.files, function(files, next) {
     this.process(files, files.options)
       .on('error', next)
