@@ -108,6 +108,7 @@ run(function(err, app) {
   });
 });
 
+
 function createEnv(cwd) {
   var env = new Env('generator.js', 'generate', cwd);;
   env.module.path = utils.tryResolve('generate');
