@@ -4,6 +4,7 @@
 var path = require('path');
 var async = require('async');
 var Base = require('assemble-core');
+var build = require('./lib/build');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
 
@@ -43,7 +44,7 @@ function Generate(options, preload) {
     .use(cli())
 
   this.store.create('config');
-  utils.build(this);
+  build.runTasks(this);
 }
 
 /**
@@ -86,14 +87,6 @@ Generate.prototype.register = function(name, app, env) {
     return this.registerPath(name, app, env);
   }
 
-  if (typeof app === 'function') {
-    var fn = app;
-    app = new Generate();
-    createInstance(app, this.base, fn);
-  } else {
-    createInstance(app, this.base);
-  }
-
   function createInstance(app, base, fn) {
     app.name = name;
     app.env = env || base.env;
@@ -102,6 +95,14 @@ Generate.prototype.register = function(name, app, env) {
       app.fn = fn;
       fn.call(app, app, base, app.env);
     }
+  }
+
+  if (typeof app === 'function') {
+    var fn = app;
+    app = new Generate();
+    createInstance(app, this.base, fn);
+  } else {
+    createInstance(app, this.base);
   }
 
   this.addLeaf(name, app);

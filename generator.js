@@ -72,7 +72,6 @@ module.exports = function(generate, base, env) {
     }
 
     generate.questions.setData(pkg || {});
-
     generate.ask(function(err, answers) {
       if (err) return cb(err);
       if (!pkg) answers = {};
