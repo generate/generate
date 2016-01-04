@@ -12,6 +12,10 @@ var argv = require('minimist')(process.argv.slice(2), {
   }
 });
 
+/**
+ * Run generate
+ */
+
 function run(cb) {
   var baseEnv = createEnv(path.resolve(__dirname, '..'));
   var Generate = require(baseEnv.module.path);
@@ -48,14 +52,19 @@ function run(cb) {
     if (typeof config === 'function') {
       app.fn = config;
       app.register(env.config.alias, config, env);
+  // console.log(app.generators[env.config.alias])
     }
   }
 
   /**
    * Support `--emit` for debugging
+   * Examples:
    *
-   * Example:
-   *   $ --emit data
+   *   # emit views as they're loaded
+   *   $ --emit view
+   *
+   *   # emit errors
+   *   $ --emit error
    */
 
   if (args.emit && typeof args.emit === 'string') {
@@ -68,13 +77,12 @@ function run(cb) {
    */
 
   app.env.on('config', function(name, env) {
-    app.registerPath(name, env.config.path, env);
+    app.register(name, env.config.fn, env);
   });
 
   app.env.resolve('generate-*/generator.js', {
     cwd: utils.gm
   });
-
 
   cb(null, app);
 }
@@ -86,6 +94,10 @@ function run(cb) {
 run(function(err, app) {
   if (err) throw err;
 
+  app.on('error', function(err) {
+    console.error(err);
+  });
+
   app.build(argv, function(err, cb) {
     if (err) {
       console.error(err);
@@ -95,7 +107,6 @@ run(function(err, app) {
     process.exit(0);
   });
 });
-
 
 function createEnv(cwd) {
   var env = new Env('generator.js', 'generate', cwd);;
