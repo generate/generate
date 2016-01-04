@@ -35,6 +35,7 @@ function Generate(options, preload) {
 
   this
     .use(utils.store())
+    .use(utils.pipeline())
     .use(utils.ask({storeName: 'generate'}))
     .use(utils.middleware())
     .use(utils.runtimes())
@@ -222,7 +223,10 @@ Generate.prototype.eachSeries = function(config, cb) {
 
 Generate.prototype.scaffold = function(scaffold, cb) {
   async.eachOf(scaffold, function(target, name, next) {
-    this.each(target, next);
+    if (target.files) {
+    console.log(arguments)
+      this.each(target, next);
+    }
   }.bind(this), cb);
 };
 
