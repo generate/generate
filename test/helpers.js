@@ -472,30 +472,94 @@ describe('built-in helpers:', function() {
       app.engine('swig', swig);
       app.engine('tmpl', require('engine-base'));
 
-      app.partial('a.hbs', {content: '---\nname: "AAA"\n---\n<title>{{name}}</title>', locals: {name: 'BBB'}});
-      app.page('a.hbs', {path: 'a.hbs', content: '<title>{{author}}</title>', locals: {author: 'Halle Nicole'}});
-      app.page('b.tmpl', {path: 'b.tmpl', content: '<title><%= author %></title>', locals: {author: 'Halle Nicole'}});
-      app.page('d.swig', {path: 'd.swig', content: '<title>{{author}}</title>', locals: {author: 'Halle Nicole'}});
-      app.page('e.swig', {path: 'e.swig', content: '<title>{{author}}</title>', locals: {author: 'Halle Nicole'}});
-      app.page('f.hbs', {content: '<title>{{author}}</title>', locals: {author: 'Halle Nicole'}});
-      app.page('g.md', {content: '---\nauthor: Brian Woodward\n---\n<title>{{author}}</title>', locals: {author: 'Halle Nicole'}});
-      app.page('with-partial.hbs', {path: 'with-partial.hbs', content: '{{{partial "a.hbs" custom.locals}}}'});
+      /**
+       * Partial
+       */
+      
+      app.partial('a.hbs', {
+        content: '---\nname: "AAA"\n---\n<title>{{name}}</title>',
+        locals: {
+          name: 'BBB'
+        }
+      });
+
+      /**
+       * Pages
+       */
+      
+      app.page('a.hbs', {
+        path: 'a.hbs',
+        content: '<title>{{author}}</title>',
+        locals: {
+          author: 'Halle Nicole'
+        }
+      });
+      app.page('b.tmpl', {
+        path: 'b.tmpl',
+        content: '<title><%= author %></title>',
+        locals: {
+          author: 'Halle Nicole'
+        }
+      });
+      app.page('d.swig', {
+        path: 'd.swig',
+        content: '<title>{{author}}</title>',
+        locals: {
+          author: 'Halle Nicole'
+        }
+      });
+      app.page('e.swig', {
+        path: 'e.swig',
+        content: '<title>{{author}}</title>',
+        locals: {
+          author: 'Halle Nicole'
+        }
+      });
+      app.page('f.hbs', {
+        content: '<title>{{author}}</title>',
+        locals: {
+          author: 'Halle Nicole'
+        }
+      });
+      app.page('g.md', {
+        content: '---\nauthor: Brian Woodward\n---\n<title>{{author}}</title>',
+        locals: {
+          author: 'Halle Nicole'
+        }
+      });
+      app.page('with-partial.hbs', {
+        path: 'with-partial.hbs',
+        content: '{{{partial "a.hbs" custom.locals}}}'
+      });
+
+      app.on('error', function(err) {
+        cb(err);
+      });
 
       var locals = {custom: {locals: {name: 'Halle Nicole' }}};
       app.render('a.hbs', locals, function(err, res) {
-        if (err) return console.log(err);
+        if (err) {
+          app.emit('error', err);
+          return;
+        }
         res.content.should.equal('<title>Halle Nicole</title>');
       });
 
       app.render('with-partial.hbs', locals, function(err, res) {
-        if (err) return console.log(err);
+        if (err) {
+          app.emit('error', err);
+          return;
+        }
         res.content.should.equal('<title>Halle Nicole</title>');
       });
 
       var page = app.pages.getView('g.md');
       locals.author = page.data.author || locals.author;
       page.render(locals, function(err, res) {
-        if (err) return cb(err);
+        if (err) {
+          app.emit('error', err);
+          return;
+        }
         res.content.should.equal('<title>Brian Woodward</title>');
         cb(null, res.content);
       });

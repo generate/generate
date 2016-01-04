@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('assert');
 var App = require('..');
 var app;
@@ -5,6 +7,7 @@ var app;
 describe('task()', function() {
   beforeEach(function() {
     app = new App();
+    app.tasks = {};
   });
 
   it('should register a task', function() {
