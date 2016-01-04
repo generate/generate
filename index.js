@@ -171,7 +171,7 @@ Generate.prototype.each = function(config, cb) {
   async.each(config.files, function(files, next) {
     this.process(files, files.options)
       .on('error', next)
-      .on('end', next);
+      .on('finish', next);
   }.bind(this), cb);
   return this;
 };
@@ -193,7 +193,7 @@ Generate.prototype.eachSeries = function(config, cb) {
   async.eachSeries(config.files, function(files, next) {
     this.process(files, files.options)
       .on('error', next)
-      .on('end', next);
+      .on('finish', next);
   }.bind(this), cb);
 };
 
@@ -222,11 +222,15 @@ Generate.prototype.eachSeries = function(config, cb) {
  */
 
 Generate.prototype.scaffold = function(scaffold, cb) {
+  utils.timestamp('starting scaffold');
+
   async.eachOf(scaffold, function(target, name, next) {
-    if (target.files) {
-    console.log(arguments)
-      this.each(target, next);
+    if (!target.files) {
+      next();
+      return;
     }
+    utils.timestamp('building target ' + name);
+    this.each(target, next);
   }.bind(this), cb);
 };
 
