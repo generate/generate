@@ -1,40 +1,70 @@
 'use strict';
 
-var utils = require('../lib/utils');
-var Generate = require('..');
+var through = require('through2');
+var extname = require('gulp-extname');
+var Generate = require('../..');
 var app = new Generate();
 
-var through = require('through2');
+app.on('error', function(err) {
+  console.log(err);
+});
+
 var Scaffold = require('scaffold');
-var scaffold = new Scaffold({cwd: 'examples/fixtures'});
+var scaffold = new Scaffold();
 
 scaffold.addTargets({
   a: {
     options: {
-      cwd: 'examples/fixtures',
-      destBase: 'two',
-      pipeline: ['foo']
+      data: {title: 'Markdown'},
+      cwd: 'templates',
+      flatten: true,
+      destBase: __dirname + '/site/one',
+      pipeline: ['render', 'extname']
     },
-    data: {name: 'Jon'},
     files: [
-      {src: '*.txt', dest: 'a', options: {pipeline: ['foo', 'bar']}},
-      {src: '*.txt', dest: 'b'},
-      {src: '*.txt', dest: 'c'},
-      {src: '*.md', dest: 'md', data: {name: 'Jon'}},
+      {src: '*.hbs', dest: 'a', options: {pipeline: ['foo', 'bar', 'render', 'extname']}},
+      {src: '*.hbs', dest: 'b'},
+      {src: '*.hbs', dest: 'c'},
+      {src: '*.md', dest: 'd', data: {title: 'Foo'}},
     ]
   },
   b: {
-    cwd: 'examples/fixtures',
-    destBase: 'one',
-    data: {name: 'Brian'},
+    options: {
+      data: {title: 'Baz'},
+      cwd: 'templates',
+      flatten: true,
+      destBase: __dirname + '/site/two',
+      pipeline: app.renderFile
+    },
     files: [
-      {src: '*.txt', dest: 'a'},
-      {src: '*.txt', dest: 'b'},
-      {src: '*.txt', dest: 'c'},
-      {src: '*.md', dest: 'md', data: {name: 'Brian'}},
+      {src: '*.hbs', dest: 'a'},
+      {src: '*.hbs', dest: 'b'},
+      {src: '*.hbs', dest: 'c'},
+      {src: '*.md', dest: 'd', data: {title: 'Bar'}},
     ]
   }
 });
+
+/**
+ * Site data
+ */
+
+app.data({
+  site: {
+    title: 'My Blog!'
+  }
+});
+
+/**
+ * Register pipeline plugins (can be gulp plugins)
+ */
+
+app.plugin('render', app.renderFile);
+app.plugin('extname', extname);
+
+/**
+ * Custom pipeline plugins
+ */
 
 app.plugin('foo', function(options) {
   return through.obj(function(file, enc, next) {
@@ -50,7 +80,18 @@ app.plugin('bar', function(options) {
   });
 });
 
+/**
+ * Register engines
+ */
+
+app.engine('hbs', require('engine-handlebars'));
+app.engine('md', require('engine-base'));
+
+/**
+ * Generate scaffold
+ */
+
 app.scaffold(scaffold, function(err) {
   if (err) throw err;
-  utils.timestamp('finished');
+  console.log('done!');
 });

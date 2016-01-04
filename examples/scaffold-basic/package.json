@@ -2,7 +2,8 @@
   "name": "basic-scaffold",
   "private": true,
   "dependencies": {
-    "scaffold": "^0.2.1",
-    "through2": "^2.0.0"
+    "engine-handlebars": "^0.8.0",
+    "generate": "github:generate/generate",
+    "scaffold": "^0.2.1"
   }
 }
