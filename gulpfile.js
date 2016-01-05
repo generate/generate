@@ -5,7 +5,7 @@ var mocha = require('gulp-mocha');
 var istanbul = require('gulp-istanbul');
 var eslint = require('gulp-eslint');
 
-var lint = ['index.js', 'lib/*.js', 'test/*.js'];
+var lint = ['index.js', 'lib/*.js'];
 
 gulp.task('coverage', function () {
   return gulp.src(lint)
@@ -20,7 +20,7 @@ gulp.task('mocha', ['coverage'], function () {
 });
 
 gulp.task('eslint', function () {
-  return gulp.src(lint)
+  return gulp.src(lint.concat(['test/*.js']))
     .pipe(eslint())
 });
 
