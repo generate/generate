@@ -57,9 +57,8 @@ Base.extend(Generate);
  */
 
 Generate.prototype.initPlugins = function() {
-  this.logger = new Logger(this.options);
-
-  this.use(utils.store())
+  this.use(utils.logger())
+    .use(utils.store())
     .use(utils.pipeline())
     .use(utils.ask({storeName: 'generate'}))
     .use(utils.middleware())
@@ -118,22 +117,27 @@ Generate.prototype.register = function(name, app, env) {
     return this.registerPath(name, app, env);
   }
 
-  function createInstance(app, base, fn) {
+  function createInstance(app, parent, fn) {
+    var base = parent.base;
     app.name = name;
     app.env = env || base.env;
+    app.define('parent', parent);
     if (typeof fn === 'function') {
-      app.define('parent', base);
       app.fn = fn;
       fn.call(app, app, base, app.env);
     }
   }
 
-  if (typeof app === 'function') {
+  if (utils.isObject(app) && app.isGenerate) {
+    createInstance(app, this, app.fn);
+
+  } else if (typeof app === 'function') {
     var fn = app;
     app = new Generate({name: name});
-    createInstance(app, this.base, fn);
+    createInstance(app, this, fn);
+
   } else {
-    createInstance(app, this.base);
+    createInstance(app, this);
   }
 
   this.addLeaf(name, app);
