@@ -82,7 +82,7 @@ Generate.prototype.initPlugins = function() {
 
 Generate.prototype.addLeaf = function(name, app) {
   this.tree[name] = {};
-  this.tree[name].tasks = Object.keys(app.tasks);
+  this.tree[name].tasks = Object.keys(app.tasks || {});
   this.tree[name].generators = app.tree;
   return this;
 };
@@ -108,8 +108,7 @@ Generate.prototype.getGenerator = function(name) {
 };
 
 Generate.prototype.registerPath = function(name, app, env) {
-  this.register(name, require(path.resolve(app)), env);
-  return this;
+  return this.register(name, require(path.resolve(app)), env);
 };
 
 Generate.prototype.register = function(name, app, env) {
