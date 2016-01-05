@@ -36,6 +36,15 @@ module.exports = function(generate, base, env) {
   });
 
   /**
+   * Readme task
+   */
+
+  generate.task('readme', function(cb) {
+    console.log('generate > readme');
+    cb();
+  });
+
+  /**
    * Data store tasks
    */
 
@@ -67,18 +76,18 @@ module.exports = function(generate, base, env) {
   generate.task('prompt', function(cb) {
     var pkg = env.config.pkg;
 
-    if (!pkg || env.argv.raw.init) {
+    if (!pkg || env.user.isEmpty || env.argv.raw.init) {
       forceQuestions(generate);
     }
 
     generate.questions.setData(pkg || {});
-    generate.ask(function(err, answers) {
+    generate.ask({ save: false }, function(err, answers) {
       if (err) return cb(err);
       if (!pkg) answers = {};
 
       answers.name = answers.name || utils.project();
       answers.varname = utils.namify(answers.name);
-      generate.set('cache.answers', answers);
+      generate.set('answers', answers);
       cb();
     });
   });
@@ -94,7 +103,7 @@ module.exports = function(generate, base, env) {
       if (err) return cb(err);
       async.each(files, function(name, next) {
         var fp = path.join(opts.cwd, name);
-        console.log(fp)
+
         var contents = fs.readFileSync(fp);
         generate.template(name, {contents: contents, path: fp});
         next();
