@@ -32,27 +32,24 @@ function run(cb) {
   var config = env.config.fn;
   var app = null;
 
-  // we have an instance of `Generate`
+  // If true, we have an instance of `Generate`
   if (utils.isObject(config) && config.isGenerate) {
     app = config;
     app.env = env;
     app.option(args);
-    app.register('base', base.fn, env);
-    app.parent = base;
+    app.register('base', base, env);
 
-  // we have a "generator" function
+  // If true, we have a "generator" function
   } else {
     app = new Generate();
     app.env = env;
     app.option(args);
-    app.register('base', base.fn, env);
-    app.parent = base;
+    app.register('base', base, env);
 
     // register local `generator.js` if it exists
     if (typeof config === 'function') {
       app.fn = config;
       app.register(env.config.alias, config, env);
-  // console.log(app.generators[env.config.alias])
     }
   }
 
