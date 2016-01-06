@@ -1,5 +1,7 @@
 var assert = require('assert');
 var utils = require('../lib/utils');
+var mkdirp = require('mkdirp');
+var rimraf = require('rimraf');
 
 describe('utils', function() {
   describe('alias', function() {
@@ -134,6 +136,14 @@ describe('utils', function() {
   });
 
   describe('isEmpty', function() {
+    before(function(done) {
+      mkdirp(__dirname + '/fixtures/empty', done);
+    });
+
+    after(function(done) {
+      rimraf(__dirname + '/fixtures/empty', done);
+    });
+
     it('should return false when the directory does not exist', function() {
       assert(utils.isEmpty(__dirname + '/something-that-does-not-exist/') === false);
     });
