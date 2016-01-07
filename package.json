@@ -63,6 +63,7 @@
   "devDependencies": {
     "base-methods": "^0.6.2",
     "buffer-equal": "^1.0.0",
+    "capture-stream": "^0.1.2",
     "consolidate": "^0.13.1",
     "coveralls": "^2.11.6",
     "data-store": "^0.12.1",
