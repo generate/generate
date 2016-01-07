@@ -2,8 +2,8 @@
 
 var path = require('path');
 var async = require('async');
-var exhaust = require('stream-exhaust');
 var Base = require('assemble-core');
+var exhaust = require('stream-exhaust');
 var Logger = require('./lib/logger');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
@@ -46,13 +46,13 @@ Base.extend(Generate);
 
 /**
  * Initialize `Generate` plugins.
- *  | store
- *  | pipeline
- *  | ask
+ *  | base-store
+ *  | base-pipeline
+ *  | base-questions
  *  | common middleware
- *  | runtimes
- *  | cli
- *  | list / tree
+ *  | composer-runtimes
+ *  | base-cli
+ *  | base-tree
  *  | config.store
  */
 
@@ -90,10 +90,10 @@ Generate.prototype.addLeaf = function(name, app) {
 /**
  * Get or register a generator.
  *
- * @param {[type]} name
- * @param {[type]} app
- * @param {[type]} env
- * @return {[type]}
+ * @param {String} `name` The generator name
+ * @param {Object|Function} `app` Generator instance or function.
+ * @param {Object} `env` Instance of `Env`
+ * @return {Object}
  */
 
 Generate.prototype.generator = function(name, app, env) {
@@ -199,7 +199,8 @@ Generate.prototype.process = function(files, options) {
  *
  * ```js
  * generate.each(files, function(err) {
- *   if (err) console.log(err);
+ *   if (err) throw err;
+ *   console.log('done!');
  * });
  * ```
  * @param {Object} `config`
@@ -222,7 +223,8 @@ Generate.prototype.each = function(config, cb) {
  *
  * ```js
  * generate.eachSeries(files, function(err) {
- *   if (err) console.log(err);
+ *   if (err) throw err;
+ *   console.log('done!');
  * });
  * ```
  * @param {Object} `config`
@@ -270,14 +272,20 @@ Generate.prototype.scaffold = function(scaffold, cb) {
       next();
       return;
     }
-
     utils.timestamp('building target ' + name);
     this.each(target, next);
   }.bind(this), cb);
 };
 
 /**
- * Set the name on the instance
+ * Set the `name` on the instance, or get the `name` from the instance.
+ * Used for lookups and logging messages.
+ *
+ * ```js
+ * var name = generate.name;
+ * ```
+ *
+ * @api public
  */
 
 Object.defineProperty(Generate.prototype, 'name', {
@@ -295,7 +303,12 @@ Object.defineProperty(Generate.prototype, 'name', {
 });
 
 /**
- * Get the `base` instance
+ * Get the `base` instance from the current instance of `generate`.
+ *
+ * ```js
+ * var base = generate.base;
+ * ```
+ * @api public
  */
 
 Object.defineProperty(Generate.prototype, 'base', {
