@@ -12,24 +12,28 @@ describe('generate.compose', function() {
     generate = new Generate();
   });
 
-  it('should throw an error when trying to compose an instance', function(done) {
+  it('should throw an error when trying to compose an instance', function(cb) {
     var foo = new Generate({name: 'foo'});
     try {
       generate.compose(foo);
-      done(new Error('Expected an error.'));
+      cb(new Error('Expected an error.'));
     } catch (err) {
-      err.message.should.equal('generators must export a function to extend other generators');
-      done();
+      assert.equal(err.message, 'generators must export a function to extend other generators');
+      cb();
     }
   });
 
   it('should compose a generator', function() {
     var foo = generate.generator('foo', function(app) {
-      app.task('foo', function(cb) { cb(); });
+      app.task('foo', function(cb) {
+        cb();
+      });
     });
 
     var bar = generate.generator('bar', function(app) {
-      app.task('bar', function(cb) { cb(); });
+      app.task('bar', function(cb) {
+        cb();
+      });
     });
 
     foo.tasks.should.have.property('foo');
@@ -46,11 +50,15 @@ describe('generate.compose', function() {
 
   it('should compose a generator by name', function() {
     var foo = generate.generator('foo', function(app) {
-      app.task('foo', function(cb) { cb(); });
+      app.task('foo', function(cb) {
+        cb();
+      });
     });
 
     var bar = generate.generator('bar', function(app) {
-      app.task('bar', function(cb) { cb(); });
+      app.task('bar', function(cb) {
+        cb();
+      });
     });
 
     foo.tasks.should.have.property('foo');
