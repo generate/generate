@@ -1,0 +1,14 @@
+{
+  "name": "scaffold-streams",
+  "private": true,
+  "dependencies": {
+    "engine-base": "^0.1.2",
+    "engine-handlebars": "^0.8.0",
+    "generate": "github:generate/generate",
+    "scaffold": "^0.2.1",
+    "through2": "^2.0.0"
+  },
+  "devDependencies": {
+    "gulp-extname": "^0.2.0"
+  }
+}
