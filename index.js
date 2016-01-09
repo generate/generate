@@ -212,11 +212,14 @@ Generate.prototype.process = function(files, options) {
  * });
  * ```
  * @param {Object} `config`
- * @param {Function} `cb`
+ * @param {Function} `cb` Optional callback function. Calls `.eachStream` and returns a stream when callback is not passed.
  * @api public
  */
 
 Generate.prototype.each = function(config, cb) {
+  if (typeof cb !== 'function') {
+    return this.eachStream(config);
+  }
   this.data(config.data || config.options.data || {});
   async.each(config.files, function(files, next) {
     this.process(files, files.options)
@@ -224,6 +227,30 @@ Generate.prototype.each = function(config, cb) {
       .on('finish', next);
   }.bind(this), cb);
   return this;
+};
+
+/**
+ * Generate `files` configurations in parallel.
+ *
+ * ```js
+ * generate.each(files)
+ *   .on('error', console.error)
+ *   .on('end', function() {
+ *     console.log('done!');
+ *   });
+ * ```
+ * @param {Object} `config`
+ * @return {Stream} returns stream with all process files
+ * @api public
+ */
+
+Generate.prototype.eachStream = function(config) {
+  this.data(config.data || config.options.data || {});
+  var streams = [];
+  config.files.forEach(function(files) {
+    streams.push(utils.src(this.process(files, files.options)));
+  }.bind(this));
+  return utils.ms.apply(utils.ms, streams);
 };
 
 /**
@@ -268,13 +295,16 @@ Generate.prototype.eachSeries = function(config, cb) {
  * });
  * ```
  * @param {Object} `scaffold` Scaffold configuration
- * @param {Function} `cb` Callback function
+ * @param {Function} `cb` Optional callback function. Will call `.scaffoldStream` and return a stream when callback is not passed.
  * @api public
  */
 
 Generate.prototype.scaffold = function(scaffold, cb) {
-  utils.timestamp('starting scaffold');
+  if (typeof cb !== 'function') {
+    return this.scaffoldStream(scaffold);
+  }
 
+  utils.timestamp('starting scaffold');
   async.eachOf(scaffold, function(target, name, next) {
     if (!target.files) {
       next();
@@ -283,6 +313,48 @@ Generate.prototype.scaffold = function(scaffold, cb) {
     utils.timestamp('building target ' + name);
     this.each(target, next);
   }.bind(this), cb);
+};
+
+/**
+ * Generate files from a declarative [scaffold][] configuration.
+ *
+ * ```js
+ * var Scaffold = require('scaffold');
+ * var scaffold = new Scaffold({
+ *   options: {cwd: 'source'},
+ *   posts: {
+ *     src: ['content/*.md']
+ *   },
+ *   pages: {
+ *     src: ['templates/*.hbs']
+ *   }
+ * });
+ *
+ * generate.scaffoldStream(scaffold)
+ *   .on('error', console.error)
+ *   .on('end', function() {
+ *     console.log('done!');
+ *   });
+ * ```
+ * @param {Object} `scaffold` Scaffold configuration
+ * @return {Stream} returns stream with all process files
+ * @api public
+ */
+
+Generate.prototype.scaffoldStream = function(scaffold) {
+  utils.timestamp('starting scaffold');
+  var streams = [];
+  for(var name in scaffold) {
+    var target = scaffold[name];
+    if (!target.files) {
+      continue;
+    }
+    utils.timestamp('building target ' + name);
+    streams.push(utils.src(this.eachStream(target)));
+  }
+  var stream = utils.ms.apply(utils.ms, streams);
+  stream.on('finish', stream.emit.bind(stream, 'end'));
+  return stream;
 };
 
 /**
