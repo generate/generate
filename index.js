@@ -193,6 +193,9 @@ Generate.prototype.mkdirSync = function(dir) {
 
 Generate.prototype.process = function(files, options) {
   var opts = createOptions(this, files, options);
+  var cwd = opts.cwd ? path.resolve(opts.cwd) : process.cwd();
+  files.dest = path.resolve(cwd, files.dest);
+
   return this.src(files.src, opts)
     .pipe(this.pipeline(opts.pipeline, opts))
     .on('error', this.emit.bind(this, 'error'))
