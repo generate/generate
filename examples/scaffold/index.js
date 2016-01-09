@@ -12,37 +12,36 @@ app.on('error', function(err) {
 var Scaffold = require('scaffold');
 var scaffold = new Scaffold();
 
-scaffold.addTargets({
-  a: {
-    options: {
-      data: {title: 'Markdown'},
-      cwd: 'templates',
-      flatten: true,
-      destBase: __dirname + '/site/one',
-      pipeline: ['render', 'extname']
-    },
-    files: [
-      {src: '*.hbs', dest: 'a', options: {pipeline: ['foo', 'bar', 'render', 'extname']}},
-      {src: '*.hbs', dest: 'b'},
-      {src: '*.hbs', dest: 'c'},
-      {src: '*.md', dest: 'd', data: {title: 'Foo'}},
-    ]
+scaffold.addTarget('a', {
+  options: {
+    data: {title: 'Markdown'},
+    cwd: 'templates',
+    flatten: true,
+    destBase: __dirname + '/site/one',
+    pipeline: ['render', 'extname']
   },
-  b: {
-    options: {
-      data: {title: 'Baz'},
-      cwd: 'templates',
-      flatten: true,
-      destBase: __dirname + '/site/two',
-      pipeline: app.renderFile
-    },
-    files: [
-      {src: '*.hbs', dest: 'a'},
-      {src: '*.hbs', dest: 'b'},
-      {src: '*.hbs', dest: 'c'},
-      {src: '*.md', dest: 'd', data: {title: 'Bar'}},
-    ]
-  }
+  files: [
+    {src: '*.hbs', dest: 'a', options: {pipeline: ['foo', 'bar', 'render', 'extname']}},
+    {src: '*.hbs', dest: 'b'},
+    {src: '*.hbs', dest: 'c'},
+    {src: '*.md', dest: 'd', data: {title: 'Foo'}},
+  ]
+});
+
+scaffold.addTarget('b', {
+  options: {
+    data: {title: 'Baz'},
+    cwd: 'templates',
+    flatten: true,
+    destBase: __dirname + '/site/two',
+    pipeline: app.renderFile
+  },
+  files: [
+    {src: '*.hbs', dest: 'a'},
+    {src: '*.hbs', dest: 'b'},
+    {src: '*.hbs', dest: 'c'},
+    {src: '*.md', dest: 'd', data: {title: 'Bar'}},
+  ]
 });
 
 /**
