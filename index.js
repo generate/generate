@@ -250,7 +250,9 @@ Generate.prototype.eachStream = function(config) {
   config.files.forEach(function(files) {
     streams.push(utils.src(this.process(files, files.options)));
   }.bind(this));
-  return utils.ms.apply(utils.ms, streams);
+  var stream = utils.ms.apply(utils.ms, streams);
+  stream.on('finish', stream.emit.bind(stream, 'end'));
+  return stream;
 };
 
 /**
