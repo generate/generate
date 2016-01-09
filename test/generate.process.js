@@ -44,8 +44,8 @@ function base(cb) {
 
 describe('process plugins', function() {
   beforeEach(function(cb) {
-    rimraf(actual, cb);
     app = new Generate();
+    rimraf(actual, cb);
   });
 
   afterEach(function(cb) {
@@ -113,13 +113,45 @@ describe('process plugins', function() {
           cb();
         });
     });
+
+    it('should run plugins defined on process.options', function(cb) {
+      function appendString(suffix) {
+        return base(function(file, str, next) {
+          file.contents = new Buffer(str + suffix);
+          next(null, file);
+        });
+      }
+
+      app.plugin('a', appendString('aaa'));
+      app.plugin('b', appendString('bbb'));
+      app.plugin('c', appendString('ccc'));
+
+      config = expand({
+        cwd: fixtures,
+        src: 'a.txt',
+        dest: actual
+      });
+
+      app.process(config, {pipeline: ['a', 'c'], suffix: 'zzz'})
+        .on('error', cb)
+        .on('data', function(data) {
+          var str = data.contents.toString();
+          assert(str.indexOf('bbb') === -1);
+          var end = str.slice(-6);
+          assert(end === 'aaaccc');
+        })
+        .on('end', function() {
+          assert(exists('a.txt'));
+          cb();
+        });
+    });
   });
 });
 
 describe('process()', function() {
   beforeEach(function(cb) {
-    rimraf(actual, cb);
     app = new Generate();
+    rimraf(actual, cb);
   });
 
   afterEach(function(cb) {
