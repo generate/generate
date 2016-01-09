@@ -8,6 +8,7 @@ var Logger = require('./lib/logger');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
+var Env = require('./lib/env');
 
 /**
  * Create an instance of `Generate` with the given `options`
@@ -34,8 +35,8 @@ function Generate(options) {
   this.generators = {};
   this.tree = {};
 
-  this.initPlugins();
-  build.runTasks(this);
+  this.defaultPlugins();
+  this.use(build());
 }
 
 /**
@@ -56,9 +57,10 @@ Base.extend(Generate);
  *  | config.store
  */
 
-Generate.prototype.initPlugins = function() {
-  this.use(utils.logger())
-    .use(utils.store())
+Generate.prototype.defaultPlugins = function() {
+  this.log = new Logger();
+
+  this.use(utils.store())
     .use(utils.pipeline())
     .use(utils.ask({storeName: 'generate'}))
     .use(utils.middleware())
@@ -336,3 +338,9 @@ function createOptions(app, files, options) {
  */
 
 module.exports = Generate;
+
+/**
+ * Expose `Env`
+ */
+
+module.exports.Env = Env;

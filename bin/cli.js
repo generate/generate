@@ -17,11 +17,11 @@ var argv = require('minimist')(process.argv.slice(2), {
  */
 
 function run(cb) {
-  var baseEnv = createEnv(path.resolve(__dirname, '..'));
-  var Generate = require(baseEnv.module.path);
-
   // pre-process command line arguments
   var args = utils.expandArgs(argv);
+
+  var baseEnv = createEnv(path.resolve(__dirname, '..'));
+  var Generate = require(baseEnv.module.path);
 
   var base = new Generate();
   base.env = baseEnv;
@@ -104,7 +104,6 @@ run(function(err, app) {
     process.exit(0);
   });
 });
-
 
 function createEnv(cwd) {
   var env = new Env('generator.js', 'generate', cwd);;
