@@ -96,11 +96,9 @@ describe('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
+      unknown: ['tasks'],
       commands: {},
-      options: {
-        tasks: true
-      },
+      options: {},
       tasks: []
     };
     assert.deepEqual(tasks, expected);
