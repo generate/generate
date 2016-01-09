@@ -3,7 +3,6 @@
 var path = require('path');
 var async = require('async');
 var Base = require('assemble-core');
-var Generator = require('./lib/generator');
 var Logger = require('./lib/logger');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
@@ -121,7 +120,30 @@ Generate.prototype.register = function(name, app, env) {
     return this.registerPath(name, app, env);
   }
 
-  app = new Generator(name, app, env, this);
+  function createInstance(app, parent, fn) {
+    var base = parent.base;
+    app.name = name;
+    app.env = env || base.env;
+    app.define('parent', parent);
+    if (typeof fn === 'function') {
+      app.fn = fn;
+      fn.call(app, app, base, app.env);
+    }
+  }
+
+  if (utils.isObject(app) && app.isGenerate) {
+    createInstance(app, this, app.fn);
+
+  } else if (typeof app === 'function') {
+    var Generator = this.constructor;
+    var fn = app;
+    app = new Generator({name: name});
+    createInstance(app, this, fn);
+
+  } else {
+    createInstance(app, this);
+  }
+
   this.addLeaf(name, app);
   this.generators[name] = app;
   return app;
