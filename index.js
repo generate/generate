@@ -30,7 +30,6 @@ function Generate(options) {
   this.fn = null;
 
   Base.apply(this, arguments);
-  this.name = 'generate';
   this.isGenerate = true;
   this.generators = {};
   this.tree = {};
