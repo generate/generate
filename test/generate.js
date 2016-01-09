@@ -89,29 +89,29 @@ describe('generate', function() {
     });
 
     it('should default `name` to `generate`', function() {
-      generate.name.should.equal('generate');
+      assert.equal(generate.name, 'generate');
     });
 
     it('should default `name` to `assemble`', function() {
       delete generate._name;
-      generate.name.should.equal('assemble');
+      assert.equal(generate.name, 'assemble');
     });
 
     it('should default `name` to `base`', function() {
       delete generate._name;
       delete generate._appname;
-      generate.name.should.equal('base');
+      assert.equal(generate.name, 'base');
     });
 
     it('should set `name` to `base`', function() {
       generate.name = 'base';
-      generate.name.should.equal('base');
+      assert.equal(generate.name, 'base');
     });
 
     it('should use `options.name` for `name`', function() {
       generate = new Generate({name: 'generate'});
       delete generate._name;
-      generate.name.should.equal('generate');
+      assert.equal(generate.name, 'generate');
     });
 
     it('should return `this` as `base`', function() {

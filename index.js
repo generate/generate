@@ -30,6 +30,10 @@ function Generate(options) {
   this.fn = null;
 
   Base.apply(this, arguments);
+  if (this.name === 'Templates') {
+    this.name = 'generate';
+  }
+
   this.isGenerate = true;
   this.generators = {};
   this.tree = {};
