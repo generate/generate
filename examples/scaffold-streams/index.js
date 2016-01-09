@@ -93,7 +93,7 @@ app.engine('md', require('engine-base'));
 
 app.scaffoldStream(scaffold)
   .on('error', console.error)
-  // .on('data', console.log)
+  .on('data', console.log)
   .on('end', function() {
     console.log('done!');
   });

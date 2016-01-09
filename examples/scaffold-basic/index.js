@@ -1,6 +1,6 @@
 'use strict';
 
-var Generate = require('generate');
+var Generate = require('../..');
 var generate = new Generate();
 
 var Scaffold = require('scaffold');
@@ -32,7 +32,9 @@ generate.engine('hbs', require('engine-handlebars'));
  * Generate the scaffold!
  */
 
-generate.scaffold(scaffold, function(err) {
-  if (err) throw err;
-  console.log('done!');
-});
+generate.scaffold(scaffold)
+  .on('error', console.error)
+  .on('data', console.log)
+  .on('end', function() {
+    console.log('done!');
+  });
