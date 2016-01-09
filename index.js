@@ -3,7 +3,7 @@
 var path = require('path');
 var async = require('async');
 var Base = require('assemble-core');
-var exhaust = require('stream-exhaust');
+var Generator = require('./lib/generator');
 var Logger = require('./lib/logger');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
@@ -121,29 +121,7 @@ Generate.prototype.register = function(name, app, env) {
     return this.registerPath(name, app, env);
   }
 
-  function createInstance(app, parent, fn) {
-    var base = parent.base;
-    app.name = name;
-    app.env = env || base.env;
-    app.define('parent', parent);
-    if (typeof fn === 'function') {
-      app.fn = fn;
-      fn.call(app, app, base, app.env);
-    }
-  }
-
-  if (utils.isObject(app) && app.isGenerate) {
-    createInstance(app, this, app.fn);
-
-  } else if (typeof app === 'function') {
-    var fn = app;
-    app = new Generate({name: name});
-    createInstance(app, this, fn);
-
-  } else {
-    createInstance(app, this);
-  }
-
+  app = new Generator(name, app, env, this);
   this.addLeaf(name, app);
   this.generators[name] = app;
   return app;
@@ -199,7 +177,7 @@ Generate.prototype.process = function(files, options) {
   return this.src(files.src, opts)
     .pipe(this.pipeline(opts.pipeline, opts))
     .on('error', this.emit.bind(this, 'error'))
-    .pipe(exhaust(this.dest(files.dest, opts)));
+    .pipe(utils.exhaust(this.dest(files.dest, opts)));
 };
 
 /**
