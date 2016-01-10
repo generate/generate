@@ -1,3 +1,5 @@
+'use strict';
+
 var spies = require('./support/spy');
 var chmodSpy = spies.chmodSpy;
 var statSpy = spies.statSpy;

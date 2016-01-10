@@ -31,7 +31,7 @@ function exists(name) {
   try {
     fs.statSync(output(name));
     return true;
-  } catch(err) {}
+  } catch (err) {}
   return false;
 }
 

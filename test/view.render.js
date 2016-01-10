@@ -1,3 +1,5 @@
+'use strict';
+
 require('mocha');
 require('should');
 var support = require('./support');

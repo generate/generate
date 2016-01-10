@@ -1,3 +1,5 @@
+'use strict';
+
 /* deps: coveralls istanbul */
 require('mocha');
 require('should');

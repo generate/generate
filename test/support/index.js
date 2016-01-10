@@ -56,20 +56,9 @@ exports.resolve = function(filepath) {
 function tryResolve(name) {
   try {
     return require.resolve(name);
-  } catch(err) {}
+  } catch (err) {}
 
   try {
     return require.resolve(path.resolve(name));
-  } catch(err) {}
+  } catch (err) {}
 }
-
-function tryRequire(name) {
-  try {
-    return require(name);
-  } catch(err) {}
-
-  try {
-    return require(path.resolve(name));
-  } catch(err) {}
-}
-

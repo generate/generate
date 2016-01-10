@@ -108,7 +108,7 @@ describe('store', function() {
     assert(!app.store.has('a.b.g.j.z'));
   });
 
-   it('should return true if a key exists `.hasOwn()` on the store', function() {
+  it('should return true if a key exists `.hasOwn()` on the store', function() {
     app.store.set('foo', 'bar');
     app.store.set('baz', null);
     app.store.set('qux', undefined);

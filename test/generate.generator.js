@@ -1,10 +1,11 @@
+'use strict';
+
 /* deps: coveralls istanbul */
 require('mocha');
 require('should');
 var assert = require('assert');
 var support = require('./support');
 var Generate = support.resolve();
-var Base = Generate.Base;
 var generate;
 var one;
 var two;
@@ -29,6 +30,8 @@ describe('generate.generator', function() {
   });
 
   it('should get a registered generator by name', function() {
+    one = generate.generator('one', './test/fixtures/one/generator.js');
+    two = generate.generator('two', './test/fixtures/two/generate.js');
     generate.generator('one').should.deepEqual(one);
     generate.generator('two').should.deepEqual(two);
   });

@@ -1,3 +1,5 @@
+'use strict';
+
 var capture = require('capture-stream');
 var assert = require('assert');
 
