@@ -26,7 +26,7 @@ function Generate(options) {
   }
 
   this.env = {};
-  this.fn = null;
+  this.fn = require('./generator.js');
 
   Base.apply(this, arguments);
   if (this.name === 'Templates') {
@@ -61,34 +61,18 @@ Base.extend(Generate);
 
 Generate.prototype.defaultPlugins = function() {
   this.log = new Logger();
-
   this.use(utils.store())
     .use(utils.pipeline())
     .use(utils.ask({storeName: 'generate'}))
     .use(utils.middleware())
     .use(utils.runtimes())
+    .use(utils.argv())
     .use(cli())
     .use(utils.list('generators', {
       method: 'generator'
     }));
 
   this.store.create('config');
-};
-
-/**
- * Add a generator and its tasks to the tree object.
- * Mostly used for debugging, but also useful for
- * creating custom-formatted visual trees.
- *
- * @param {String} `name`
- * @param {Object} `app`
- */
-
-Generate.prototype.addLeaf = function(name, app) {
-  this.tree[name] = {};
-  this.tree[name].tasks = Object.keys(app.tasks || {});
-  this.tree[name].generators = app.tree;
-  return this;
 };
 
 /**
@@ -107,13 +91,53 @@ Generate.prototype.generator = function(name, app, env) {
   return this.register.apply(this, arguments);
 };
 
+/**
+ * Get generator `name`.
+ *
+ * ```js
+ * generate.getGenerator('node')
+ *   .build('default', function(err) {
+ *     if (err) throw err;
+ *     console.log('done!');
+ *   });
+ * ```
+ * @param {String} `name`
+ * @return {Object} Returns a generator object, which is an instance of generate.
+ * @api public
+ */
+
 Generate.prototype.getGenerator = function(name) {
-  return this.get(utils.toKey('generators', name));
+  var app = this.get(utils.toKey('generators', name));
+  if (app) return app;
+
+  if (name.indexOf('base.') !== 0) {
+    name = 'base.' + name;
+    return this.get(utils.toKey('generators', name));
+  }
 };
 
-Generate.prototype.registerPath = function(name, app, env) {
-  return this.register(name, require(path.resolve(app)), env);
-};
+/**
+ * Register a generator by `name` with either an instance of generate,
+ * or a generator function, and an optional `environment` object.
+ *
+ * ```js
+ * // instance of generate
+ * var app = new Generate();
+ * generate.register('webapp', app);
+ *
+ * // generator function
+ * generate.register('webapp', function(app, base, env) {
+ *   // do stuff
+ * });
+ * ```
+ * @param {String} `name`
+ * @param {Object|Function} `app` An instance of generate or a generator function.
+ *   _Globally installed generators must be exposed as functions_. Each has pros and
+ *   cons, see the [generators docs](./docs/generators.md) for more details.
+ * @param {Object} `env`
+ * @return {Object} returns the generator instance.
+ * @api publich
+ */
 
 Generate.prototype.register = function(name, app, env) {
   if (typeof app === 'string') {
@@ -149,30 +173,92 @@ Generate.prototype.register = function(name, app, env) {
   return app;
 };
 
-Generate.prototype.extendGenerator = function(generator) {
+/**
+ * Register generator `name` by the given filepath. This method wraps
+ * the `register` method to simplify adding generators by path.
+ *
+ * See the [register](#register) method for more details.
+ *
+ * @param {String} `name` The generator name
+ * @param {Object} `filepath` The filepath of the generator.
+ * @param {Object} `env`
+ * @return {Object}
+ * @api public
+ */
+
+Generate.prototype.registerPath = function(name, filepath, env) {
+  if (typeof filepath === 'object' && filepath.config) {
+    env = filepath;
+    filepath = name;
+  }
+
+  var fp = utils.tryResolve(filepath);
+  if (!utils.exists(fp)) {
+    var err = new Error('cannot resolve generator: ' + filepath);
+    err.args = arguments;
+    throw err;
+  }
+
+  if (name === filepath) {
+    name = utils.createAlias(filepath);
+  }
+  return this.register(name, require(fp), env);
+};
+
+/**
+ * Extend generator `app` with any tasks, sub-generators or other
+ * settings on the `base` instance.
+ *
+ * ```js
+ * generate.register('my-extended-generator', function(app, base) {
+ *   base.extendGenerator(app);
+ * });
+ * ```
+ * @param {Object} `app` Specified instance of generate.
+ * @param {Object} `base` The base instance of generate
+ * @return {Object}
+ * @api public
+ */
+
+Generate.prototype.extendGenerator = function(app, base) {
   if (typeof this.fn !== 'function') {
     throw new Error('generators must export a function to extend other generators');
   }
-  this.fn.call(generator, generator, this.base, generator.env);
-  return this;
+  base = base || this;
+  base.fn.call(app, app, this.base, app.env);
+  return app;
 };
 
-Generate.prototype.compose = function(name, app) {
-  if (utils.typeOf(name) === 'object') {
-    this.extendGenerator(name);
-    return this;
+/**
+ * Extend generator `app` with the tasks, sub-generators, and other settings
+ * of one or more additional generators.
+ *
+ * ```js
+ * var foo = generate.getGenerator('foo');
+ * generate.compose(foo, ['bar', 'baz', 'qux']);
+ * ```
+ * @param {Object} `app` Instance of generate.
+ * @param {String|Array} `names` Names of generators to compose with `app`.
+ * @return {Object}
+ * @api public
+ */
+
+Generate.prototype.compose = function(app, names) {
+  if (utils.typeOf(app) !== 'object') {
+    throw new TypeError('expected an object');
   }
-  var generator = this.generator(name);
-  generator.extendGenerator(app);
-  return this;
-};
 
-Generate.prototype.mkdir = function(dir) {
+  var args = [].concat.apply([], [].slice.call(arguments, 1));
+  var len = args.length;
+  var idx = -1;
 
-};
+  while (++idx < len) {
+    var name = args[idx];
+    var inst = this.generator(name);
+    app = this.extendGenerator(app, inst);
+  }
 
-Generate.prototype.mkdirSync = function(dir) {
-
+  return app;
 };
 
 /**
@@ -183,11 +269,10 @@ Generate.prototype.mkdirSync = function(dir) {
  * ```js
  * generate.process({src: ['a.txt', 'b.txt']}, options);
  * ```
- *
  * @param {Object} `files`
  * @param {Object} `options`
  * @param {Function} `cb`
- * @return {Stream} Returns a [vinyl][] src stream
+ * @return {Stream} Returns a [vinyl][] stream
  * @api public
  */
 
@@ -230,6 +315,30 @@ Generate.prototype.each = function(config, cb) {
 };
 
 /**
+ * Generate `files` configurations in series.
+ *
+ * ```js
+ * var expand = require('expand-files');
+ * var config = expand.config({src: '*', dest: 'foo/'});
+ * generate.eachSeries(config, function(err) {
+ *   if (err) throw err;
+ *   console.log('done!');
+ * });
+ * ```
+ * @param {Object} `config`
+ * @param {Function} `cb`
+ * @api public
+ */
+
+Generate.prototype.eachSeries = function(config, cb) {
+  async.eachSeries(config.files, function(files, next) {
+    this.process(files, files.options)
+      .on('error', next)
+      .on('finish', next);
+  }.bind(this), cb);
+};
+
+/**
  * Generate `files` configurations in parallel.
  *
  * ```js
@@ -247,34 +356,14 @@ Generate.prototype.each = function(config, cb) {
 Generate.prototype.eachStream = function(config) {
   this.data(config.data || config.options.data || {});
   var streams = [];
+
   config.files.forEach(function(files) {
     streams.push(utils.src(this.process(files, files.options)));
   }.bind(this));
+
   var stream = utils.ms.apply(utils.ms, streams);
   stream.on('finish', stream.emit.bind(stream, 'end'));
   return stream;
-};
-
-/**
- * Generate `files` configurations in series.
- *
- * ```js
- * generate.eachSeries(files, function(err) {
- *   if (err) throw err;
- *   console.log('done!');
- * });
- * ```
- * @param {Object} `config`
- * @param {Function} `cb`
- * @api public
- */
-
-Generate.prototype.eachSeries = function(config, cb) {
-  async.eachSeries(config.files, function(files, next) {
-    this.process(files, files.options)
-      .on('error', next)
-      .on('finish', next);
-  }.bind(this), cb);
 };
 
 /**
@@ -296,8 +385,8 @@ Generate.prototype.eachSeries = function(config, cb) {
  *   if (err) console.log(err);
  * });
  * ```
- * @param {Object} `scaffold` Scaffold configuration
- * @param {Function} `cb` Optional callback function. Will call `.scaffoldStream` and return a stream when callback is not passed.
+ * @param {Object} `scaffold` Scaffold configuration object.
+ * @param {Function} `cb` Optional callback function. If not passed, `.scaffoldStream` will be called and a stream will be returned.
  * @api public
  */
 
@@ -338,8 +427,8 @@ Generate.prototype.scaffold = function(scaffold, cb) {
  *     console.log('done!');
  *   });
  * ```
- * @param {Object} `scaffold` Scaffold configuration
- * @return {Stream} returns stream with all process files
+ * @param {Object} `scaffold` [scaffold][] configuration object.
+ * @return {Stream} returns a stream with all processed files.
  * @api public
  */
 
@@ -357,6 +446,22 @@ Generate.prototype.scaffoldStream = function(scaffold) {
   var stream = utils.ms.apply(utils.ms, streams);
   stream.on('finish', stream.emit.bind(stream, 'end'));
   return stream;
+};
+
+/**
+ * Add a generator and its tasks to the tree object.
+ * Mostly used for debugging, but also useful for
+ * creating custom-formatted visual trees.
+ *
+ * @param {String} `name`
+ * @param {Object} `app`
+ */
+
+Generate.prototype.addLeaf = function(name, app) {
+  this.tree[name] = {};
+  this.tree[name].tasks = Object.keys(app.tasks || {});
+  this.tree[name].generators = app.tree;
+  return this;
 };
 
 /**
