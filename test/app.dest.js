@@ -1,5 +1,3 @@
-'use strict';
-
 var spies = require('./support/spy');
 var chmodSpy = spies.chmodSpy;
 var statSpy = spies.statSpy;
@@ -863,6 +861,7 @@ describe('dest stream', function() {
     var inputRelativeSymlinkPath = 'wow';
 
     var expectedPath = path.join(__dirname, 'actual/test-create-dir-symlink');
+    var buffered = [];
 
     var inputFile = new File({
       base: inputBase,
@@ -884,7 +883,6 @@ describe('dest stream', function() {
 
     var stream = app.dest('./actual/', {cwd: __dirname});
 
-    var buffered = [];
     bufferStream = through.obj(dataWrap(buffered.push.bind(buffered)), onEnd);
     stream.pipe(bufferStream);
     stream.write(inputFile);
