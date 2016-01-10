@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var argv = require('minimist')(process.argv.slice(2));
 var utils = require('./lib/utils');
 
 /**
@@ -10,6 +11,7 @@ var utils = require('./lib/utils');
  */
 
 module.exports = function(generate, base, env) {
+  var dest = argv.dest || process.cwd();
   var async = utils.async;
   var glob = utils.glob;
 
@@ -19,8 +21,7 @@ module.exports = function(generate, base, env) {
 
   generate.register('defaults', function(app) {
     app.task('init', function(cb) {
-      console.log('generate > init (implement me!)');
-      cb();
+      app.build(['prompt', 'templates'], cb);
     });
 
     app.task('help', function(cb) {
@@ -74,14 +75,16 @@ module.exports = function(generate, base, env) {
    */
 
   generate.task('prompt', function(cb) {
-    var pkg = env.config.pkg;
+    var opts = { save: false, force: true };
+    var pkg = env.user.pkg;
 
     if (!pkg || env.user.isEmpty || env.argv.raw.init) {
+      pkg = { name: utils.project(process.cwd()) };
       forceQuestions(generate);
     }
 
     generate.questions.setData(pkg || {});
-    generate.ask({ save: false }, function(err, answers) {
+    generate.ask(opts, function(err, answers) {
       if (err) return cb(err);
       if (!pkg) answers = {};
 
@@ -106,10 +109,28 @@ module.exports = function(generate, base, env) {
 
         var contents = fs.readFileSync(fp);
         generate.template(name, {contents: contents, path: fp});
+
         next();
       }, cb);
     });
   });
+
+  /**
+   * Write files to disk
+   */
+
+  generate.task('write', function() {
+    var data = generate.get('answers');
+    return generate.toStream('templates')
+      .pipe(generate.renderFile('text', data))
+      .pipe(generate.dest(rename(dest)));
+  });
+
+  /**
+   * Generate a new project
+   */
+
+  generate.task('project', ['prompt', 'templates', 'write']);
 
   /**
    * Default task to be run
@@ -122,4 +143,18 @@ module.exports = function(generate, base, env) {
 
 function forceQuestions(generate) {
   generate.questions.options.forceAll = true;
+}
+
+/**
+ * Rename template files
+ */
+
+function rename(dest) {
+  return function(file) {
+    file.base = file.dest || dest || '';
+    file.path = path.join(file.base, file.basename);
+    file.basename = file.basename.replace(/^_/, '.');
+    file.basename = file.basename.replace(/^\$/, '');
+    return file.base;
+  };
 }
