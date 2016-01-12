@@ -4,6 +4,7 @@ var path = require('path');
 var async = require('async');
 var Base = require('assemble-core');
 var Logger = require('./lib/logger');
+var ignore = require('./lib/ignore');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
@@ -37,7 +38,10 @@ function Generate(options) {
   this.generators = {};
   this.tree = {};
 
+  this.lazyIgnores();
   this.defaultPlugins();
+  this.lazyCollections();
+  this.initGenerate();
   this.use(build());
 }
 
@@ -62,6 +66,7 @@ Base.extend(Generate);
 Generate.prototype.defaultPlugins = function() {
   this.log = new Logger();
   this.use(utils.store())
+    .use(utils.loader())
     .use(utils.pipeline())
     .use(utils.ask({storeName: 'generate'}))
     .use(utils.middleware())
@@ -73,6 +78,119 @@ Generate.prototype.defaultPlugins = function() {
     }));
 
   this.store.create('config');
+};
+
+/**
+ * Lazily initialize default collections
+ */
+
+Generate.prototype.lazyCollections = function() {
+  if (!this.templates) {
+    this.create('files');
+    this.create('templates');
+  }
+};
+
+/**
+ * Lazily add gitignore patterns to `generate.cache.ignores`
+ */
+
+Generate.prototype.lazyIgnores = function() {
+  if (!this.cache.ignores) {
+    this.union('ignores', ignore.gitignore(this.cwd));
+  }
+};
+
+/**
+ * Initialize `generate` defaults
+ */
+
+Generate.prototype.initGenerate = function(app) {
+  this.on('build', function(app, env) {
+    var ignores = app.get('cache.ignores');
+    var cwd = env.config.cwd;
+
+    app.templates('templates/*', {
+      ignore: ignores,
+      cwd: cwd,
+      renameKey: function(key, view) {
+        var cwd = path.resolve(env.config.cwd);
+        return path.relative(cwd, path.resolve(cwd, key));
+      }
+    });
+  });
+};
+
+/**
+ * Add ignore patterns to the `generate.cache.ignores` array. This
+ * array is initially populated with patterns from `gitignore`
+ *
+ * ```js
+ * generate.ignore(['foo', 'bar']);
+ * ```
+ * @param {String|Array} `patterns`
+ * @return {Object} returns the instance for chaining
+ * @api public
+ */
+
+Generate.prototype.ignore = function(patterns) {
+  this.lazyIgnores();
+  this.union('ignores', ignore.toGlobs(patterns));
+  return this;
+};
+
+/**
+ * Set `prop` with the given `value`, but only if `prop` is
+ * not already defined.
+ *
+ * ```js
+ * app.set('cwd', 'foo');
+ * app.fillin('cwd', process.cwd());
+ * console.log(app.get('cwd'));
+ * //=> 'foo'
+ * ```
+ * @param {String} `prop` The name of the property to define
+ * @param {any} `val` The value to use if a value is _not already defined_
+ * @return {Object} Returns the instance for chaining
+ * @api public
+ */
+
+Generate.prototype.fillin = function(prop, val) {
+  var current = this.get(prop);
+  if (typeof current === 'undefined') {
+    this.set(prop, val);
+  }
+  return this;
+};
+
+/**
+ * Get a file from the `generate.files` collection.
+ *
+ * ```js
+ * generate.getFile('LICENSE');
+ * ```
+ * @param {String} `pattern` Pattern to use for matching. Checks against
+ * @return {Object} If successful, a `file` object is returned, otherwise `null`
+ * @api public
+ */
+
+Generate.prototype.getFile = function(pattern) {
+  return utils.getFile(this, 'files', pattern);
+};
+
+/**
+ * Get a template from the `generate.templates` collection.
+ *
+ * ```js
+ * generate.getTemplate('foo.tmpl');
+ * ```
+ * @param {String} `pattern` Pattern to use for matching. Checks against
+ * @return {Object} If successful, a `file` object is returned, otherwise `null`
+ * @api public
+ */
+
+Generate.prototype.getTemplate = function(pattern) {
+  return utils.getFile(this, 'templates', pattern);
 };
 
 /**
@@ -168,6 +286,7 @@ Generate.prototype.register = function(name, app, env) {
     createInstance(app, this);
   }
 
+  this.emit('register', name, app, app.env);
   this.addLeaf(name, app);
   this.generators[name] = app;
   return app;
@@ -435,7 +554,7 @@ Generate.prototype.scaffold = function(scaffold, cb) {
 Generate.prototype.scaffoldStream = function(scaffold) {
   utils.timestamp('starting scaffold');
   var streams = [];
-  for(var name in scaffold) {
+  for (var name in scaffold) {
     var target = scaffold[name];
     if (!target.files) {
       continue;
@@ -446,6 +565,30 @@ Generate.prototype.scaffoldStream = function(scaffold) {
   var stream = utils.ms.apply(utils.ms, streams);
   stream.on('finish', stream.emit.bind(stream, 'end'));
   return stream;
+};
+
+/**
+ * Create or append array `name` on `generate.cache` with the
+ * given (uniqueified) `items`. Supports setting deeply nested
+ * properties using using object-paths/dot notation.
+ *
+ * ```js
+ * generate.union('foo', 'bar');
+ * generate.union('foo', 'baz');
+ * generate.union('foo', 'qux');
+ * generate.union('foo', 'qux');
+ * console.log(generate.cache.foo);
+ * //=> ['bar', 'baz', 'qux'];
+ * ```
+ * @param {String} `name`
+ * @param {any} `items`
+ * @return {Object} returns the instance for chaining
+ * @api public
+ */
+
+Generate.prototype.union = function(name, items) {
+  utils.union(this.cache, name, utils.arrayify(items));
+  return this;
 };
 
 /**
@@ -486,6 +629,21 @@ Object.defineProperty(Generate.prototype, 'name', {
     }
     var name = this._appname || this._name || this.options.name || 'base';
     return (this._name = name);
+  }
+});
+
+/**
+ * Ensure `name` is set on the instance for lookups.
+ */
+
+Object.defineProperty(Generate.prototype, 'cwd', {
+  configurable: true,
+  set: function(cwd) {
+    this.options.cwd = path.resolve(cwd);
+  },
+  get: function() {
+    var cwd = this.get('env.user.cwd') || this.options.cwd || process.cwd();
+    return path.resolve(cwd);
   }
 });
 
