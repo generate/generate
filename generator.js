@@ -62,9 +62,6 @@ module.exports = function(generate, base, env) {
    */
 
   generate.task('defaultConfig', function(cb) {
-    if (!generate.templates) {
-      generate.create('templates');
-    }
     generate.engine(['md', 'text'], require('engine-base'));
     generate.data({year: new Date().getFullYear()});
     cb();
@@ -83,12 +80,11 @@ module.exports = function(generate, base, env) {
       forceQuestions(generate);
     }
 
-    generate.questions.setData(pkg || {});
+    generate.questions.setData(pkg);
     generate.ask(opts, function(err, answers) {
       if (err) return cb(err);
       if (!pkg) answers = {};
 
-      answers.name = answers.name || utils.project();
       answers.varname = utils.namify(answers.name);
       generate.set('answers', answers);
       cb();
@@ -115,14 +111,20 @@ module.exports = function(generate, base, env) {
     });
   });
 
+  generate.plugin('render', function() {
+    var data = generate.get('answers');
+    return generate.renderFile('text', data);
+  });
+
   /**
    * Write files to disk
    */
 
   generate.task('write', function() {
-    var data = generate.get('answers');
     return generate.toStream('templates')
-      .pipe(generate.renderFile('text', data))
+      .on('error', console.log)
+      .pipe(generate.pipeline())
+      .on('error', console.log)
       .pipe(generate.dest(rename(dest)));
   });
 
