@@ -4,6 +4,7 @@ var path = require('path');
 var utils = require('../lib/utils');
 var errors = require('./errors');
 var generate = require('..');
+var Env = generate.Env;
 
 var argv = require('minimist')(process.argv.slice(2), {
   alias: {help: 'h', verbose: 'v'}
@@ -19,6 +20,7 @@ function run(cb) {
 
   if (argv.cwd && cwd !== path.resolve(argv.cwd)) {
     process.chdir(argv.cwd);
+    cwd = process.cwd();
     utils.timestamp('cwd changed to ' + utils.colors.yellow('~/' + argv.cwd));
   }
 
@@ -30,10 +32,12 @@ function run(cb) {
   var baseEnv = createEnv('generator.js', baseDir);
 
   // instantiate
+  var app = null;
   var base = generate();
+  base.option(argv);
   base.env = baseEnv;
 
-  // set the generate function on the instance
+  // set the generater function on the instance
   base.fn = require('../generator.js');
 
   /**
@@ -42,36 +46,67 @@ function run(cb) {
 
   var generator = path.resolve(process.cwd(), 'generator.js');
   if (!utils.exists(generator)) {
+    if (utils.isEmpty(process.cwd())) {
+
+      /**
+       * Process command line arguments
+       */
+
+      argv._.unshift('defaults:init');
+      var args = utils.processArgv(base, argv);
+      base.set('argv', args);
+
+      utils.logConfigfile(baseDir, 'generator.js');
+      base.fn.call(base, base, base, base.env);
+      base.config.process(base.get('env.user.pkg.generate'));
+
+      cb(null, base, base);
+      return;
+    }
+
+    base.fn.call(base, base, base, base.env);
     generator = path.resolve(__dirname, '../generator.js');
-  }
-
-  /**
-   * Create the user's "generate" instance
-   */
-
-  var fn = require(generator);
-  var env = createEnv('generator.js', process.cwd());
-  var app;
-
-  if (typeof fn === 'function') {
-    app = generate();
-    app.option(argv);
-    app.env = env;
-    app.fn = fn;
-    fn.call(app, app, app, env);
-
+    cwd = path.dirname(generator);
+    app = base;
   } else {
-    app = fn;
-    app.option(argv);
-    app.env = env;
+
+
+    /**
+     * Create the user's "generate" instance
+     */
+
+    var fn = require(generator);
+    var env = createEnv('generator.js', process.cwd());
+    base.fn.call(base, base, base, base.env);
+
+    function register(app, env, fn) {
+      app.option(argv);
+      app.set('args', argv);
+      app.env = env;
+      if (fn) app.fn = fn;
+
+      var name = app.get('env.user.pkg.name');
+      if (name) {
+        base.register(name, app, env);
+      }
+    }
+
+    if (typeof fn === 'function') {
+      app = generate();
+      register(app, env, fn);
+
+    } else {
+      app = fn;
+      register(app, env);
+    }
   }
 
   /**
    * Process command line arguments
    */
 
-  var args = utils.processArgv(app, argv);
-  app.set('argv', args);
+  var args = utils.processArgv(base, argv);
+  base.set('argv', args);
 
   /**
    * Show path to generator
@@ -87,7 +122,7 @@ function run(cb) {
    */
 
   if (argv.emit && typeof argv.emit === 'string') {
-    app.on(argv.emit, console.error.bind(console));
+    base.on(argv.emit, console.error.bind(console));
   }
 
   /**
@@ -95,30 +130,35 @@ function run(cb) {
    * as they're emitted
    */
 
-  app.env.on('config', function(name, env) {
-    app.register(name, env.config.fn, env);
+  base.env.on('config', function(name, env) {
+    base.register(name, env.config.fn, env);
   });
 
   /**
    * Resolve generate generators
    */
 
-  app.env.resolve('generate-*/generator.js', {
-    configfile: 'generator.js',
-    cwd: utils.gm
-  });
+  base.env
+    .resolve('generater-*/generator.js', {
+      configfile: 'generator.js',
+      cwd: utils.gm
+    })
+    .resolve('generate-*/generator.js', {
+      configfile: 'generator.js',
+      cwd: utils.gm
+    });
 
-  cb(null, app);
+  cb(null, app, base);
 }
 
 /**
  * Run
  */
 
-run(function(err, app) {
+run(function(err, app, base) {
   if (err) handleError(err);
 
-  if (!app) {
+  if (!base) {
     process.exit(0);
   }
 
@@ -126,7 +166,7 @@ run(function(err, app) {
    * Listen for errors
    */
 
-  app.on('error', function(err) {
+  base.on('error', function(err) {
     console.log(err);
   });
 
@@ -134,8 +174,11 @@ run(function(err, app) {
    * Run tasks
    */
 
-  app.build(argv, function(err) {
-    if (err) throw err;
+  base.build(app, argv, function(err) {
+    if (err) {
+      console.error(err.stack);
+      process.exit(1);
+    }
     utils.timestamp('finished');
     process.exit(0);
   });
@@ -146,7 +189,7 @@ run(function(err, app) {
  */
 
 function createEnv(configfile, cwd) {
-  var env = new generate.Env(configfile, 'generate', cwd);;
+  var env = new Env(configfile, 'generate', cwd);;
   env.module.path = utils.tryResolve('generate');
   return env;
 }
