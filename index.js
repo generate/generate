@@ -8,6 +8,7 @@ var ignore = require('./lib/ignore');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
+var pkg = require('./lib/pkg');
 var Env = require('./lib/env');
 
 /**
@@ -26,23 +27,22 @@ function Generate(options) {
     return new Generate(options);
   }
 
-  this.env = {};
-  this.fn = require('./generator.js');
-
-  Base.apply(this, arguments);
-  if (this.name === 'Templates') {
-    this.name = 'generate';
+  if (!this.env) {
+    this.set('env.module', {});
+    this.set('env.config', {});
+    this.set('env.user', {});
   }
 
+  Base.apply(this, arguments);
   this.isGenerate = true;
   this.generators = {};
   this.tree = {};
 
-  this.lazyIgnores();
-  this.defaultPlugins();
-  this.lazyCollections();
-  this.initGenerate();
-  this.use(build());
+  this.generatorDefaults();
+  this.generatorIgnores();
+  this.generatorPlugins();
+  this.generatorCollections();
+  this.generatorInit();
 }
 
 /**
@@ -50,6 +50,24 @@ function Generate(options) {
  */
 
 Base.extend(Generate);
+
+/**
+ * Init generator defaults.
+ */
+
+Generate.prototype.generatorDefaults = function() {
+  this.fn = require('./generator.js');
+
+  if (typeof this.env === 'undefined') {
+    this.set('env.config', {});
+    this.set('env.module', {});
+    this.set('env.user', {});
+  }
+
+  if (this.name === 'Templates') {
+    this.name = 'generate';
+  }
+};
 
 /**
  * Initialize `Generate` plugins.
@@ -63,19 +81,23 @@ Base.extend(Generate);
  *  | config.store
  */
 
-Generate.prototype.defaultPlugins = function() {
+Generate.prototype.generatorPlugins = function() {
   this.log = new Logger();
-  this.use(utils.store())
+  this.use(build())
+    .use(utils.store())
+    .use(utils.config())
     .use(utils.loader())
     .use(utils.pipeline())
     .use(utils.ask({storeName: 'generate'}))
     .use(utils.middleware())
     .use(utils.runtimes())
     .use(utils.argv())
-    .use(cli())
     .use(utils.list('generators', {
       method: 'generator'
     }));
+
+  this.use(pkg())
+    .use(cli());
 
   this.store.create('config');
 };
@@ -84,7 +106,7 @@ Generate.prototype.defaultPlugins = function() {
  * Lazily initialize default collections
  */
 
-Generate.prototype.lazyCollections = function() {
+Generate.prototype.generatorCollections = function() {
   if (!this.templates) {
     this.create('files');
     this.create('templates');
@@ -95,7 +117,7 @@ Generate.prototype.lazyCollections = function() {
  * Lazily add gitignore patterns to `generate.cache.ignores`
  */
 
-Generate.prototype.lazyIgnores = function() {
+Generate.prototype.generatorIgnores = function() {
   if (!this.cache.ignores) {
     this.union('ignores', ignore.gitignore(this.cwd));
   }
@@ -105,14 +127,10 @@ Generate.prototype.lazyIgnores = function() {
  * Initialize `generate` defaults
  */
 
-Generate.prototype.initGenerate = function(app) {
-  this.on('build', function(app, env) {
-    var ignores = app.get('cache.ignores');
-    var cwd = env.config.cwd;
-
-    app.templates('templates/*', {
-      ignore: ignores,
-      cwd: cwd,
+Generate.prototype.generatorInit = function(app) {
+  this.on('register', function(name, app, env) {
+    if (!env.config || !env.config.cwd) return;
+    app.templates(path.resolve(env.config.cwd, 'templates/*'), {
       renameKey: function(key, view) {
         var cwd = path.resolve(env.config.cwd);
         return path.relative(cwd, path.resolve(cwd, key));
@@ -134,7 +152,7 @@ Generate.prototype.initGenerate = function(app) {
  */
 
 Generate.prototype.ignore = function(patterns) {
-  this.lazyIgnores();
+  this.generatorIgnores();
   this.union('ignores', ignore.toGlobs(patterns));
   return this;
 };
@@ -194,44 +212,39 @@ Generate.prototype.getTemplate = function(pattern) {
 };
 
 /**
- * Get or register a generator.
+ * Process
  *
- * @param {String} `name` The generator name
- * @param {Object|Function} `app` Generator instance or function.
- * @param {Object} `env` Instance of `Env`
- * @return {Object}
  */
 
-Generate.prototype.generator = function(name, app, env) {
-  if (typeof name === 'string' && arguments.length === 1) {
-    return this.getGenerator(name);
+Generate.prototype.processTemplate = function(from, to, fn) {
+  var base = this.base;
+  var self = this;
+  var args = arguments;
+
+  if (typeof to === 'function') {
+    fn = to;
+    to = null;
   }
-  return this.register.apply(this, arguments);
-};
 
-/**
- * Get generator `name`.
- *
- * ```js
- * generate.getGenerator('node')
- *   .build('default', function(err) {
- *     if (err) throw err;
- *     console.log('done!');
- *   });
- * ```
- * @param {String} `name`
- * @return {Object} Returns a generator object, which is an instance of generate.
- * @api public
- */
+  base.on('loaded', function() {
+    to = to || from;
 
-Generate.prototype.getGenerator = function(name) {
-  var app = this.get(utils.toKey('generators', name));
-  if (app) return app;
+    var file = self.getTemplate(from);
+    if (!file) {
+      var err = new Error('cannot find template: ' + from);
+      err.method = 'processTemplate';
+      err.args = args;
+      base.emit('error', err);
+      return;
+    }
 
-  if (name.indexOf('base.') !== 0) {
-    name = 'base.' + name;
-    return this.get(utils.toKey('generators', name));
-  }
+    file.process = true;
+    if (typeof fn === 'function') {
+      var res = fn(file);
+      if (res) file = res;
+    }
+    base.templates(to, file);
+  });
 };
 
 /**
@@ -293,6 +306,47 @@ Generate.prototype.register = function(name, app, env) {
 };
 
 /**
+ * Get or register a generator.
+ *
+ * @param {String} `name` The generator name
+ * @param {Object|Function} `app` Generator instance or function.
+ * @param {Object} `env` Instance of `Env`
+ * @return {Object}
+ */
+
+Generate.prototype.generator = function(name, app, env) {
+  if (typeof name === 'string' && arguments.length === 1) {
+    return this.getGenerator(name);
+  }
+  return this.register.apply(this, arguments);
+};
+
+/**
+ * Get generator `name`.
+ *
+ * ```js
+ * generate.getGenerator('node')
+ *   .build('default', function(err) {
+ *     if (err) throw err;
+ *     console.log('done!');
+ *   });
+ * ```
+ * @param {String} `name`
+ * @return {Object} Returns a generator object, which is an instance of generate.
+ * @api public
+ */
+
+Generate.prototype.getGenerator = function(name) {
+  var app = this.get(utils.toKey('generators', name));
+  if (app) return app;
+
+  if (name.indexOf('base.') !== 0) {
+    name = 'base.' + name;
+    return this.get(utils.toKey('generators', name));
+  }
+};
+
+/**
  * Register generator `name` by the given filepath. This method wraps
  * the `register` method to simplify adding generators by path.
  *
@@ -340,7 +394,7 @@ Generate.prototype.registerPath = function(name, filepath, env) {
  */
 
 Generate.prototype.extendGenerator = function(app, base) {
-  if (typeof this.fn !== 'function') {
+  if (typeof app.fn !== 'function') {
     throw new Error('generators must export a function to extend other generators');
   }
   base = base || this;
@@ -644,6 +698,39 @@ Object.defineProperty(Generate.prototype, 'cwd', {
   get: function() {
     var cwd = this.get('env.user.cwd') || this.options.cwd || process.cwd();
     return path.resolve(cwd);
+  }
+});
+
+/**
+ * Expose `argv` as a getter
+ */
+
+// Object.defineProperty(Generate.prototype, 'argv', {
+//   configurable: true,
+//   get: function() {
+//     if (this.cache.argv) {
+//       return this.cache.argv;
+//     }
+//     var argv = this.get('env.argv');
+//     console.log(argv)
+//     return (this.cache.argv = argv);
+//   }
+// });
+
+/**
+ * Get the package.json from the current working directory.
+ */
+
+Object.defineProperty(Generate.prototype, '_pkg', {
+  configurable: true,
+  set: function(pkg) {
+    this.cache.pkg = pkg;
+  },
+  get: function() {
+    if (this.cache.pkg) {
+      return this.cache.pkg;
+    }
+    return (this.cache.pkg = (this.get('env.user.pkg') || {}));
   }
 });
 
