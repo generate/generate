@@ -14,33 +14,33 @@
   * [Run a generator's tasks](#run-a-generator-s-tasks)
   * [Run a sub-generator's tasks](#run-a-sub-generator-s-tasks)
 - [API](#api)
-  * [[Generate](index.js#L25)](#-generate--indexjs-l25-)
-  * [[.ignore](index.js#L154)](#-ignore--indexjs-l154-)
-  * [[.fillin](index.js#L176)](#-fillin--indexjs-l176-)
-  * [[.getFile](index.js#L195)](#-getfile--indexjs-l195-)
-  * [[.getTemplate](index.js#L210)](#-gettemplate--indexjs-l210-)
-  * [[.getGenerator](index.js#L339)](#-getgenerator--indexjs-l339-)
-  * [[.registerPath](index.js#L362)](#-registerpath--indexjs-l362-)
-  * [[.extendGenerator](index.js#L396)](#-extendgenerator--indexjs-l396-)
-  * [[.compose](index.js#L419)](#-compose--indexjs-l419-)
-  * [[.process](index.js#L452)](#-process--indexjs-l452-)
-  * [[.each](index.js#L477)](#-each--indexjs-l477-)
-  * [[.eachSeries](index.js#L506)](#-eachseries--indexjs-l506-)
-  * [[.eachStream](index.js#L529)](#-eachstream--indexjs-l529-)
-  * [[.scaffold](index.js#L566)](#-scaffold--indexjs-l566-)
-  * [[.scaffoldStream](index.js#L608)](#-scaffoldstream--indexjs-l608-)
-  * [[.union](index.js#L643)](#-union--indexjs-l643-)
+  * [Generate](index.js#L25)
+  * [.ignore](index.js#L154)
+  * [.fillin](index.js#L176)
+  * [.getFile](index.js#L195)
+  * [.getTemplate](index.js#L210)
+  * [.getGenerator](index.js#L339)
+  * [.registerPath](index.js#L362)
+  * [.extendGenerator](index.js#L396)
+  * [.compose](index.js#L419)
+  * [.process](index.js#L452)
+  * [.each](index.js#L477)
+  * [.eachSeries](index.js#L506)
+  * [.eachStream](index.js#L529)
+  * [.scaffold](index.js#L566)
+  * [.scaffoldStream](index.js#L608)
+  * [.union](index.js#L643)
 - [Task API](#task-api)
-  * [[.task](https:/github.com/jonschlinkert/composer/blob/master/index.js#L68)](#-task--node-modules-composer-indexjs-l68-)
-  * [[.build](https:/github.com/jonschlinkert/composer/blob/master/index.js#L125)](#-build--node-modules-composer-indexjs-l125-)
-  * [[.series](https:/github.com/jonschlinkert/composer/blob/master/index.js#L181)](#-series--node-modules-composer-indexjs-l181-)
-  * [[.parallel](https:/github.com/jonschlinkert/composer/blob/master/index.js#L213)](#-parallel--node-modules-composer-indexjs-l213-)
-  * [[.watch](https:/github.com/jonschlinkert/composer/blob/master/index.js#L230)](#-watch--node-modules-composer-indexjs-l230-)
+  * [[.task](https:/github.com/jonschlinkert/composer/blob/master/index.js#L68)
+  * [[.build](https:/github.com/jonschlinkert/composer/blob/master/index.js#L125)
+  * [[.series](https:/github.com/jonschlinkert/composer/blob/master/index.js#L181)
+  * [[.parallel](https:/github.com/jonschlinkert/composer/blob/master/index.js#L213)
+  * [[.watch](https:/github.com/jonschlinkert/composer/blob/master/index.js#L230)
 - [File System API](#file-system-api)
-  * [[.copy](node_modules/assemble-fs/index.js#L56)](#-copy--node-modules-assemble-fs-indexjs-l56-)
-  * [[.src](node_modules/assemble-fs/index.js#L73)](#-src--node-modules-assemble-fs-indexjs-l73-)
-  * [[.symlink](node_modules/assemble-fs/index.js#L91)](#-symlink--node-modules-assemble-fs-indexjs-l91-)
-  * [[.dest](node_modules/assemble-fs/index.js#L107)](#-dest--node-modules-assemble-fs-indexjs-l107-)
+  * [[.copy](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L56)
+  * [[.src](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L73)
+  * [[.symlink](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L91)
+  * [[.dest](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L107)
 - [Authoring generators](#authoring-generators)
   * [Generator naming conventions](#generator-naming-conventions)
 - [TODO](#todo)
@@ -641,7 +641,7 @@ var watcher = app.watch('templates/pages/*.hbs', ['site']);
 
 ## File System API
 
-### [.copy](node_modules/assemble-fs/index.js#L56)
+### [.copy](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L56)
 
 Copy files with the given glob `patterns` to the specified `dest`.
 
@@ -661,7 +661,7 @@ app.task('assets', function(cb) {
 });
 ```
 
-### [.src](node_modules/assemble-fs/index.js#L73)
+### [.src](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L73)
 
 Glob patterns or filepaths to source files.
 
@@ -676,7 +676,7 @@ Glob patterns or filepaths to source files.
 app.src('src/*.hbs', {layout: 'default'});
 ```
 
-### [.symlink](node_modules/assemble-fs/index.js#L91)
+### [.symlink](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L91)
 
 Glob patterns or paths for symlinks.
 
@@ -690,7 +690,7 @@ Glob patterns or paths for symlinks.
 app.symlink('src/**');
 ```
 
-### [.dest](node_modules/assemble-fs/index.js#L107)
+### [.dest](https:/github.com/jonschlinkert/assemble-fs/blob/master/index.js#L107)
 
 Specify a destination for processed files.
 
