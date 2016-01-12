@@ -21,7 +21,7 @@ module.exports = function(generate, base, env) {
 
   generate.register('defaults', function(app) {
     app.task('init', function(cb) {
-      app.build(['prompt', 'templates'], cb);
+      generate.build(['prompt', 'templates'], cb);
     });
 
     app.task('help', function(cb) {
@@ -62,8 +62,13 @@ module.exports = function(generate, base, env) {
    */
 
   generate.task('defaultConfig', function(cb) {
+    // if (generate._defaultConfig === true) return cb();
+    // generate._defaultConfig = true;
+
     generate.engine(['md', 'text'], require('engine-base'));
     generate.data({year: new Date().getFullYear()});
+    generate.data(generate._pkg);
+    generate.cache.data.varname = utils.namify(generate.cache.data.name);
     cb();
   });
 
@@ -112,20 +117,29 @@ module.exports = function(generate, base, env) {
   });
 
   generate.plugin('render', function() {
-    var data = generate.get('answers');
-    return generate.renderFile('text', data);
+    return generate.renderFile('text', generate.get('answers'));
   });
 
   /**
    * Write files to disk
    */
 
+  // generate.task('write', function() {
+  //   return generate.toStream('templates')
+  //     .on('error', console.log)
+  //     .pipe(generate.pipeline())
+  //     .on('error', console.log)
+  //     .pipe(generate.dest(rename(dest)));
+  // });
+
   generate.task('write', function() {
+    var plugins = generate.get('argv.plugins');
+    var dest = generate.get('argv.dest') || generate.cwd;
+
     return generate.toStream('templates')
-      .on('error', console.log)
-      .pipe(generate.pipeline())
-      .on('error', console.log)
-      .pipe(generate.dest(rename(dest)));
+      // .pipe(handle(generate, 'onStream'))
+      .pipe(generate.pipeline(plugins))
+      .pipe(generate.dest(rename(dest)))
   });
 
   /**
@@ -159,4 +173,24 @@ function rename(dest) {
     file.basename = file.basename.replace(/^\$/, '');
     return file.base;
   };
+}
+
+/**
+ * Plugin for handling middleware
+ *
+ * @param {Object} `app` Instance of "app" (assemble, verb, etc) or a collection
+ * @param {String} `stage` the middleware stage to run
+ */
+
+function handle(app, stage) {
+  return utils.through.obj(function(file, enc, next) {
+    if (typeof app.handle !== 'function') {
+      return next(null, file);
+    }
+    if (typeof file.options === 'undefined') {
+      return next(null, file);
+    }
+    if (file.isNull()) return next();
+    app.handle(stage, file, next);
+  });
 }

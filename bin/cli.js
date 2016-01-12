@@ -37,8 +37,10 @@ function run(cb) {
   base.option(argv);
   base.env = baseEnv;
 
+  var basePath = path.resolve(__dirname, '../generator.js');
+
   // set the generater function on the instance
-  base.fn = require('../generator.js');
+  base.fn = require(basePath);
 
   /**
    * Get the generator.js to use
@@ -47,27 +49,13 @@ function run(cb) {
   var generator = path.resolve(process.cwd(), 'generator.js');
   if (!utils.exists(generator)) {
     if (utils.isEmpty(process.cwd())) {
-
-      /**
-       * Process command line arguments
-       */
-
       argv._.unshift('defaults:init');
-      var args = utils.processArgv(base, argv);
-      base.set('argv', args);
-
-      utils.logConfigfile(baseDir, 'generator.js');
-      base.fn.call(base, base, base, base.env);
-      base.config.process(base.get('env.user.pkg.generate'));
-
-      cb(null, base, base);
-      return;
     }
 
-    base.fn.call(base, base, base, base.env);
-    generator = path.resolve(__dirname, '../generator.js');
+    generator = basePath;
     cwd = path.dirname(generator);
     app = base;
+    base.fn.call(base, base, base, base.env);
   } else {
 
 

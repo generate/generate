@@ -8,7 +8,7 @@ var generate;
 
 var toTasks = require('../lib/to-tasks');
 
-describe('to-tasks', function() {
+describe.skip('to-tasks', function() {
   beforeEach(function() {
     generate = new Generate();
   });

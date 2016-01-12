@@ -164,8 +164,9 @@ describe('collection singular method', function() {
       app.create('page');
     });
 
-    it('should add a view to the created collection:', function() {
+    it.only('should add a view to the created collection:', function() {
       app.page('test/fixtures/pages/a.hbs');
+      console.log(app.views.pages)
       assert(typeof app.views.pages['test/fixtures/pages/a.hbs'] === 'object');
     });
 

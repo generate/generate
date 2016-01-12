@@ -2,13 +2,13 @@
 
 var path = require('path');
 var async = require('async');
+var Download = require('download');
 var Base = require('assemble-core');
 var Logger = require('./lib/logger');
 var ignore = require('./lib/ignore');
 var build = require('./lib/build');
 var utils = require('./lib/utils');
 var cli = require('./lib/cli');
-var pkg = require('./lib/pkg');
 var Env = require('./lib/env');
 
 /**
@@ -26,13 +26,6 @@ function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
   }
-
-  if (!this.env) {
-    this.set('env.module', {});
-    this.set('env.config', {});
-    this.set('env.user', {});
-  }
-
   Base.apply(this, arguments);
   this.isGenerate = true;
   this.generators = {};
@@ -57,6 +50,7 @@ Base.extend(Generate);
 
 Generate.prototype.generatorDefaults = function() {
   this.fn = require('./generator.js');
+  this.deleteQueue = [];
 
   if (typeof this.env === 'undefined') {
     this.set('env.config', {});
@@ -82,8 +76,8 @@ Generate.prototype.generatorDefaults = function() {
  */
 
 Generate.prototype.generatorPlugins = function() {
-  this.log = new Logger();
-  this.use(build())
+  this.use(build());
+  this.use(utils.logger(Logger))
     .use(utils.store())
     .use(utils.config())
     .use(utils.loader())
@@ -92,12 +86,11 @@ Generate.prototype.generatorPlugins = function() {
     .use(utils.middleware())
     .use(utils.runtimes())
     .use(utils.argv())
+    .use(utils.pkg())
+    .use(cli())
     .use(utils.list('generators', {
       method: 'generator'
-    }));
-
-  this.use(pkg())
-    .use(cli());
+    }))
 
   this.store.create('config');
 };
@@ -155,6 +148,121 @@ Generate.prototype.ignore = function(patterns) {
   this.generatorIgnores();
   this.union('ignores', ignore.toGlobs(patterns));
   return this;
+};
+
+/**
+ * Delete a
+ *
+ * ```js
+ * generate.delFile(['foo', 'bar']);
+ * ```
+ * @param {String|Array} `patterns`
+ * @return {Object} returns the instance for chaining
+ * @api public
+ */
+
+// Generate.prototype.delFile = function(file) {
+//   this.deleteQueue.push(file);
+//   return this;
+// };
+
+/**
+ * Download `url` to the specified destination directory.
+ *
+ * ```js
+ * var url = 'https://github.com/foo/bar/a.txt';
+ * generate.download(url, 'foo', function(err, files) {
+ *   if (err) throw err;
+ *   // `files` is the array of downloaded files,
+ *   // exposed as vinyl files
+ * });
+ * ```
+ * @param {String} `url` The path to download
+ * @param {String} `dest` Destination directory
+ * @param {Function} `cb`
+ * @api public
+ */
+
+Generate.prototype.download = function(url, dest, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+
+  this.log.info('Downloading %s ...', url);
+  var download = new Download(opts)
+    .get(url)
+    .dest(dest)
+    .use(function(res) {
+      res.on('data', function() {
+        process.stdout.write('.');
+      });
+    });
+
+  download.run(cb);
+};
+
+/**
+ * Fetch an archive and extract it to a given destination.
+ *
+ * @param {String} archive
+ * @param {String} destination
+ * @param {Object} opts
+ * @param {Function} cb
+ */
+
+Generate.prototype.extract = function(url, dest, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+
+  var opts = utils.extend({ extract: true }, options);
+  console.log('Downloading %s ...', url);
+
+  var download = new Download(opts)
+    .get(url)
+    .dest(dest)
+    .use(function(res) {
+      res.on('readable', function() {
+        process.stdout.write('.');
+      });
+    });
+
+  download.run(function(err) {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    console.log('Extracted to: ' + dest);
+    cb();
+  });
+};
+
+Generate.prototype.devDependencies = function(deps, cb) {
+  return this.npmInstall('-D', deps, cb);
+};
+
+Generate.prototype.dependencies = function(deps, cb) {
+  return this.npmInstall('-S', deps, cb);
+};
+
+Generate.prototype.npmInstall = function(type, deps, cb) {
+  var install = this.npm('install');
+  var args = utils.arrayify(deps).concat('--silent');
+  return install(utils.arrayify(type).concat(args), cb);
+};
+
+Generate.prototype.npm = function(prefix) {
+  prefix = utils.arrayify(prefix);
+
+  return function(args, cb) {
+    return utils.commands({
+      args: prefix.concat(utils.arrayify(args)),
+      cmd: 'npm'
+    }, cb);
+  };
 };
 
 /**
