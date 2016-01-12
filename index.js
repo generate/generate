@@ -702,22 +702,6 @@ Object.defineProperty(Generate.prototype, 'cwd', {
 });
 
 /**
- * Expose `argv` as a getter
- */
-
-// Object.defineProperty(Generate.prototype, 'argv', {
-//   configurable: true,
-//   get: function() {
-//     if (this.cache.argv) {
-//       return this.cache.argv;
-//     }
-//     var argv = this.get('env.argv');
-//     console.log(argv)
-//     return (this.cache.argv = argv);
-//   }
-// });
-
-/**
  * Get the package.json from the current working directory.
  */
 
