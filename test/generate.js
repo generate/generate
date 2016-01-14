@@ -15,7 +15,7 @@ describe('generate', function() {
       assert(generate instanceof Generate);
     });
 
-    it('should new up without new:', function() {
+    it('should instantiate without new:', function() {
       generate = Generate();
       assert(generate instanceof Generate);
     });

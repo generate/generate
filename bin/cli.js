@@ -21,7 +21,6 @@ function run(cb) {
   if (argv.cwd && cwd !== path.resolve(argv.cwd)) {
     process.chdir(argv.cwd);
     cwd = process.cwd();
-    utils.timestamp('cwd changed to ' + utils.colors.yellow('~/' + argv.cwd));
   }
 
   /**
@@ -33,7 +32,7 @@ function run(cb) {
 
   // instantiate
   var app = null;
-  var base = generate();
+  var base = generate({cli: true});
   base.option(argv);
   base.env = baseEnv;
 
@@ -48,7 +47,7 @@ function run(cb) {
 
   var generator = path.resolve(process.cwd(), 'generator.js');
   if (!utils.exists(generator)) {
-    if (utils.isEmpty(process.cwd())) {
+    if (utils.isEmpty(process.cwd()) && argv._.length === 0) {
       argv._.unshift('defaults:init');
     }
 
@@ -80,7 +79,7 @@ function run(cb) {
     }
 
     if (typeof fn === 'function') {
-      app = generate();
+      app = generate({cli: true});
       register(app, env, fn);
 
     } else {
@@ -95,12 +94,6 @@ function run(cb) {
 
   var args = utils.processArgv(base, argv);
   base.set('argv', args);
-
-  /**
-   * Show path to generator
-   */
-
-  utils.logConfigfile(root, generator);
 
   /**
    * Support `--emit` for debugging
@@ -167,7 +160,7 @@ run(function(err, app, base) {
       console.error(err.stack);
       process.exit(1);
     }
-    utils.timestamp('finished');
+    utils.timestamp('finished ' + utils.check);
     process.exit(0);
   });
 });

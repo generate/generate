@@ -1,7 +1,9 @@
 'use strict';
 
 var path = require('path');
+var del = require('delete');
 var async = require('async');
+var through = require('through2');
 var Download = require('download');
 var Base = require('assemble-core');
 var Logger = require('./lib/logger');
@@ -26,6 +28,7 @@ function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
   }
+
   Base.apply(this, arguments);
   this.isGenerate = true;
   this.generators = {};
@@ -34,7 +37,7 @@ function Generate(options) {
   this.generatorDefaults();
   this.generatorIgnores();
   this.generatorPlugins();
-  this.generatorCollections();
+  this.generatorCreate();
   this.generatorInit();
 }
 
@@ -49,8 +52,8 @@ Base.extend(Generate);
  */
 
 Generate.prototype.generatorDefaults = function() {
-  this.fn = require('./generator.js');
-  this.deleteQueue = [];
+  this.set('fn',  require('./generator.js'));
+  this.set('cache.deleteQueue', []);
 
   if (typeof this.env === 'undefined') {
     this.set('env.config', {});
@@ -58,8 +61,12 @@ Generate.prototype.generatorDefaults = function() {
     this.set('env.user', {});
   }
 
+  this._appname = 'generate';
+  if (this.options.name) {
+    this.name = this.options.name;
+  }
   if (this.name === 'Templates') {
-    this.name = 'generate';
+    this.name = 'base';
   }
 };
 
@@ -76,14 +83,14 @@ Generate.prototype.generatorDefaults = function() {
  */
 
 Generate.prototype.generatorPlugins = function() {
-  this.use(build());
   this.use(utils.logger(Logger))
+    .use(build())
     .use(utils.store())
+    .use(utils.middleware())
     .use(utils.config())
     .use(utils.loader())
     .use(utils.pipeline())
     .use(utils.ask({storeName: 'generate'}))
-    .use(utils.middleware())
     .use(utils.runtimes())
     .use(utils.argv())
     .use(utils.pkg())
@@ -92,17 +99,31 @@ Generate.prototype.generatorPlugins = function() {
       method: 'generator'
     }))
 
-  this.store.create('config');
+  this.store.create(this.name);
 };
 
 /**
  * Lazily initialize default collections
  */
 
-Generate.prototype.generatorCollections = function() {
+Generate.prototype.generatorCreate = function() {
   if (!this.templates) {
-    this.create('files');
-    this.create('templates');
+    var self = this;
+
+    this.create('templates')
+      .option('renameKey', function(key, file) {
+        return file ? file.relative : key;
+      });
+
+    this.create('files')
+      .option('renameKey', function(key, file) {
+        return file ? file.relative : key;
+      })
+      .use(function(files)  {
+        files.define('del', function() {
+          self.deleteFile.apply(self, arguments);
+        });
+      });
   }
 };
 
@@ -121,14 +142,41 @@ Generate.prototype.generatorIgnores = function() {
  */
 
 Generate.prototype.generatorInit = function(app) {
+  var loaded = {};
+
   this.on('register', function(name, app, env) {
-    if (!env.config || !env.config.cwd) return;
-    app.templates(path.resolve(env.config.cwd, 'templates/*'), {
-      renameKey: function(key, view) {
-        var cwd = path.resolve(env.config.cwd);
-        return path.relative(cwd, path.resolve(cwd, key));
+    if (env.config && env.config.cwd) {
+      if (loaded[env.config.cwd]) {
+        app.views.template = loaded[env.config.cwd];
+      } else {
+        app.templates(path.resolve(env.config.cwd, 'templates/*'));
+        loaded[env.config.cwd] = app.views.templates;
       }
-    });
+    }
+  });
+};
+
+Generate.prototype.cleanup = function(options) {
+  var self = this;
+
+  return through.obj(function(file, enc, next) {
+    next(null, file);
+  }, function(cb) {
+    var files = utils.arrayify(self.get('cache.delete'));
+    if (files && files.length) {
+      var len = files.length;
+      while (len--) {
+        delete self.views.files[files[len]];
+      }
+
+      self.emit('delete', files);
+      del(files, function(err) {
+        if (err) return cb(err);
+        cb();
+      });
+    } else {
+      cb();
+    }
   });
 };
 
@@ -154,17 +202,17 @@ Generate.prototype.ignore = function(patterns) {
  * Delete a
  *
  * ```js
- * generate.delFile(['foo', 'bar']);
+ * generate.deleteFile(['foo', 'bar']);
  * ```
  * @param {String|Array} `patterns`
  * @return {Object} returns the instance for chaining
  * @api public
  */
 
-// Generate.prototype.delFile = function(file) {
-//   this.deleteQueue.push(file);
-//   return this;
-// };
+Generate.prototype.deleteFile = function(file) {
+  this.union('delete', file);
+  return this;
+};
 
 /**
  * Download `url` to the specified destination directory.
@@ -218,7 +266,7 @@ Generate.prototype.extract = function(url, dest, options, cb) {
   }
 
   var opts = utils.extend({ extract: true }, options);
-  console.log('Downloading %s ...', url);
+  this.log('Downloading %s ...', url);
 
   var download = new Download(opts)
     .get(url)
@@ -229,15 +277,15 @@ Generate.prototype.extract = function(url, dest, options, cb) {
       });
     });
 
-  download.run(function(err) {
+  download.run(function(err, files) {
     if (err) {
       cb(err);
       return;
     }
 
-    console.log('Extracted to: ' + dest);
-    cb();
-  });
+    this.log('Extracted to: ' + dest);
+    cb(null, files);
+  }.bind(this));
 };
 
 Generate.prototype.devDependencies = function(deps, cb) {
@@ -263,6 +311,13 @@ Generate.prototype.npm = function(prefix) {
       cmd: 'npm'
     }, cb);
   };
+};
+
+Generate.prototype.cmd = function(cmd, args, cb) {
+  return utils.commands({
+    args: prefix.concat(utils.arrayify(args)),
+    cmd: cmd
+  }, cb);
 };
 
 /**
@@ -315,8 +370,13 @@ Generate.prototype.getFile = function(pattern) {
  * @api public
  */
 
-Generate.prototype.getTemplate = function(pattern) {
-  return utils.getFile(this, 'templates', pattern);
+Generate.prototype.getTemplate = function(pattern, $process) {
+  var template = utils.getFile(this, 'templates', pattern);
+  if (template) {
+    template.process = $process;
+    return template;
+  }
+  return null;
 };
 
 /**
@@ -558,7 +618,7 @@ Generate.prototype.compose = function(app, names) {
  */
 
 Generate.prototype.process = function(files, options) {
-  var opts = createOptions(this, files, options);
+  var opts = createOptions(this, files, options, files.options);
   var cwd = opts.cwd ? path.resolve(opts.cwd) : process.cwd();
   files.dest = path.resolve(cwd, files.dest);
 
@@ -582,13 +642,19 @@ Generate.prototype.process = function(files, options) {
  * @api public
  */
 
-Generate.prototype.each = function(config, cb) {
+Generate.prototype.each = function(config, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+
   if (typeof cb !== 'function') {
     return this.eachStream(config);
   }
+
   this.data(config.data || config.options.data || {});
   async.each(config.files, function(files, next) {
-    this.process(files, files.options)
+    this.process(files, options)
       .on('error', next)
       .on('finish', next);
   }.bind(this), cb);
@@ -611,9 +677,14 @@ Generate.prototype.each = function(config, cb) {
  * @api public
  */
 
-Generate.prototype.eachSeries = function(config, cb) {
+Generate.prototype.eachSeries = function(config, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+
   async.eachSeries(config.files, function(files, next) {
-    this.process(files, files.options)
+    this.process(files, options)
       .on('error', next)
       .on('finish', next);
   }.bind(this), cb);
@@ -634,12 +705,12 @@ Generate.prototype.eachSeries = function(config, cb) {
  * @api public
  */
 
-Generate.prototype.eachStream = function(config) {
+Generate.prototype.eachStream = function(config, options) {
   this.data(config.data || config.options.data || {});
   var streams = [];
 
   config.files.forEach(function(files) {
-    streams.push(utils.src(this.process(files, files.options)));
+    streams.push(utils.src(this.process(files, options)));
   }.bind(this));
 
   var stream = utils.ms.apply(utils.ms, streams);
@@ -671,19 +742,26 @@ Generate.prototype.eachStream = function(config) {
  * @api public
  */
 
-Generate.prototype.scaffold = function(scaffold, cb) {
-  if (typeof cb !== 'function') {
-    return this.scaffoldStream(scaffold);
+Generate.prototype.scaffold = function(scaffold, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
   }
 
-  utils.timestamp('starting scaffold');
+  options = options || {};
+  if (typeof cb !== 'function') {
+    return this.scaffoldStream(scaffold, options);
+  }
+
+  this.verbose.timestamp('starting scaffold');
+
   async.eachOf(scaffold, function(target, name, next) {
     if (!target.files) {
       next();
       return;
     }
-    utils.timestamp('building target ' + name);
-    this.each(target, next);
+    this.verbose.timestamp('building target ' + name);
+    this.each(target, options, next);
   }.bind(this), cb);
 };
 
@@ -713,16 +791,15 @@ Generate.prototype.scaffold = function(scaffold, cb) {
  * @api public
  */
 
-Generate.prototype.scaffoldStream = function(scaffold) {
-  utils.timestamp('starting scaffold');
+Generate.prototype.scaffoldStream = function(scaffold, options) {
+  this.verbose.timestamp('starting scaffold');
   var streams = [];
   for (var name in scaffold) {
     var target = scaffold[name];
-    if (!target.files) {
-      continue;
-    }
-    utils.timestamp('building target ' + name);
-    streams.push(utils.src(this.eachStream(target)));
+    if (!target.files) continue;
+
+    this.verbose.timestamp('building target ' + name);
+    streams.push(utils.src(this.eachStream(target, options)));
   }
   var stream = utils.ms.apply(utils.ms, streams);
   stream.on('finish', stream.emit.bind(stream, 'end'));
@@ -780,17 +857,31 @@ Generate.prototype.addLeaf = function(name, app) {
  * @api public
  */
 
+// Object.defineProperty(Generate.prototype, 'name', {
+//   configurable: true,
+//   set: function(val) {
+//     this.define('_name', val);
+//   },
+//   get: function() {
+//     if (this._name) {
+//       return this._name;
+//     }
+//     var name = this._appname || this._name || this.options.name || 'base';
+//     return (this._name = name);
+//   }
+// });
+
+/**
+ * Ensure `name` is set on the instance for lookups.
+ */
+
 Object.defineProperty(Generate.prototype, 'name', {
   configurable: true,
-  set: function(val) {
-    this.define('_name', val);
+  set: function(name) {
+    this.cache.name = name;
   },
   get: function() {
-    if (this._name) {
-      return this._name;
-    }
-    var name = this._appname || this._name || this.options.name || 'base';
-    return (this._name = name);
+    return this.cache.name || (this.cache.name = this.options.name || 'base');
   }
 });
 
