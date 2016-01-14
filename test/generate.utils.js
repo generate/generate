@@ -25,11 +25,11 @@ describe('utils', function() {
       assert.equal(utils.alias(null, 'generator-foo'), 'foo');
     });
 
-    it.skip('should create an alias from a given file filepath', function() {
+    it('should create an alias from a given file filepath', function() {
       assert.equal(utils.alias(__filename), 'test');
     });
 
-    it.skip('should create an alias from a given directory filepath', function() {
+    it('should create an alias from a given directory filepath', function() {
       assert.equal(utils.alias(__dirname), 'test');
     });
   });

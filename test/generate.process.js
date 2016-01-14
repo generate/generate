@@ -8,7 +8,7 @@ var rimraf = require('rimraf');
 var through = require('through2');
 var files = require('expand-files');
 var Generate = require('..');
-var app, files, config;
+var app, config;
 
 var fixtures = path.join(__dirname, 'fixtures');
 var actual = path.join(__dirname, 'actual');
@@ -21,10 +21,6 @@ function expand(options) {
 
 function output(name) {
   return path.join(actual, name);
-}
-
-function fixture(name) {
-  return path.join(fixtures, name);
 }
 
 function exists(name) {

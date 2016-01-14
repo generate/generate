@@ -40,7 +40,8 @@ describe('list', function() {
     it('should add an item to a list:', function() {
       app.pages('test/fixtures/pages/a.hbs');
       var list = app.list();
-      list.addItem(app.pages.getView('test/fixtures/pages/a.hbs'));
+      var page = app.pages.getView('test/fixtures/pages/a.hbs');
+      list.addItem(page);
       assert(list.hasItem('test/fixtures/pages/a.hbs'));
     });
 

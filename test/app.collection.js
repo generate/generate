@@ -3,6 +3,7 @@
 require('mocha');
 require('should');
 var fs = require('fs');
+var path = require('path');
 var assert = require('assert');
 var define = require('define-property');
 var support = require('./support');
@@ -52,8 +53,15 @@ describe('collection', function() {
     });
 
     it('should load a view onto the respective collection:', function() {
+        app.pages.use(function() {
+          return function(file) {
+            file.content = fs.readFileSync(file.path, 'utf8');
+          }
+        });
+
       app.pages('test/fixtures/pages/a.hbs');
-      app.views.pages.should.have.property('test/fixtures/pages/a.hbs');
+      var page = app.pages.getView('test/fixtures/pages/a.hbs');
+      assert(app.pages.getView('a.hbs'));
     });
 
     it('should allow collection methods to be chained:', function() {
@@ -63,9 +71,9 @@ describe('collection', function() {
         .pages('test/fixtures/pages/c.hbs');
 
       app.views.pages.should.have.properties([
-        'test/fixtures/pages/a.hbs',
-        'test/fixtures/pages/b.hbs',
-        'test/fixtures/pages/c.hbs'
+        path.resolve('test/fixtures/pages/a.hbs'),
+        path.resolve('test/fixtures/pages/b.hbs'),
+        path.resolve('test/fixtures/pages/c.hbs')
       ]);
     });
 
@@ -77,9 +85,9 @@ describe('collection', function() {
 
       app.pages.options.should.have.property('foo', 'bar');
       app.views.pages.should.have.properties([
-        'test/fixtures/pages/a.hbs',
-        'test/fixtures/pages/b.hbs',
-        'test/fixtures/pages/c.hbs'
+        path.resolve('test/fixtures/pages/a.hbs'),
+        path.resolve('test/fixtures/pages/b.hbs'),
+        path.resolve('test/fixtures/pages/c.hbs')
       ]);
     });
 
@@ -164,10 +172,9 @@ describe('collection singular method', function() {
       app.create('page');
     });
 
-    it.only('should add a view to the created collection:', function() {
+    it('should add a view to the created collection:', function() {
       app.page('test/fixtures/pages/a.hbs');
-      console.log(app.views.pages)
-      assert(typeof app.views.pages['test/fixtures/pages/a.hbs'] === 'object');
+      assert(typeof app.pages.getView('test/fixtures/pages/a.hbs') === 'object');
     });
 
     it('should expose the `option` method:', function() {

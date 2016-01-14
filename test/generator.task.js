@@ -49,15 +49,9 @@ describe('task()', function() {
   });
 
   it('should throw an error when a task with unregistered dependencies is run', function(cb) {
-    var count = 0;
-    app.task('default', ['foo', 'bar'], function(cb) {
-      count++;
-      cb();
-    });
-
+    app.task('default', ['foo', 'bar']);
     app.build('default', function(err) {
-      if (!err) return cb(new Error('Expected an error to be thrown.'));
-      assert.equal(count, 0);
+      assert(err);
       cb();
     });
   });
@@ -78,7 +72,7 @@ describe('task()', function() {
     app.on('task:finished', function(task) {
       events.push('finished.' + task.name);
     });
-    app.on('task:error', function(err, task) {
+    app.on('task:error', function(e, task) {
       events.push('error.' + task.name);
     });
     app.task('foo', function(cb) {
@@ -117,9 +111,7 @@ describe('task()', function() {
   });
 
   it('should emit an error event when an error is thrown in a task', function(cb) {
-    var errors = 0;
     app.on('error', function(err) {
-      errors++;
       assert(err);
       assert.equal(err.message, 'This is an error');
     });
@@ -127,9 +119,8 @@ describe('task()', function() {
       cb(new Error('This is an error'));
     });
     app.build('default', function(err) {
-      assert.equal(errors, 1);
-      if (err) return cb();
-      cb(new Error('Expected an error'));
+      assert(err);
+      cb();
     });
   });
 

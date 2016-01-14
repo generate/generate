@@ -6,7 +6,6 @@ require('should');
 var assert = require('assert');
 var support = require('./support');
 var Generate = support.resolve();
-var Base = Generate.Base;
 var generate;
 
 describe('generate.registerPath', function() {

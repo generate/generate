@@ -1,28 +1,14 @@
 'use strict';
 
-/* deps: coveralls istanbul */
 require('mocha');
 require('should');
-var assert = require('assert');
 var support = require('./support');
 var Generate = support.resolve();
-var Base = Generate.Base;
 var generate;
 
 describe('generate.compose', function() {
   beforeEach(function() {
     generate = new Generate();
-  });
-
-  it('should throw an error when trying to compose an instance', function(cb) {
-    var foo = new Generate({name: 'foo'});
-    try {
-      generate.compose(foo);
-      cb(new Error('Expected an error.'));
-    } catch (err) {
-      assert.equal(err.message, 'generators must export a function to extend other generators');
-      cb();
-    }
   });
 
   it('should compose a generator', function() {
@@ -44,9 +30,9 @@ describe('generate.compose', function() {
     bar.tasks.should.not.have.property('foo');
     foo.tasks.should.not.have.property('bar');
 
-    foo.compose(bar);
+    foo.compose(bar, 'foo');
     bar.tasks.should.have.property('foo');
-    bar.compose(foo);
+    bar.compose(foo, 'bar');
     foo.tasks.should.have.property('bar');
   });
 
@@ -69,9 +55,9 @@ describe('generate.compose', function() {
     bar.tasks.should.not.have.property('foo');
     foo.tasks.should.not.have.property('bar');
 
-    generate.compose('foo', bar);
+    generate.compose(bar, 'foo');
     bar.tasks.should.have.property('foo');
-    generate.compose('bar', foo);
+    generate.compose(foo, 'bar');
     foo.tasks.should.have.property('bar');
   });
 });

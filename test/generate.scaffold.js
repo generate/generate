@@ -8,17 +8,13 @@ var rimraf = require('rimraf');
 var through = require('through2');
 var Scaffold = require('scaffold');
 var Generate = require('..');
-var app, scaffold, config;
+var app, scaffold;
 
 var fixtures = path.join(__dirname, 'fixtures');
 var actual = path.join(__dirname, 'actual');
 
 function output(name) {
   return path.join(actual, name);
-}
-
-function fixture(name) {
-  return path.join(fixtures, name);
 }
 
 function exists(name) {
@@ -36,7 +32,7 @@ function base(cb) {
   });
 }
 
-describe.skip('scaffolds', function() {
+describe('scaffolds', function() {
   beforeEach(function(cb) {
     app = new Generate();
     rimraf(actual, cb);
@@ -56,6 +52,7 @@ describe.skip('scaffolds', function() {
   describe('targets', function() {
     it('should process files from the process options.cwd', function(cb) {
       scaffold = new Scaffold({
+        options: { cwd: fixtures },
         docs: {
           src: 'b.txt',
           dest: actual,
@@ -63,7 +60,7 @@ describe.skip('scaffolds', function() {
         }
       });
 
-      app.scaffold(scaffold, {cwd: fixtures}, function(err) {
+      app.scaffold(scaffold, function(err) {
         if (err) return cb(err);
         assert(exists('b.txt'));
         cb();
@@ -74,9 +71,11 @@ describe.skip('scaffolds', function() {
       assert(!exists('b.txt'));
 
       scaffold = new Scaffold({
-        cwd: fixtures,
-        src: 'b.txt',
-        dest: actual
+        foo: {
+          cwd: fixtures,
+          src: 'b.txt',
+          dest: actual
+        }
       });
 
       app.scaffold(scaffold)
@@ -88,7 +87,14 @@ describe.skip('scaffolds', function() {
     });
 
     it('should work with no options:', function(cb) {
-      scaffold = new Scaffold({src: 'b.txt', dest: actual, cwd: fixtures});
+      scaffold = new Scaffold({
+        foo: {
+          src: 'b.txt', 
+          dest: actual, 
+          cwd: fixtures
+        }
+      });
+
       app.scaffold(scaffold)
         .on('error', cb)
         .on('end', function() {
@@ -101,9 +107,11 @@ describe.skip('scaffolds', function() {
       assert(!exists('a.txt'));
 
       scaffold = new Scaffold({
-        cwd: fixtures,
-        src: 'a.txt',
-        dest: actual
+        foo: {
+          cwd: fixtures,
+          src: 'a.txt',
+          dest: actual
+        }
       });
 
       app.scaffold(scaffold)
@@ -120,9 +128,11 @@ describe.skip('scaffolds', function() {
       assert(!exists('c.txt'));
 
       scaffold = new Scaffold({
-        cwd: fixtures,
-        src: '*.txt',
-        dest: actual
+        foo: {
+          cwd: fixtures,
+          src: '*.txt',
+          dest: actual
+        }
       });
 
       app.scaffold(scaffold)
@@ -137,6 +147,10 @@ describe.skip('scaffolds', function() {
   });
 
   describe('plugin', function() {
+    beforeEach(function() {
+      app = new Generate();
+    });
+
     it('should use a plugin to modify file contents', function(cb) {
       app.plugin('append', function(opts) {
         opts = opts || {};
@@ -147,9 +161,11 @@ describe.skip('scaffolds', function() {
       });
 
       scaffold = new Scaffold({
-        cwd: fixtures,
-        src: '*.txt',
-        dest: actual
+        foo: {
+          cwd: fixtures,
+          src: '*.txt',
+          dest: actual
+        }
       });
 
       app.scaffold(scaffold, {suffix: 'zzz'})
@@ -159,7 +175,7 @@ describe.skip('scaffolds', function() {
           var end = str.slice(-3);
           assert(end === 'zzz');
         })
-        .on('end', function() {
+        .once('finish', function() {
           assert(exists('example.txt'));
           cb();
         });
@@ -178,10 +194,12 @@ describe.skip('scaffolds', function() {
       app.plugin('c', appendString('ccc'));
 
       scaffold = new Scaffold({
-        options: {pipeline: ['a', 'c']},
-        cwd: fixtures,
-        src: 'a.txt',
-        dest: actual
+        foo: {
+          options: {pipeline: ['a', 'c']},
+          cwd: fixtures,
+          src: 'a.txt',
+          dest: actual
+        }
       });
 
       app.scaffold(scaffold, {suffix: 'zzz'})
@@ -192,7 +210,7 @@ describe.skip('scaffolds', function() {
           var end = str.slice(-6);
           assert(end === 'aaaccc');
         })
-        .on('end', function() {
+        .on('finish', function() {
           assert(exists('a.txt'));
           cb();
         });
@@ -211,9 +229,11 @@ describe.skip('scaffolds', function() {
       app.plugin('c', appendString('ccc'));
 
       scaffold = new Scaffold({
-        cwd: fixtures,
-        src: 'a.txt',
-        dest: actual
+        foo: {
+          cwd: fixtures,
+          src: 'a.txt',
+          dest: actual
+        }
       });
 
       app.scaffold(scaffold, {pipeline: ['a', 'c'], suffix: 'zzz'})
@@ -224,7 +244,7 @@ describe.skip('scaffolds', function() {
           var end = str.slice(-6);
           assert(end === 'aaaccc');
         })
-        .on('end', function() {
+        .on('finish', function() {
           assert(exists('a.txt'));
           cb();
         });

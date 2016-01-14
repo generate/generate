@@ -8,40 +8,36 @@ var generate;
 
 var toTasks = require('../lib/to-tasks');
 
-describe.skip('to-tasks', function() {
+describe('to-tasks', function() {
   beforeEach(function() {
     generate = new Generate();
   });
 
-  it('should return default empty objects when only passing in argv as an empty array', function() {
+  it('should add "default" to argv.tasks when an empty array is passed', function() {
     var tasks = toTasks([]);
     var expected = {
       _: [],
-      unknown: ['default'],
       commands: {},
       options: {},
-      tasks: []
+      tasks: ['default']
     };
     assert.deepEqual(tasks, expected);
   });
 
-  it('should return default empty objects with blank unknown when only passing in argv as an empty string', function() {
-    var tasks = toTasks('');
-    var expected = {
-      _: [],
-      unknown: [''],
-      commands: {},
-      options: {},
-      tasks: []
-    };
-    assert.deepEqual(tasks, expected);
+  it('should throw an error when an empty string is passed', function(cb) {
+    try {
+      toTasks('');
+      cb(new Error('expected an error'));
+    } catch (err) {
+      assert.equal(err.message, 'expected an argv object');
+      cb();
+    }
   });
 
-  it('should return default empty objects with string in unknown when only passing in argv as a string', function() {
+  it('should return default empty objects with string in _ when only passing in argv as a string', function() {
     var tasks = toTasks('foo');
     var expected = {
-      _: [],
-      unknown: ['foo'],
+      _: ['foo'],
       commands: {},
       options: {},
       tasks: []
@@ -49,12 +45,11 @@ describe.skip('to-tasks', function() {
     assert.deepEqual(tasks, expected);
   });
 
-  it('should process an argv object and return all unknowns', function() {
+  it('should process an argv object and return all unknowns on _', function() {
     var argv = minimist(['foo', 'bar', 'baz']);
     var tasks = toTasks(argv);
     var expected = {
-      _: [],
-      unknown: ['foo', 'bar', 'baz'],
+      _: ['foo', 'bar', 'baz'],
       commands: {},
       options: {},
       tasks: []
@@ -66,8 +61,7 @@ describe.skip('to-tasks', function() {
     var argv = minimist(['foo', '--bar', '--baz']);
     var tasks = toTasks(argv);
     var expected = {
-      _: [],
-      unknown: ['foo'],
+      _: ['foo'],
       commands: {},
       options: {
         bar: true,
@@ -83,12 +77,11 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: ['default'],
       commands: {
         tasks: true
       },
       options: {},
-      tasks: []
+      tasks: ['default']
     };
     assert.deepEqual(tasks, expected);
   });
@@ -97,8 +90,7 @@ describe.skip('to-tasks', function() {
     var argv = minimist(['tasks']);
     var tasks = toTasks(argv, generate);
     var expected = {
-      _: [],
-      unknown: ['tasks'],
+      _: ['tasks'],
       commands: {},
       options: {},
       tasks: []
@@ -115,7 +107,6 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: ['generators.foo:bar']
@@ -136,7 +127,6 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: [
@@ -156,11 +146,9 @@ describe.skip('to-tasks', function() {
       });
     });
 
-
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: ['generators.foo.generators.beep:boop']
@@ -168,7 +156,7 @@ describe.skip('to-tasks', function() {
     assert.deepEqual(tasks, expected);
   });
 
-  it('should process an argv object with deeply nested generators and many tasks specified', function() {
+  it('should resolve deeply nested generators and many tasks specified', function() {
     var argv = minimist(['foo.beep:boop,bop', 'foo:bar,baz']);
     generate.register('foo', function(app) {
       app.task('bar', function() {});
@@ -179,11 +167,9 @@ describe.skip('to-tasks', function() {
       });
     });
 
-
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: [
@@ -194,7 +180,7 @@ describe.skip('to-tasks', function() {
     assert.deepEqual(tasks, expected);
   });
 
-  it('should process an argv object with only a task specified', function() {
+  it('should resolve a task on the base generator', function() {
     var argv = minimist(['bar']);
     generate.task('bar', function() {});
     generate.task('baz', function() {});
@@ -202,7 +188,6 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: ['bar']
@@ -218,7 +203,6 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: ['bar', 'baz']
@@ -234,10 +218,9 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
-      tasks: ['bar,baz']
+      tasks: ['base:bar,baz']
     };
     assert.deepEqual(tasks, expected);
   });
@@ -253,7 +236,6 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: ['generators.base:default']
@@ -275,7 +257,6 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: ['generators.foo:default']
@@ -297,7 +278,6 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
       tasks: ['generators.foo:default']
@@ -305,7 +285,7 @@ describe.skip('to-tasks', function() {
     assert.deepEqual(tasks, expected);
   });
 
-  it('should fallback to root generator when task has a dot', function() {
+  it('should not fail when task has a dot', function() {
     var argv = minimist(['foo:bar.2']);
     generate.register('base', function(app) {
       app.task('default', function() {});
@@ -320,10 +300,9 @@ describe.skip('to-tasks', function() {
     var tasks = toTasks(argv, generate);
     var expected = {
       _: [],
-      unknown: [],
       commands: {},
       options: {},
-      tasks: ['bar.2']
+      tasks: ['generators.base:bar.2']
     };
     assert.deepEqual(tasks, expected);
   });
@@ -334,7 +313,7 @@ describe.skip('to-tasks', function() {
     generate.task('baz', function() {});
 
     try {
-      var tasks = toTasks(argv, generate);
+      toTasks(argv, generate);
       done(new Error('expected an error when a task is not found.'));
     } catch (err) {
       assert.equal(err.message, 'task "nothing" is not registered');
@@ -355,13 +334,13 @@ describe.skip('to-tasks', function() {
       console.log(tasks);
       done(new Error('expected an error when a task is not found.'));
     } catch (err) {
-      assert.equal(err.message, 'task "beep:nothing" is not registered on generator "beep"');
+      assert.equal(err.message, 'task "nothing" is not registered on generator "beep"');
       done();
     }
   });
 
   it('should throw an error when a sub generator is not found', function(done) {
-    var argv = minimist(['bep:boop,nothing']);
+    var argv = minimist(['beep:boop,nothing']);
     generate.task('bar', function() {});
     generate.task('baz', function() {});
     generate.register('beep', function(app) {
@@ -373,7 +352,7 @@ describe.skip('to-tasks', function() {
       console.log(tasks);
       done(new Error('expected an error when a task is not found.'));
     } catch (err) {
-      assert.equal(err.message, 'task "bep:boop" is not registered on generator "bep"');
+      assert.equal(err.message, 'task "nothing" is not registered on generator "beep"');
       done();
     }
   });
