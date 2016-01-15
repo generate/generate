@@ -35,7 +35,7 @@
     "base-argv": "^0.3.0",
     "base-cli": "^0.4.0",
     "base-config": "^0.3.3",
-    "base-list": "^0.1.4",
+    "base-list": "^0.2.1",
     "base-pipeline": "^0.1.4",
     "base-questions": "^0.2.3",
     "base-store": "^0.3.2",
