@@ -1,7 +1,7 @@
 /*!
  * generate <https://github.com/jonschlinkert/generate>
  *
- * Copyright (c) 2016, Jon Schlinkert.
+ * Copyright (c) 2015-2016, Jon Schlinkert.
  * Licensed under the MIT License.
  */
 
@@ -79,12 +79,15 @@ Generate.prototype.initPlugins = function() {
   this.use(plugins.pipeline());
   this.use(plugins.loader());
   this.use(plugins.runner());
+  this.use(plugins.runtimes());
   this.use(plugins.rename({replace: true}));
   this.use(plugins.ask());
   this.use(settings());
   this.use(config());
 
+  this.engine('*', require('engine-base'));
   this.create('templates');
+
   util.create(this);
   util.dest(this);
   util.src(this);
