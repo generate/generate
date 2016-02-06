@@ -7,23 +7,20 @@ var eslint = require('gulp-eslint');
 
 gulp.task('coverage', function() {
   return gulp.src(['index.js', 'lib/*.js'])
-    .pipe(istanbul())
-    .on('error', console.log)
+    .pipe(istanbul({includeUntested: true}))
     .pipe(istanbul.hookRequire());
 });
 
 gulp.task('mocha', ['coverage'], function() {
   return gulp.src('test/*.js')
-    .pipe(mocha({reporter: 'spec'}))
-    .on('error', console.log)
-    .pipe(istanbul.writeReports())
-    .on('error', console.log);
+    .pipe(mocha())
+    .pipe(istanbul.writeReports());
 });
 
 gulp.task('eslint', function() {
   return gulp.src(['*.js', 'lib/*.js', 'test/*.js'])
-    .on('error', console.log)
-    .pipe(eslint());
+    .pipe(eslint())
+    .pipe(eslint.format());
 });
 
 gulp.task('default', ['mocha', 'eslint']);
