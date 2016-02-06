@@ -1,9 +1,0 @@
-{
-  "name": "basic-scaffold",
-  "private": true,
-  "dependencies": {
-    "engine-handlebars": "^0.8.0",
-    "generate": "github:generate/generate",
-    "scaffold": "^0.2.1"
-  }
-}

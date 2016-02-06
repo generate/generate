@@ -1,3 +1,0 @@
-Markdown
-<h1>My Blog!</h1>
-<h2>Home</h2>
