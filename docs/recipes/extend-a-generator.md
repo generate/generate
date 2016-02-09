@@ -12,25 +12,11 @@ generate.register('abc', function(app, base, env) {
 });
 
 generate.register('xyz', function(app, base, env) {
-  base.getGenerator('abc').extendGenerator(app);
+  app.extendWith('abc');
   
   // run tasks `foo` and `bar` from generator `abc`
-  app.task('default', ['foo', 'bar'], function(cb) {
-    cb()l
+  app.build(['foo', 'bar'], function(err) {
+    if (err) throw err;
   });
-});
-```
-
-Run _both_ generators in different contexts:
-
-```js
-generate.build('templates', function(err) {
-  if (err) return console.error(err);
-
-  generate.generator('one')
-    .build('templates', function(err) {
-      if (err) return console.error(err);
-      console.log(generate.views.templates);
-    });
 });
 ```

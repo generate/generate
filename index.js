@@ -85,9 +85,7 @@ Generate.prototype.initPlugins = function() {
   this.use(settings());
   this.use(config());
 
-  this.engine('*', require('engine-base'));
   this.create('templates');
-
   util.create(this);
   util.dest(this);
   util.src(this);

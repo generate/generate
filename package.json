@@ -23,89 +23,44 @@
   },
   "preferGlobal": true,
   "bin": {
-    "gen": "bin/cli.js",
-    "generate": "bin/cli.js"
+    "gen": "bin/generate.js",
+    "generate": "bin/generate.js"
   },
   "dependencies": {
-    "ansi-colors": "^0.1.0",
-    "array-unique": "^0.2.1",
-    "assemble-core": "^0.8.1",
-    "assemble-loader": "^0.2.6",
-    "async": "^1.5.1",
-    "base-argv": "^0.3.0",
-    "base-cli": "^0.4.0",
-    "base-config": "^0.3.3",
-    "base-list": "^0.2.1",
-    "base-pipeline": "^0.1.4",
-    "base-questions": "^0.2.6",
-    "base-store": "^0.3.2",
-    "common-middleware": "^0.2.2",
-    "component-emitter": "^1.2.0",
-    "composer-runtimes": "^0.7.0",
-    "define-property": "^0.2.5",
-    "delete": "^0.3.0",
-    "download": "^4.4.3",
+    "assemble-core": "^0.11.2",
+    "assemble-loader": "^0.3.0",
+    "base-config": "^0.4.0",
+    "base-fs-rename": "^0.1.1",
+    "base-generators": "^0.1.5",
+    "base-pipeline": "^0.2.3",
+    "base-questions": "^0.3.2",
+    "base-runner": "^0.5.7",
+    "base-runtimes": "^0.1.3",
+    "debug": "^2.2.0",
     "engine-base": "^0.1.2",
-    "error-symbol": "^0.1.0",
-    "expand-args": "^0.3.1",
-    "export-files": "^2.1.0",
+    "export-files": "^2.1.1",
     "extend-shallow": "^2.0.1",
-    "find-pkg": "^0.1.1",
-    "get-value": "^2.0.2",
-    "global-modules": "^0.2.0",
-    "has-value": "^0.3.0",
+    "generator-util": "^0.2.5",
+    "inflection": "^1.8.0",
+    "is-affirmative": "^0.1.0",
     "kind-of": "^3.0.2",
     "lazy-cache": "^1.0.3",
+    "map-schema": "^0.1.1",
     "matched": "^0.4.1",
-    "merge-stream": "^1.0.0",
-    "micromatch": "^2.3.7",
-    "minimist": "^1.2.0",
+    "merge-settings": "^0.1.0",
     "mixin-deep": "^1.1.3",
-    "namify": "^0.1.3",
-    "opn": "^3.0.3",
-    "parse-gitignore": "^0.2.0",
-    "pkg-store": "^0.1.0",
-    "project-name": "^0.2.4",
-    "resolve-dir": "^0.1.0",
-    "spawn-commands": "^0.3.1",
-    "src-stream": "^0.1.1",
-    "stream-exhaust": "^1.0.1",
-    "success-symbol": "^0.1.0",
-    "through2": "^2.0.0",
-    "time-stamp": "^0.1.3",
-    "try-open": "^0.1.0",
-    "union-value": "^0.2.1",
-    "word-wrap": "^1.1.0"
+    "try-open": "^0.1.0"
   },
   "devDependencies": {
-    "buffer-equal": "^1.0.0",
-    "capture-stream": "^0.1.2",
-    "consolidate": "^0.13.1",
-    "coveralls": "^2.11.6",
-    "data-store": "^0.12.1",
-    "engine-handlebars": "^0.8.0",
-    "event-stream": "^3.3.2",
-    "expand-files": "^0.6.6",
-    "graceful-fs": "^4.1.2",
+    "generate-foo": "^0.1.1",
+    "global-modules": "^0.2.0",
     "gulp": "^3.9.0",
     "gulp-eslint": "^1.1.1",
-    "gulp-extname": "^0.2.2",
-    "gulp-format-md": "^0.1.5",
+    "gulp-format-md": "*",
     "gulp-istanbul": "^0.10.3",
     "gulp-mocha": "^2.2.0",
-    "is-buffer": "^1.1.1",
-    "istanbul": "^0.4.1",
-    "load-pkg": "^3.0.1",
-    "mkdirp": "^0.5.1",
     "mocha": "*",
-    "parser-front-matter": "^1.3.0",
-    "resolve-glob": "^0.1.7",
-    "rimraf": "^2.5.0",
-    "scaffold": "^0.2.1",
-    "should": "*",
-    "sinon": "^1.17.2",
-    "swig": "^1.4.2",
-    "vinyl": "^1.1.0"
+    "spawn-commands": "^0.3.1"
   },
   "keywords": [
     "app",
@@ -122,21 +77,27 @@
     "webapp",
     "yeoman"
   ],
+  "lintDeps": {
+    "ignore": []
+  },
   "verb": {
+    "toc": true,
+    "layout": "default",
+    "plugins": [
+      "gulp-format-md"
+    ],
     "related": {
       "list": [
-        "assemble-core",
-        "base-methods",
-        "base-resolver",
-        "base-runner",
-        "resolve-modules"
+        "assemble",
+        "verb",
+        "update",
+        "base"
       ]
     },
     "reflinks": [
       "assemble",
-      "assemble-core",
       "bach",
-      "base-methods",
+      "base",
       "composer",
       "gulp",
       "micromatch",
@@ -144,15 +105,6 @@
       "scaffold",
       "verb",
       "vinyl"
-    ],
-    "plugins": [
-      "gulp-format-md"
-    ],
-    "layout": {
-      "name": "default",
-      "sections": {
-        "install-npm": false
-      }
-    }
+    ]
   }
 }
