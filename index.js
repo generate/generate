@@ -10,9 +10,7 @@
 var path = require('path');
 var util = require('generator-util');
 var Assemble = require('assemble-core');
-var settings = require('./lib/settings');
 var plugins = require('./lib/plugins');
-var config = require('./lib/config');
 var utils = require('./lib/utils');
 
 /**
@@ -30,9 +28,8 @@ function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
   }
-  this.options = utils.extend({}, this.options, options);
+  this.options = utils.extend({prefix: 'generate'}, this.options, options);
   Assemble.call(this, options);
-  this.is('Generate');
   this.initGenerate();
 }
 
@@ -43,30 +40,39 @@ function Generate(options) {
 Assemble.extend(Generate);
 
 /**
- * Initialize verb defaults
+ * Initialize generate defaults
  */
 
 Generate.prototype.initGenerate = function(opts) {
+  this.is('generate');
   this.name = 'generate';
   this.data({runner: require('./package')});
 
   this.define('util', utils);
   this.define('lazyCreate', function(name, opts) {
-    if (!this[name]) this.create(name, opts);
+    if (!this[name]) {
+      this.create(name, opts);
+    } else {
+      this[name].option(opts);
+    }
+    return this[name];
   });
 
   this.initPlugins(this.options);
   var plugin = this.plugin;
 
   this.define('plugin', function(name) {
-    var pipeline = this.options.pipeline;
-    if (arguments.length === 1 && pipeline) {
+    var pipeline = this.options.pipeline || [];
+    if (arguments.length === 1 && pipeline.length) {
       var idx = pipeline.indexOf(name);
       if (idx !== -1) {
         pipeline.splice(idx, 1);
       }
+    } else if (!~pipeline.indexOf(name)) {
+      pipeline.push(name);
     }
-    return plugin.apply(this, arguments);
+    plugin.apply(this, arguments);
+    return this;
   });
 };
 
@@ -74,22 +80,32 @@ Generate.prototype.initGenerate = function(opts) {
  * Generate prototype methods
  */
 
-Generate.prototype.initPlugins = function() {
+Generate.prototype.initPlugins = function(opts) {
   this.use(plugins.generators());
   this.use(plugins.pipeline());
-  this.use(plugins.loader());
   this.use(plugins.runner());
-  this.use(plugins.runtimes());
-  this.use(plugins.rename({replace: true}));
-  this.use(plugins.ask());
-  this.use(settings());
-  this.use(config());
+  this.use(plugins.loader());
 
-  this.create('templates');
-  util.create(this);
-  util.dest(this);
-  util.src(this);
+  if (opts.cli === true || process.env.GENERATE_CLI) {
+    this.create('templates');
+
+    this.use(plugins.runtimes(opts));
+    this.use(plugins.rename({replace: true}));
+    this.use(plugins.ask());
+
+    // modify create, dest and src methods to automatically
+    // use cwd from generators unless overridden by the user
+    util.create(this);
+    util.dest(this);
+    util.src(this);
+  }
 };
+
+/**
+ * Expose static `is*` methods from Templates
+ */
+
+Assemble._.plugin.is(Generate);
 
 /**
  * Expose `Generate`
