@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-var path = require('path');
+process.env.GENERATE_CLI = true;
 var Generate = require('..');
 var generate = new Generate();
 
 // expose generate's metadata on `runner` in templates
 generate.base.data('runner', require('../package'));
-// generate.option('rethrow', true);
 
 // run generator and/or tasks
 generate.runner('generator.js', function(err, argv, app) {
@@ -26,10 +25,7 @@ generate.runner('generator.js', function(err, argv, app) {
     }
   });
 
-  var config = app.loadSettings(argv);
-
-  app.set('cache.config', config);
-  app.set('cache.argv', argv);
+  var config = app.get('cache.config');
 
   app.config.process(config, function(err) {
     if (err) handleError(err);
