@@ -102,6 +102,16 @@ Generate.prototype.initPlugins = function(opts) {
   }
 };
 
+Generate.prototype.handleErr = function(err) {
+  if (!(err instanceof Error)) {
+    err = new Error(err);
+  }
+  if (this.hasListeners('error')) {
+    return this.emit('error', err);
+  }
+  throw err;
+};
+
 /**
  * Expose static `runner` method
  */
