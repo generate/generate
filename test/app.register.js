@@ -8,6 +8,13 @@ var app;
 
 var fixtures = path.resolve.bind(path, __dirname + '/fixtures');
 
+describe('.register plugin', function() {
+  it('should register as a plugin', function() {
+    var app = new Generate();
+    assert(app.registered.hasOwnProperty('base-generators'));
+  });
+});
+
 describe('.register', function() {
   beforeEach(function() {
     app = new Generate();

@@ -1,6 +1,7 @@
 'use strict';
 
 require('mocha');
+require('generate-foo/generator.js');
 var assert = require('assert');
 var Generate = require('..');
 var generate;
