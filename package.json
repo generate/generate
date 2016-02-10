@@ -94,20 +94,25 @@
   },
   "verb": {
     "toc": true,
-    "layout": "default",
+    "layout": "global",
+    "tasks": [
+      "readme"
+    ],
     "plugins": [
       "gulp-format-md"
     ],
     "related": {
+      "highlight": "verb",
       "list": [
         "assemble",
-        "verb",
+        "base",
         "update",
-        "base"
+        "verb"
       ]
     },
     "reflinks": [
       "assemble",
+      "assemble-core",
       "bach",
       "base",
       "composer",
