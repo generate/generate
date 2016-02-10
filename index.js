@@ -11,6 +11,7 @@ var path = require('path');
 var util = require('generator-util');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
+var runner = require('./lib/runner');
 var utils = require('./lib/utils');
 
 /**
@@ -100,6 +101,12 @@ Generate.prototype.initPlugins = function(opts) {
     util.src(this);
   }
 };
+
+/**
+ * Expose static `runner` method
+ */
+
+Generate.runner = runner;
 
 /**
  * Expose static `is*` methods from Templates

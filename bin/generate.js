@@ -1,46 +1,24 @@
 #!/usr/bin/env node
 
 process.env.GENERATE_CLI = true;
-var Generate = require('..');
-var generate = new Generate();
+var generator = require('../lib/generators');
+var generate = require('..');
 
-// expose generate's metadata on `runner` in templates
-generate.base.data('runner', require('../package'));
+/**
+ * Create the generator "runner"
+ */
 
-// run generator and/or tasks
-generate.runner('generator.js', function(err, argv, app) {
-  if (err) handleError(err);
+var run = generate.runner('generator.js', generator);
+var app = generate();
 
-  if (!app.hasConfigfile) {
-    app.register('default', require('../lib/generators/'));
+/**
+ * Run generators and tasks
+ */
+
+run(app, function(err, argv, app) {
+  if (err) {
+    console.log(err);
+    process.exit(1);
   }
-
-  app.on('error', function(err) {
-    console.log(app.env);
-    console.log();
-
-    if (err.reason) {
-      console.log(err.reason);
-      process.exit(1);
-    }
-  });
-
-  var config = app.get('cache.config');
-
-  app.config.process(config, function(err) {
-    if (err) handleError(err);
-
-    app.cli.process(argv, function(err) {
-      if (err) handleError(err);
-
-      generate.emit('done');
-      process.exit(0);
-    });
-  });
+  app.emit('done');
 });
-
-// placeholder
-function handleError(err) {
-  console.log(err);
-  process.exit(1);
-}
