@@ -102,6 +102,13 @@ Generate.prototype.initPlugins = function(opts) {
   }
 };
 
+/**
+ * Temporary error handler method. until we implement better errors.
+ *
+ * @param {Object} `err` Object or instance of `Error`.
+ * @return {Object} Returns an error object, or emits `error` if a listener exists.
+ */
+
 Generate.prototype.handleErr = function(err) {
   if (!(err instanceof Error)) {
     err = new Error(err);
