@@ -96,4 +96,4 @@ module.exports = function(app) {
 };
 ```
 
-_(These docs are based on the excellent [grunt docs](https://raw.githubusercontent.com/gruntjs/grunt-docs/master/Sample-Gruntfile.md))_
+_(This document is based on the excellent [grunt docs](https://github.com/gruntjs/grunt-docs))_
