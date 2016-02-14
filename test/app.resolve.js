@@ -27,15 +27,15 @@ describe('.resolve', function() {
     });
 
     it('should resolve a generator path from a cwd', function() {
-      assert(generate.resolve('a', fixtures()));
+      assert(generate.resolve('a', {cwd: fixtures()}));
     });
 
     it('should resolve a generator path from a generator name', function() {
-      assert(generate.resolve('a', fixtures()));
+      assert(generate.resolve('a', {cwd: fixtures()}));
     });
 
     it('should resolve the path to a local config file', function() {
-      var fp = generate.resolve('a', fixtures());
+      var fp = generate.resolve('a', {cwd: fixtures()});
       assert.equal(typeof fp, 'string');
     });
   });
