@@ -47,9 +47,14 @@ Assemble.extend(Generate);
 Generate.prototype.initGenerate = function(opts) {
   this.is('generate');
   this.name = 'generate';
+
+  // data
   this.data({runner: require('./package')});
 
+  // expose utils
   this.define('util', utils);
+
+  // only create a collection if it doesn't exist
   this.define('lazyCreate', function(name, opts) {
     if (!this[name]) {
       this.create(name, opts);
@@ -59,6 +64,7 @@ Generate.prototype.initGenerate = function(opts) {
     return this[name];
   });
 
+  // plugins
   this.initPlugins(this.options);
   var plugin = this.plugin;
 
@@ -92,10 +98,10 @@ Generate.prototype.initPlugins = function(opts) {
 
     this.use(plugins.runtimes(opts));
     this.use(plugins.rename({replace: true}));
-    this.use(plugins.ask());
 
-    // modify create, dest and src methods to automatically
-    // use cwd from generators unless overridden by the user
+    // adds prompt method, and modifies create, dest and
+    // src methods to automatically use cwd from generators
+    // unless overridden by the user
     util.create(this);
     util.dest(this);
     util.src(this);
