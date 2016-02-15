@@ -3,7 +3,7 @@
 var path = require('path');
 var assert = require('assert');
 var Generate = require('..');
-var generate;
+var generate
 
 var fixtures = path.resolve.bind(path, __dirname + '/fixtures');
 
@@ -12,7 +12,7 @@ describe('.generator', function() {
     generate = new Generate();
   });
 
-  it('should get a generator from the generate instance', function() {
+  it('should get a generator from the base instance', function() {
     generate.register('abc', function() {});
     var generator = generate.getGenerator('abc');
     assert(generator);
@@ -20,7 +20,7 @@ describe('.generator', function() {
     assert.equal(generator.name, 'abc');
   });
 
-  it('should get a generator from the generate instance from a nested generator', function() {
+  it('should get a generator from the base instance from a nested generator', function() {
     generate.register('abc', function() {});
     generate.register('xyz', function(app) {
       app.register('sub', function(sub) {
@@ -33,7 +33,7 @@ describe('.generator', function() {
     generate.getGenerator('xyz');
   });
 
-  it('should get a generator from the generate instance using `this`', function() {
+  it('should get a generator from the base instance using `this`', function() {
     generate.register('abc', function() {});
     generate.register('xyz', function(app) {
       app.register('sub', function(sub) {
@@ -46,7 +46,7 @@ describe('.generator', function() {
     generate.getGenerator('xyz');
   });
 
-  it('should get a generate generator from "app" from a nested generator', function() {
+  it('should get a base generator from "app" from a nested generator', function() {
     generate.register('abc', function() {});
     generate.register('xyz', function(app) {
       app.register('sub', function(sub) {

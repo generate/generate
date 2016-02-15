@@ -29,11 +29,14 @@ describe('.generate', function() {
       });
     });
 
-    it('should throw an error when a stringified task is not found', function(cb) {
-      generate.register('fdsslsllsfjssl', function() {});
-      generate.generate('fdsslsllsfjssl:foo', function(err) {
+    it('should not reformat error messages that are not about invalid tasks', function(cb) {
+      generate.task('default', function(cb) {
+        cb(new Error('whatever'));
+      });
+
+      generate.generate('default', function(err) {
         assert(err);
-        assert.equal('Cannot find task: "foo" in generator: "fdsslsllsfjssl"', err.message);
+        assert.equal(err.message, 'whatever');
         cb();
       });
     });
@@ -47,49 +50,65 @@ describe('.generate', function() {
       });
     });
 
-    it('should not reformat error messages that are not about invalid tasks', function(cb) {
-      generate.task('default', function(cb) {
-        cb(new Error('whatever'));
-      });
+    it('should not throw an error when the default task is not defined', function(cb) {
+      generate.register('foo', function() {});
+      generate.register('bar', function() {});
+      generate.generate('foo', ['default'], function(err) {
+        if (err) return cb(err);
 
-      generate.generate('default', function(err) {
-        assert(err);
-        assert.equal(err.message, 'whatever');
-        cb();
+        generate.generate('bar', function(err) {
+          if (err) return cb(err);
+
+          cb();
+        });
       });
     });
 
     it('should run a task on the instance', function(cb) {
-      generate.task('foo', function(next) {
+      generate.task('abc123', function(next) {
         next();
       });
 
-      generate.generate('foo', function(err) {
+      generate.generate('abc123', function(err) {
         assert(!err);
         cb();
       });
     });
 
-    it('should run a task instead of a generator of the same name', function(cb) {
-      generate.register('foo', function(app) {
+    it('should run same-named task instead of a generator', function(cb) {
+      generate.register('123xyz', function(app) {
+        cb(new Error('expected the task to run first'));
+      });
+
+      generate.task('123xyz', function() {
+        cb();
+      });
+
+      generate.generate('123xyz', function(err) {
+        assert(!err);
+      });
+    });
+
+    it('should run a task instead of a generator with a default task', function(cb) {
+      generate.register('123xyz', function(app) {
         app.task('default', function() {
           cb(new Error('expected the task to run first'));
         });
       });
-
-      generate.task('foo', function() {
+      generate.task('123xyz', function() {
         cb();
       });
-
-      generate.generate('foo', function(err) {
+      generate.generate('123xyz', function(err) {
         assert(!err);
       });
     });
 
-    it('should run a task on a generator with the same name when specified', function(cb) {
+    it('should run a task on a same-named generator when the task is specified', function(cb) {
+      var count = 0;
       generate.register('foo', function(app) {
-        app.task('default', function() {
-          cb();
+        app.task('default', function(next) {
+          count++;
+          next();
         });
       });
 
@@ -99,7 +118,52 @@ describe('.generate', function() {
 
       generate.generate('foo:default', function(err) {
         assert(!err);
+        assert.equal(count, 1);
+        cb();
       });
+    });
+
+    it('should run an array of tasks that includes a same-named generator', function(cb) {
+      var count = 0;
+      generate.register('foo', function(app) {
+        app.task('default', function(next) {
+          count++;
+          next();
+        });
+      });
+
+      generate.register('bar', function(app) {
+        app.task('baz', function(next) {
+          count++;
+          next();
+        });
+      });
+
+      generate.task('foo', function() {
+        cb(new Error('expected the generator to run'));
+      });
+
+      generate.generate(['foo:default', 'bar:baz'], function(err) {
+        assert(!err);
+        assert.equal(count, 2);
+        cb();
+      });
+    });
+
+    it('should run a generator from a task with the same name', function(cb) {
+      generate.register('foo', function(app) {
+        app.task('default', function() {
+          cb();
+        });
+      });
+
+      generate.task('foo', function(cb) {
+        generate.generate('foo', cb);
+      });
+
+      generate.build('foo', function(err) {
+        if (err) cb(err);
+      })
     });
 
     it('should run the default task on a generator', function(cb) {
@@ -110,6 +174,28 @@ describe('.generate', function() {
       });
 
       generate.generate('foo', function(err) {
+        assert(!err);
+        cb();
+      });
+    });
+
+    it('should run a stringified array of tasks on the instance', function(cb) {
+      var count = 0;
+      generate.task('a', function(next) {
+        count++;
+        next();
+      });
+      generate.task('b', function(next) {
+        count++;
+        next();
+      });
+      generate.task('c', function(next) {
+        count++;
+        next();
+      });
+
+      generate.generate('a,b,c', function(err) {
+        assert.equal(count, 3);
         assert(!err);
         cb();
       });
@@ -130,7 +216,39 @@ describe('.generate', function() {
         next();
       });
 
-      generate.generate('a,b,c', function(err) {
+      generate.generate(['a', 'b', 'c'], function(err) {
+        if (err) return cb(err);
+        assert.equal(count, 3);
+        assert(!err);
+        cb();
+      });
+    });
+
+    it('should run the default tasks on an array of generators', function(cb) {
+      var count = 0;
+      generate.register('a', function(app) {
+        this.task('default', function(cb) {
+          count++;
+          cb();
+        });
+      });
+
+      generate.register('b', function(app) {
+        this.task('default', function(cb) {
+          count++;
+          cb();
+        });
+      });
+
+      generate.register('c', function(app) {
+        this.task('default', function(cb) {
+          count++;
+          cb();
+        });
+      });
+
+      generate.generate(['a', 'b', 'c'], function(err) {
+        if (err) return cb(err);
         assert.equal(count, 3);
         assert(!err);
         cb();
@@ -222,7 +340,7 @@ describe('.generate', function() {
     });
   });
 
-  describe('sub-generators', function(cb) {
+  describe('generate sub-generators', function(cb) {
     it('should run the default task on a registered sub-generator', function(cb) {
       var count = 0;
       generate.register('foo', function(app) {

@@ -30,370 +30,369 @@ describe('.invoke', function() {
   beforeEach(function() {
     generate = new Generate();
   });
+  
+  describe('invoke generators', function(cb) {
+    it('should invoke an instance', function(cb) {
+      generate.register('foo', function(app) {
+        var bar = app.getGenerator('bar');
+        app.invoke(bar);
 
-  it('should invoke a named generator', function(cb) {
-    generate.register('foo', function(app) {
-      app.invoke('bar');
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        assert(app.tasks.hasOwnProperty('c'));
+        cb();
+      });
 
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      assert(app.tasks.hasOwnProperty('c'));
-      cb();
-    });
-
-    generate.register('bar', function(app) {
-      app.task('a', function() {});
-      app.task('b', function() {});
-      app.task('c', function() {});
-    });
-
-    generate.getGenerator('foo');
-  });
-
-  it('should invoke an instance', function(cb) {
-    generate.register('foo', function(app) {
-      var bar = app.getGenerator('bar');
-      app.invoke(bar);
-
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      assert(app.tasks.hasOwnProperty('c'));
-      cb();
-    });
-
-    generate.register('bar', function(app) {
-      app.task('a', function() {});
-      app.task('b', function() {});
-      app.task('c', function() {});
-    });
-
-    generate.getGenerator('foo');
-  });
-
-  it('should invoke sub-generators', function(cb) {
-    generate.register('foo', function(app) {
-      app.register('one', function(app) {
+      generate.register('bar', function(app) {
         app.task('a', function() {});
-      });
-      app.register('two', function(app) {
         app.task('b', function() {});
+        app.task('c', function() {});
       });
 
-      app.invoke('one');
-      app.invoke('two');
-
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      cb();
+      generate.getGenerator('foo');
     });
 
-    generate.getGenerator('foo');
-  });
+    it('should invoke a named generator', function(cb) {
+      generate.register('foo', function(app) {
+        app.invoke('bar');
 
-  it('should invoke sub-generators from sub-generators', function(cb) {
-    generate.register('foo', function(app) {
-      app.register('one', function(sub) {
-        sub.register('a', function(a) {
-          a.task('a', function() {});
-        });
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        assert(app.tasks.hasOwnProperty('c'));
+        cb();
       });
 
-      app.register('two', function(sub) {
-        sub.register('a', function(a) {
-          a.task('b', function() {});
-        });
-      });
-
-      app.invoke('one.a');
-      app.invoke('two.a');
-
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      cb();
-    });
-
-    generate.getGenerator('foo');
-  });
-
-  it('should invoke an array of sub-generators from sub-generators', function(cb) {
-    generate.register('foo', function(app) {
-      app.register('one', function(sub) {
-        sub.register('a', function(a) {
-          a.task('a', function() {});
-        });
-      });
-
-      app.register('two', function(sub) {
-        sub.register('a', function(a) {
-          a.task('b', function() {});
-        });
-      });
-
-      app.invoke(['one.a', 'two.a']);
-
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      cb();
-    });
-
-    generate.getGenerator('foo');
-  });
-
-  it('should invoke an array of sub-generators', function(cb) {
-    generate.register('foo', function(app) {
-      app.register('one', function(app) {
+      generate.register('bar', function(app) {
         app.task('a', function() {});
-      });
-      app.register('two', function(app) {
         app.task('b', function() {});
+        app.task('c', function() {});
       });
 
-      app.invoke(['one', 'two']);
-
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      cb();
+      generate.getGenerator('foo');
     });
-
-    generate.getGenerator('foo');
   });
 
-  it('should invoke a sub-generator on the generate instance', function(cb) {
-    generate.register('foo', function(app) {
-      app.invoke('bar.sub');
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      assert(app.tasks.hasOwnProperty('c'));
-      cb();
-    });
+  describe('extend generators', function(cb) {
+    it('should extend a generator with a generator invoked by name', function(cb) {
+      generate.register('foo', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
 
-    generate.register('bar', function(app) {
-      app.register('sub', function(sub) {
-        sub.task('a', function() {});
-        sub.task('b', function() {});
-        sub.task('c', function() {});
+        app.invoke('bar');
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
       });
-    });
 
-    generate.getGenerator('foo');
-  });
-
-  it('should invoke sub-generator that invokes another generator', function(cb) {
-    generate.register('foo', function(app) {
-      app.invoke('bar');
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      assert(app.tasks.hasOwnProperty('c'));
-      cb();
-    });
-
-    generate.register('bar', function(app) {
-      app.invoke('baz');
-    });
-
-    generate.register('baz', function(app) {
-      app.task('a', function() {});
-      app.task('b', function() {});
-      app.task('c', function() {});
-    });
-
-    generate.getGenerator('foo');
-  });
-
-  it('should invoke sub-generator that invokes another sub-generator', function(cb) {
-    generate.register('foo', function(app) {
-      app.invoke('bar.sub');
-      assert(app.tasks.hasOwnProperty('a'));
-      assert(app.tasks.hasOwnProperty('b'));
-      assert(app.tasks.hasOwnProperty('c'));
-      cb();
-    });
-
-    generate.register('bar', function(app) {
-      app.register('sub', function(sub) {
-        sub.invoke('baz.sub');
+      generate.register('bar', function(app) {
+        app.task('a', function() {});
+        app.task('b', function() {});
+        app.task('c', function() {});
       });
+
+      generate.getGenerator('foo');
     });
 
-    generate.register('baz', function(app) {
-      app.register('sub', function(sub) {
-        sub.task('a', function() {});
-        sub.task('b', function() {});
-        sub.task('c', function() {});
+    it('should extend a generator with a generator invoked by alias', function(cb) {
+      generate.register('foo', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
+
+        app.invoke('qux');
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
       });
+
+      generate.register('generate-qux', function(app) {
+        app.task('a', function() {});
+        app.task('b', function() {});
+        app.task('c', function() {});
+      });
+
+      generate.getGenerator('foo');
     });
 
-    generate.getGenerator('foo');
+    it('should extend with a generator invoked by filepath', function(cb) {
+      generate.register('foo', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
+
+        app.invoke(fixture('qux'));
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
+      });
+
+      generate.getGenerator('foo');
+    });
+
+    it('should extend with a generator invoked from node_modules by name', function(cb) {
+      generate.register('abc', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
+
+        app.invoke('generate-foo');
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
+      });
+
+      generate.getGenerator('abc');
+    });
+    
+    it('should extend with a generator invoked from node_modules by alias', function(cb) {
+      generate.register('abc', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
+
+        app.invoke('foo');
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
+      });
+
+      generate.getGenerator('abc');
+    });
+
+    it('should extend with a generator invoked from global modules by name', function(cb) {
+      generate.register('zzz', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
+        app.invoke('generate-bar');
+
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
+      });
+
+      generate.getGenerator('zzz');
+    });
+
+    it('should extend with a generator invoked from global modules by alias', function(cb) {
+      generate.register('zzz', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
+
+        app.invoke('bar');
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
+      });
+
+      generate.getGenerator('zzz');
+    });
   });
 
-  it('should extend a generator with a generator invoked by name', function(cb) {
-    generate.register('foo', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
+  describe('sub-generators', function(cb) {
+    it('should invoke sub-generators', function(cb) {
+      generate.register('foo', function(app) {
+        app.register('one', function(app) {
+          app.task('a', function() {});
+        });
+        app.register('two', function(app) {
+          app.task('b', function() {});
+        });
 
-      app.invoke('bar');
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      cb();
+        app.invoke('one');
+        app.invoke('two');
+
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        cb();
+      });
+
+      generate.getGenerator('foo');
+    });
+    
+    it('should invoke a sub-generator on the base instance', function(cb) {
+      generate.register('foo', function(app) {
+        app.invoke('bar.sub');
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        assert(app.tasks.hasOwnProperty('c'));
+        cb();
+      });
+
+      generate.register('bar', function(app) {
+        app.register('sub', function(sub) {
+          sub.task('a', function() {});
+          sub.task('b', function() {});
+          sub.task('c', function() {});
+        });
+      });
+
+      generate.getGenerator('foo');
     });
 
-    generate.register('bar', function(app) {
-      app.task('a', function() {});
-      app.task('b', function() {});
-      app.task('c', function() {});
+    it('should invoke a sub-generator from node_modules by name', function(cb) {
+      generate.register('abc', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
+
+        app.invoke('xyz');
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
+      });
+
+      generate.register('xyz', function(app) {
+        app.invoke('generate-foo');
+      });
+
+      generate.getGenerator('abc');
     });
 
-    generate.getGenerator('foo');
-  });
+    it('should invoke a sub-generator from node_modules by alias', function(cb) {
+      generate.register('abc', function(app) {
+        assert(!app.tasks.a);
+        assert(!app.tasks.b);
+        assert(!app.tasks.c);
 
-  it('should extend a generator with a generator invoked by alias', function(cb) {
-    generate.register('foo', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
+        app.invoke('xyz');
+        assert(app.tasks.a);
+        assert(app.tasks.b);
+        assert(app.tasks.c);
+        cb();
+      });
 
-      app.invoke('qux');
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      cb();
+      generate.register('xyz', function(app) {
+        app.invoke('foo');
+      });
+
+      generate.getGenerator('abc');
     });
 
-    generate.register('generate-qux', function(app) {
-      app.task('a', function() {});
-      app.task('b', function() {});
-      app.task('c', function() {});
+    it('should invoke an array of sub-generators', function(cb) {
+      generate.register('foo', function(app) {
+        app.register('one', function(app) {
+          app.task('a', function() {});
+        });
+        app.register('two', function(app) {
+          app.task('b', function() {});
+        });
+
+        app.invoke(['one', 'two']);
+
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        cb();
+      });
+
+      generate.getGenerator('foo');
     });
 
-    generate.getGenerator('foo');
-  });
+    it('should invoke sub-generators from sub-generators', function(cb) {
+      generate.register('foo', function(app) {
+        app.register('one', function(sub) {
+          sub.register('a', function(a) {
+            a.task('a', function() {});
+          });
+        });
 
-  it('should extend with a generator invoked by filepath', function(cb) {
-    generate.register('foo', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
+        app.register('two', function(sub) {
+          sub.register('a', function(a) {
+            a.task('b', function() {});
+          });
+        });
 
-      app.invoke(fixture('qux'));
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      cb();
+        app.invoke('one.a');
+        app.invoke('two.a');
+
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        cb();
+      });
+
+      generate.getGenerator('foo');
     });
 
-    generate.getGenerator('foo');
-  });
+    it('should invoke an array of sub-generators from sub-generators', function(cb) {
+      generate.register('foo', function(app) {
+        app.register('one', function(sub) {
+          sub.register('a', function(a) {
+            a.task('a', function() {});
+          });
+        });
 
-  it('should extend_ with a generator invoked from node_modules by name', function(cb) {
-    var called = false;
-    generate.register('abc', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
+        app.register('two', function(sub) {
+          sub.register('a', function(a) {
+            a.task('b', function() {});
+          });
+        });
 
-      app.invoke('generate-foo');
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      called = true;
+        app.invoke(['one.a', 'two.a']);
+
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        cb();
+      });
+
+      generate.getGenerator('foo');
     });
 
-    generate.getGenerator('abc');
-    assert(called);
-    cb();
-  });
+    it('should invoke sub-generator that invokes another generator', function(cb) {
+      generate.register('foo', function(app) {
+        app.invoke('bar');
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        assert(app.tasks.hasOwnProperty('c'));
+        cb();
+      });
 
-  it.skip('should invoke a sub-generator from node_modules by name', function(cb) {
-    var called = 0;
-    generate.register('abc', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
+      generate.register('bar', function(app) {
+        app.invoke('baz');
+      });
 
-      app.invoke('xyz');
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      // called++;
+      generate.register('baz', function(app) {
+        app.task('a', function() {});
+        app.task('b', function() {});
+        app.task('c', function() {});
+      });
+
+      generate.getGenerator('foo');
     });
 
-    generate.register('xyz', function(app) {
-      app.invoke('generate-foo');
-      called++;
+    it('should invoke sub-generator that invokes another sub-generator', function(cb) {
+      generate.register('foo', function(app) {
+        app.invoke('bar.sub');
+        assert(app.tasks.hasOwnProperty('a'));
+        assert(app.tasks.hasOwnProperty('b'));
+        assert(app.tasks.hasOwnProperty('c'));
+        cb();
+      });
+
+      generate.register('bar', function(app) {
+        app.register('sub', function(sub) {
+          sub.invoke('baz.sub');
+        });
+      });
+
+      generate.register('baz', function(app) {
+        app.register('sub', function(sub) {
+          sub.task('a', function() {});
+          sub.task('b', function() {});
+          sub.task('c', function() {});
+        });
+      });
+
+      generate.getGenerator('foo');
     });
-
-    generate.getGenerator('abc');
-    console.log(called);
-    cb();
-  });
-
-  it('should extend with a generator invoked from node_modules by alias', function(cb) {
-    generate.register('abc', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
-
-      app.invoke('foo');
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      cb();
-    });
-
-    generate.getGenerator('abc');
-  });
-
-  it('should invoke a sub-generator from node_modules by alias', function(cb) {
-    generate.register('abc', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
-
-      app.invoke('xyz');
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      cb();
-    });
-
-    generate.register('xyz', function(app) {
-      app.invoke('foo');
-    });
-
-    generate.getGenerator('abc');
-  });
-
-  it('should extend with a generator invoked from global modules by name', function(cb) {
-    generate.register('zzz', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
-      app.invoke('generate-bar');
-
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      cb();
-    });
-
-    generate.getGenerator('zzz');
-  });
-
-  it('should extend with a generator invoked from global modules by alias', function(cb) {
-    generate.register('zzz', function(app) {
-      assert(!app.tasks.a);
-      assert(!app.tasks.b);
-      assert(!app.tasks.c);
-
-      app.invoke('bar');
-      assert(app.tasks.a);
-      assert(app.tasks.b);
-      assert(app.tasks.c);
-      cb();
-    });
-
-    generate.getGenerator('zzz');
   });
 });

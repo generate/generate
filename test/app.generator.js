@@ -13,6 +13,14 @@ describe('.generator', function() {
     generate = new Generate();
   });
 
+  describe('generator', function() {
+    it('should get a generator that has the name of a non-generator', function() {
+      var gen = generate.getGenerator('mocha');
+      assert(gen);
+      assert.equal(gen.env.name, 'generate-mocha');
+    });
+  });
+
   describe('register > function', function() {
     it('should register a generator function by name', function() {
       generate.generator('foo', function() {});
@@ -21,7 +29,7 @@ describe('.generator', function() {
 
     it('should register a generator function by alias', function() {
       generate.generator('generate-abc', function() {});
-      assert(generate.generators.hasOwnProperty('abc'));
+      assert(generate.generators.hasOwnProperty('generate-abc'));
     });
   });
 
@@ -52,6 +60,53 @@ describe('.generator', function() {
       generate.getGenerator('foo');
     });
 
+    it('should expose the generator instance on `app`', function(cb) {
+      generate.register('foo', function(app) {
+        app.task('default', function(next) {
+          assert.equal(app.get('a'), 'b');
+          next();
+        })
+      });
+
+      var foo = generate.getGenerator('foo');
+      foo.set('a', 'b');
+      foo.build('default', function(err) {
+        if (err) return cb(err);
+        cb()
+      });
+    });
+
+    it('should expose the "base" instance on `base`', function(cb) {
+      generate.set('x', 'z');
+      generate.register('foo', function(app, base) {
+        app.task('default', function(next) {
+          assert.equal(generate.get('x'), 'z');
+          next();
+        })
+      });
+
+      var foo = generate.getGenerator('foo');
+      foo.set('a', 'b');
+      foo.build('default', function(err) {
+        if (err) return cb(err);
+        cb()
+      });
+    });
+
+    it('should expose the "env" object on `env`', function(cb) {
+      generate.register('foo', function(app, base, env) {
+        app.task('default', function(next) {
+          assert.equal(env.alias, 'foo');
+          next();
+        })
+      });
+
+      generate.getGenerator('foo').build('default', function(err) {
+        if (err) return cb(err);
+        cb()
+      });
+    });
+
     it('should expose an app\'s generators on app.generators', function(cb) {
       generate.register('foo', function(app) {
         app.register('a', function() {});
@@ -73,8 +128,8 @@ describe('.generator', function() {
         cb();
       });
 
-      generate.register('bar', function(app, generate) {});
-      generate.register('baz', function(app, generate) {});
+      generate.register('bar', function(app, base) {});
+      generate.register('baz', function(app, base) {});
       generate.getGenerator('foo');
     });
   });
@@ -87,8 +142,8 @@ describe('.generator', function() {
         cb();
       });
 
-      generate.register('bar', function(app, generate) {});
-      generate.register('baz', function(app, generate) {});
+      generate.register('bar', function(app, base) {});
+      generate.register('baz', function(app, base) {});
       generate.getGenerator('foo');
     });
 
@@ -155,8 +210,8 @@ describe('.generator', function() {
         cb();
       });
 
-      generate.register('bar', function(app, generate) {});
-      generate.register('baz', function(app, generate) {
+      generate.register('bar', function(app, base) {});
+      generate.register('baz', function(app, base) {
         app.task('aaa', function() {});
       });
       generate.getGenerator('foo');
