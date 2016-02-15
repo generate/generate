@@ -126,7 +126,34 @@ Generate.prototype.handleErr = function(err) {
 };
 
 /**
- * Expose static `runner` method
+ * Static `runner` method that can be used to add CLI for for running
+ * locally and globally installed generators when interiting `Generate`.
+ *
+ * `.runner` takes the name of the configfile to lookup, e.g `generator.js`,
+ * and a default generator function to use as arguments, and it returns
+ * a `run` function.
+ *
+ * The returned `run` function takes:
+ *
+ * - `app` **{Object}** an instance of your application
+ * - `cb` **{Function}** callback to call when the runner is finished loading the user environment and pre-processing `argv` arguments.
+ *
+ * ```js
+ * #!/usr/bin/env node
+ *
+ * var generate = require('generate');
+ * var run = generate.runner('configfile.js', require('./foo'));
+ * var app = generate();
+ *
+ * // generate stuff
+ * run(app, function(err, argv, app) {
+ *   // `err` generator errors
+ *   // `argv` processed by minimist and expand-args
+ *   // `app` instance with generators and tasks loaded (this is the same
+ *   // app instance that was passed to `run`, exposed as a convenience)
+ * });
+ * ```
+ * @api public
  */
 
 Generate.runner = runner;
