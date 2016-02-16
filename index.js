@@ -7,7 +7,6 @@
 
 'use strict';
 
-var path = require('path');
 var util = require('generator-util');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
