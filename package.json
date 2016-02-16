@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "Fast, composable, highly extendable project generator with a user-friendly and expressive API.",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
@@ -32,7 +32,7 @@
     "base-fs-rename": "^0.1.1",
     "base-generators": "^0.1.14",
     "base-pipeline": "^0.2.3",
-    "base-runner": "^0.5.13",
+    "base-runner": "^0.5.14",
     "base-runtimes": "^0.1.4",
     "debug": "^2.2.0",
     "extend-shallow": "^2.0.1",
