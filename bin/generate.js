@@ -11,6 +11,10 @@ var generate = require('..');
 var run = generate.runner('generator.js', generator);
 var app = generate();
 
+app.on('done', function() {
+  process.exit(0);
+});
+
 /**
  * Run generators and tasks
  */
