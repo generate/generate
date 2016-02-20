@@ -12,6 +12,7 @@ var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var runner = require('./lib/runner');
 var utils = require('./lib/utils');
+var answers = {};
 
 /**
  * Create an instance of `Generate` with the given `options`
@@ -80,6 +81,21 @@ Generate.prototype.initGenerate = function(opts) {
     plugin.apply(this, arguments);
     return this;
   });
+
+  this.cache.answers = this.cache.answers || {};
+
+  this.define('answers', function(answers, val) {
+    if (typeof answers === 'string') {
+      if (arguments.length === 1) {
+        return this.get('cache.answers', answers);
+      }
+      var answer = {};
+      answer[answers] = val;
+      return this.answers(answer);
+    }
+    this.answerData = utils.merge({}, this.answerData, answers);
+    return this.answerData;
+  });
 };
 
 /**
@@ -92,6 +108,18 @@ Generate.prototype.initPlugins = function(opts) {
   this.use(plugins.runner());
   this.use(plugins.loader());
 
+  Object.defineProperty(this, 'answerData', {
+    configurable: true,
+    set: function(val) {
+      answers = val;
+    },
+    get: function() {
+      answers = utils.merge({}, answers, this.base.cache.answers);
+      this.cache.answers = answers;
+      return answers;
+    }
+  });
+
   if (opts.cli === true || process.env.GENERATE_CLI) {
     this.create('templates');
 
@@ -101,6 +129,7 @@ Generate.prototype.initPlugins = function(opts) {
     // adds prompt method, and modifies create, dest and
     // src methods to automatically use cwd from generators
     // unless overridden by the user
+    util.prompt(this);
     util.create(this);
     util.dest(this);
     util.src(this);
