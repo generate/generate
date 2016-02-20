@@ -61,9 +61,14 @@ describe('.resolve', function() {
       assert.equal(typeof fp, 'undefined');
     });
 
-    it('should return undefined when a generator is not found at the given cwd', function() {
-      var actual = generate.resolve('bar', {cwd: fixtures()});
-      assert.equal(typeof actual, 'undefined');
+    it('should throw an error when a generator is not found at the given cwd', function(cb) {
+      try {
+        generate.resolve('foofof', {cwd: fixtures()});
+        cb(new Error('expected an error'));
+      } catch (err) {
+        assert.equal(err.code, 'ENOENT');
+        cb();
+      }
     });
   });
 });

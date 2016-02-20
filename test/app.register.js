@@ -189,7 +189,7 @@ describe('.register', function() {
       });
 
       base.register('generate-abc-xyz', function() {});
-      assert(base.generators.hasOwnProperty('xyz'));
+      assert(base.generators.hasOwnProperty('generate-abc-xyz'));
     });
   });
 
@@ -211,7 +211,7 @@ describe('.register', function() {
 
     it('should register a generator from a configfile filepath', function() {
       base.register('generate-abc', fixtures('generators/a/generator.js'));
-      assert(base.generators.hasOwnProperty('abc'));
+      assert(base.generators.hasOwnProperty('generate-abc'));
     });
 
     it('should throw when a generator does not expose the instance', function(cb) {

@@ -13,10 +13,25 @@ describe('.generator', function() {
     generate = new Generate();
   });
 
-  describe('generator', function() {
-    it('should get a generator that has the name of a non-generator', function() {
-      var gen = generate.getGenerator('mocha');
+  describe('get generator', function() {
+    it('should get a generator by full name name', function() {
+      var gen = generate.getGenerator('generate-mocha');
       assert(gen);
+      assert.equal(gen.env.alias, 'mocha');
+      assert.equal(gen.env.name, 'generate-mocha');
+    });
+
+    it('should get a generator by aliased name', function() {
+      var gen = generate.getGenerator('generate-mocha');
+      assert(gen);
+      assert.equal(gen.env.alias, 'mocha');
+      assert.equal(gen.env.name, 'generate-mocha');
+    });
+
+    it('should get a generator by alias', function() {
+      var gen = generate.getGenerator('generate-mocha');
+      assert(gen);
+      assert.equal(gen.env.alias, 'mocha');
       assert.equal(gen.env.name, 'generate-mocha');
     });
   });
