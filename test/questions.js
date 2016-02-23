@@ -6,7 +6,6 @@ require('mocha');
 var fs = require('fs');
 var assert = require('assert');
 var store = require('base-store');
-var plugins = require('../lib/plugins');
 var App = require('..');
 var app, base, site;
 

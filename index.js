@@ -111,6 +111,7 @@ Generate.prototype.initPlugins = function(opts) {
   this.use(plugins.pipeline());
   this.use(plugins.runner());
   this.use(plugins.loader());
+  this.use(plugins.ask());
 
   Object.defineProperty(this, 'answerData', {
     configurable: true,
