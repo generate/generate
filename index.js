@@ -30,7 +30,8 @@ function Generate(options) {
     return new Generate(options);
   }
   this.options = utils.extend({prefix: 'generate'}, this.options, options);
-  Assemble.call(this, options);
+  Assemble.call(this, this.options);
+  this.is('generate');
   this.initGenerate();
 }
 
@@ -45,11 +46,12 @@ Assemble.extend(Generate);
  */
 
 Generate.prototype.initGenerate = function(opts) {
-  this.is('generate');
+  this.debug('initializing generate defaults');
   this.name = 'generate';
 
   // data
   this.data({runner: require('./package')});
+  this.asyncHelper('ask', require('./ask')(this, this.options));
 
   // expose utils
   this.define('util', utils);
@@ -68,7 +70,7 @@ Generate.prototype.initGenerate = function(opts) {
   this.initPlugins(this.options);
   var plugin = this.plugin;
 
-  this.define('plugin', function(name) {
+  this.mixin('plugin', function(name) {
     var pipeline = this.options.pipeline || [];
     if (arguments.length === 1 && pipeline.length) {
       var idx = pipeline.indexOf(name);
@@ -84,7 +86,7 @@ Generate.prototype.initGenerate = function(opts) {
 
   this.cache.answers = this.cache.answers || {};
 
-  this.define('answers', function(answers, val) {
+  this.mixin('answers', function(answers, val) {
     if (typeof answers === 'string') {
       if (arguments.length === 1) {
         return this.get('cache.answers', answers);
@@ -103,6 +105,8 @@ Generate.prototype.initGenerate = function(opts) {
  */
 
 Generate.prototype.initPlugins = function(opts) {
+  this.debug('initializing generate plugins');
+
   this.use(plugins.generators());
   this.use(plugins.pipeline());
   this.use(plugins.runner());
