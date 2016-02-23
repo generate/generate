@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "Fast, composable, highly extendable project generator with a user-friendly and expressive API.",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
@@ -12,6 +12,7 @@
   "files": [
     "bin/",
     "index.js",
+    "ask.js",
     "lib/"
   ],
   "main": "index.js",
