@@ -12,6 +12,7 @@ var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var runner = require('./lib/runner');
 var utils = require('./lib/utils');
+var debug = Assemble.debug;
 var answers = {};
 
 /**
@@ -29,10 +30,12 @@ function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
   }
-  this.options = utils.extend({prefix: 'generate'}, this.options, options);
+
+  this.options = utils.extend({}, this.options, options);
   Assemble.call(this, this.options);
   this.is('generate');
-  this.initGenerate();
+  debug(this);
+  this.initGenerate(this.options);
 }
 
 /**
@@ -51,7 +54,7 @@ Generate.prototype.initGenerate = function(opts) {
 
   // data
   this.data({runner: require('./package')});
-  this.asyncHelper('ask', require('./ask')(this, this.options));
+  this.asyncHelper('ask', require('./ask')(this));
 
   // expose utils
   this.define('util', utils);
