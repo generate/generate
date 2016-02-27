@@ -18,3 +18,4 @@ bower_components
 vendor
 temp
 tmp
+test/vinyl-fs
