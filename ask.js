@@ -5,7 +5,7 @@ var merge = require('mixin-deep');
 var get = require('get-value');
 var answerCache = {};
 
-module.exports = function (app, base) {
+module.exports = function(app, base) {
   return function ask(name, question, locals, cb) {
     if (typeof question === 'function') {
       return ask.call(this, name, {}, {}, question);

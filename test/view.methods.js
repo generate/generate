@@ -12,7 +12,6 @@ describe('view.option()', function() {
     app.create('page');
   });
 
-
   describe('.use', function() {
     it('should expose `.use` for running plugins on a view:', function() {
       app.page('a.tmpl', {path: 'a.tmpl', content: '<%= a %>'})
