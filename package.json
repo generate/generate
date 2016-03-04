@@ -28,14 +28,15 @@
     "generate": "bin/generate.js"
   },
   "dependencies": {
-    "assemble-core": "^0.13.2",
+    "assemble-core": "^0.14.0",
     "assemble-loader": "^0.3.0",
     "base-fs-rename": "^0.1.1",
     "base-generators": "github:node-base/base-generators#refactor",
     "base-pipeline": "^0.2.3",
     "base-questions": "^0.5.0",
-    "base-runner": "^0.5.16",
+    "base-runner": "^0.5.17",
     "base-runtimes": "^0.1.4",
+    "data-store": "^0.15.5",
     "debug": "^2.2.0",
     "extend-shallow": "^2.0.1",
     "generator-util": "^0.2.7",
@@ -44,11 +45,12 @@
     "is-affirmative": "^0.1.0",
     "lazy-cache": "^1.0.3",
     "matched": "^0.4.1",
-    "mixin-deep": "^1.1.3"
+    "mixin-deep": "^1.1.3",
+    "resolve-dir": "^0.1.0"
   },
   "devDependencies": {
     "async": "^1.5.2",
-    "base-option": "^0.6.1",
+    "base-option": "^0.6.2",
     "base-store": "^0.4.1",
     "buffer-equal": "^1.0.0",
     "consolidate": "^0.14.0",
@@ -67,11 +69,12 @@
     "is-buffer": "^1.1.2",
     "kind-of": "^3.0.2",
     "load-pkg": "^3.0.1",
-    "mocha": "*",
+    "minimist": "^1.2.0",
+    "mocha": "^2.4.5",
     "parser-front-matter": "^1.3.0",
     "resolve-glob": "^0.1.8",
     "rimraf": "^2.5.2",
-    "should": "*",
+    "should": "^8.2.2",
     "sinon": "^1.17.3",
     "spawn-commands": "^0.3.1",
     "swig": "^1.4.2",
@@ -81,19 +84,43 @@
   "keywords": [
     "app",
     "boilerplate",
+    "build",
+    "cli",
+    "cli-app",
     "create",
+    "dev",
+    "development",
+    "end",
+    "front",
+    "front-end",
     "generate",
     "generator",
     "init",
     "initialize",
     "project",
     "scaffold",
+    "stack",
     "template",
     "templates",
+    "tool",
+    "web",
     "webapp",
-    "yeoman"
+    "yeoman",
+    "yo"
   ],
   "verb": {
+    "run": true,
+    "toc": {
+      "method": "postRender",
+      "match": "[*-+]\\s+\\.(\\w)"
+    },
+    "layout": "global",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
     "related": {
       "list": [
         "assemble",
@@ -103,14 +130,6 @@
       ],
       "highlight": "verb"
     },
-    "toc": true,
-    "layout": "global",
-    "tasks": [
-      "readme"
-    ],
-    "plugins": [
-      "gulp-format-md"
-    ],
     "reflinks": [
       "assemble",
       "assemble-core",
@@ -123,7 +142,10 @@
       "scaffold",
       "verb",
       "vinyl"
-    ]
+    ],
+    "lint": {
+      "reflinks": true
+    }
   },
   "lintDeps": {
     "ignore": []
