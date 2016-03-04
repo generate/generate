@@ -93,9 +93,6 @@ Generate.prototype.initPlugins = function(opts) {
 
     this.use(plugins.runtimes(opts));
     this.use(plugins.rename({replace: true}));
-    this.on('finished', function() {
-      console.log();
-    });
 
     // adds prompt method, and modifies create, dest and
     // src methods to automatically use cwd from generators
