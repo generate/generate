@@ -33,13 +33,17 @@ function Generate(options) {
 
   this.options = utils.extend({}, this.options, options);
   Assemble.call(this, this.options);
+
   this.is('generate');
+  this.define('isApp', true);
   debug(this);
+
+  this.debug('initializing');
   this.initGenerate(this.options);
 }
 
 /**
- * Extend `Assemble`
+ * Extend `Generate`
  */
 
 Assemble.extend(Generate);
@@ -52,55 +56,23 @@ Generate.prototype.initGenerate = function(opts) {
   this.debug('initializing generate defaults');
   this.name = 'generate';
 
+  this.debug('creating globals store');
+  this.define('globals', new utils.Store('globals', {
+    cwd: utils.resolveDir('~/')
+  }));
+
   // data
   this.data({runner: require('./package')});
-  this.asyncHelper('ask', require('./ask')(this));
 
-  // expose utils
-  this.define('util', utils);
+  // asyn `ask` helper
+  this.asyncHelper('ask', utils.ask(this));
 
   // only create a collection if it doesn't exist
-  this.define('lazyCreate', function(name, opts) {
-    if (!this[name]) {
-      this.create(name, opts);
-    } else {
-      this[name].option(opts);
-    }
-    return this[name];
-  });
+  this.define('lazyCreate', utils.lazyCreate(this));
 
   // plugins
   this.initPlugins(this.options);
-  var plugin = this.plugin;
-
-  this.mixin('plugin', function(name) {
-    var pipeline = this.options.pipeline || [];
-    if (arguments.length === 1 && pipeline.length) {
-      var idx = pipeline.indexOf(name);
-      if (idx !== -1) {
-        pipeline.splice(idx, 1);
-      }
-    } else if (!~pipeline.indexOf(name)) {
-      pipeline.push(name);
-    }
-    plugin.apply(this, arguments);
-    return this;
-  });
-
-  this.cache.answers = this.cache.answers || {};
-
-  this.mixin('answers', function(answers, val) {
-    if (typeof answers === 'string') {
-      if (arguments.length === 1) {
-        return this.get('cache.answers', answers);
-      }
-      var answer = {};
-      answer[answers] = val;
-      return this.answers(answer);
-    }
-    this.answerData = utils.merge({}, this.answerData, answers);
-    return this.answerData;
-  });
+  utils.plugin(this);
 };
 
 /**
@@ -116,23 +88,14 @@ Generate.prototype.initPlugins = function(opts) {
   this.use(plugins.loader());
   this.use(plugins.ask());
 
-  Object.defineProperty(this, 'answerData', {
-    configurable: true,
-    set: function(val) {
-      answers = val;
-    },
-    get: function() {
-      answers = utils.merge({}, answers, this.base.cache.answers);
-      this.cache.answers = answers;
-      return answers;
-    }
-  });
-
   if (opts.cli === true || process.env.GENERATE_CLI) {
     this.create('templates');
 
     this.use(plugins.runtimes(opts));
     this.use(plugins.rename({replace: true}));
+    this.on('finished', function() {
+      console.log();
+    });
 
     // adds prompt method, and modifies create, dest and
     // src methods to automatically use cwd from generators
