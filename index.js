@@ -97,7 +97,6 @@ Generate.prototype.initPlugins = function(opts) {
     // adds prompt method, and modifies create, dest and
     // src methods to automatically use cwd from generators
     // unless overridden by the user
-    util.prompt(this);
     util.create(this);
     util.dest(this);
     util.src(this);
