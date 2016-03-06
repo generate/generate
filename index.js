@@ -13,7 +13,6 @@ var plugins = require('./lib/plugins');
 var runner = require('./lib/runner');
 var utils = require('./lib/utils');
 var debug = Assemble.debug;
-var answers = {};
 
 /**
  * Create an instance of `Generate` with the given `options`
