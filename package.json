@@ -107,6 +107,7 @@
   "verb": {
     "run": true,
     "toc": {
+      "render": true,
       "method": "postRender",
       "match": "[*-+]\\s+\\.(\\w)"
     },
@@ -137,7 +138,9 @@
       "npm",
       "scaffold",
       "verb",
-      "vinyl"
+      "vinyl",
+      "templates",
+      "consolidate"
     ],
     "lint": {
       "reflinks": true
