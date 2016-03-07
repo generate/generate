@@ -181,7 +181,7 @@ describe('.register', function() {
       base.getGenerator('bar');
     });
   });
-  
+
   describe('alias', function() {
     it('should use a custom function to create the alias', function() {
       base.option('alias', function(name) {
