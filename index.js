@@ -68,6 +68,7 @@ Generate.prototype.initGenerate = function(opts) {
 
   // only create a collection if it doesn't exist
   this.define('lazyCreate', utils.lazyCreate(this));
+  if (this.utils) this.define('utils', this.utils);
 
   // plugins
   this.initPlugins(this.options);
@@ -93,9 +94,8 @@ Generate.prototype.initPlugins = function(opts) {
     this.use(plugins.runtimes(opts));
     this.use(plugins.rename({replace: true}));
 
-    // adds prompt method, and modifies create, dest and
-    // src methods to automatically use cwd from generators
-    // unless overridden by the user
+    // modifies create, dest and src methods to automatically
+    // use cwd from generators unless overridden by the user
     util.create(this);
     util.dest(this);
     util.src(this);
