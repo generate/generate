@@ -10,12 +10,8 @@ describe('.toAlias', function() {
     generate = new Generate();
   });
 
-  it('should not create an alias from a name without the module prefix', function() {
+  it('should not create an alias when no prefix is given', function() {
     assert.equal(generate.toAlias('foo-bar'), 'foo-bar');
-  });
-
-  it('should create an alias using the given prefix', function() {
-    assert.equal(generate.toAlias('foo-bar', {prefix: 'foo'}), 'bar');
   });
 
   it('should create an alias using the given alias function', function() {

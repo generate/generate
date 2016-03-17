@@ -33,9 +33,9 @@ describe('env', function() {
     });
 
     describe('alias and path', function() {
-      it('should set the name to the basename of a generator\'s dirname', function() {
+      it('should set the name to the given name', function() {
         generate.createEnv('foo', 'generate-foo/generator.js');
-        assert.equal(generate.env.name, 'generate-foo');
+        assert.equal(generate.env.name, 'foo');
       });
 
       it('should not change the name when the second arg is a function', function() {
@@ -98,18 +98,13 @@ describe('env', function() {
       assert.equal(generate.env.name, 'foo');
     });
 
-    it('should try to resolve a path passed as the second arg', function() {
-      generate.createEnv('foo', 'generate-foo/generator.js');
-      assert.equal(generate.env.alias, 'foo');
-      assert.equal(generate.env.name, 'generate-foo');
-    });
-
     it('should throw an error when the path is not resolved', function(cb) {
       try {
-        generate.createEnv('foo', fixtures('whatever.js'));
+        var env = generate.createEnv('foo', fixtures('whatever.js'));
+        env.path;
         cb(new Error('expected an error'));
       } catch (err) {
-        assert.equal(err.message, 'cannot find generator: ' + fixtures('whatever.js'));
+        assert.equal(err.message, 'Cannot find module \'' + fixtures('whatever.js') + '\'');
         cb();
       }
     });
