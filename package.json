@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "Fast, composable, highly extendable project generator with a user-friendly and expressive API.",
-  "version": "0.4.13",
+  "version": "0.4.14",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
@@ -10,21 +10,21 @@
   },
   "license": "MIT",
   "files": [
-    "bin/",
+    "bin",
     "index.js",
-    "lib/"
+    "lib"
   ],
   "main": "index.js",
+  "preferGlobal": true,
+  "bin": {
+    "gen": "bin/generate.js",
+    "generate": "bin/generate.js"
+  },
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
     "test": "mocha"
-  },
-  "preferGlobal": true,
-  "bin": {
-    "gen": "bin/generate.js",
-    "generate": "bin/generate.js"
   },
   "dependencies": {
     "assemble-core": "^0.14.3",
@@ -141,14 +141,14 @@
       "bach",
       "base",
       "composer",
+      "consolidate",
       "gulp",
       "micromatch",
       "npm",
       "scaffold",
-      "verb",
-      "vinyl",
       "templates",
-      "consolidate"
+      "verb",
+      "vinyl"
     ],
     "lint": {
       "reflinks": true
