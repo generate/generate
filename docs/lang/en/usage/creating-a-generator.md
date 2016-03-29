@@ -1,6 +1,8 @@
-# generator.js example
+---
+title: Example generator
+---
 
-Below we walk through a sample `generator`, but if you're looking for a quick example, this is what a basic `generator.js` file might look like:
+Before we walk through a example `generator`, if you're looking for a quick example, this is what a basic `generator.js` file might look like:
 
 ```js
 module.exports = function(app) {
@@ -9,18 +11,17 @@ module.exports = function(app) {
       .pipe(app.renderFile('*'))
       .pipe(app.dest(app.cwd));
   });
-
   app.task('default', ['files']);
 };
 ```
 
 The entire `generator` is at the bottom of this page, but if you keep reading we'll walk through it a step at a time.
 
-## Creating the generator
+## Creating a generator
 
-The first part is a "wrapper" function, which encapsulates your generate configuration. This function is exported and called with an instanced of `generate`. 
+The first part is a "wrapper" function, which encapsulates your generate configuration. This function is exported and called with an instance of `generate`. 
 
-Thus, `app` in the example below, is an instance of `generate` created for this generator.
+The instance created for the generator is `app` in the following example:
 
 ```js
 module.exports = function(app) {

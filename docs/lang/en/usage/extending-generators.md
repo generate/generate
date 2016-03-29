@@ -2,6 +2,18 @@
 
 _(WIP: this document is not complete)_
 
+**signatures**
+
+```js
+app.use(node.plugin());
+app.use(node);
+app.use(function fn() {
+  this.use(node);
+  return fn;
+});
+```
+
+
 Examples in this document assume the following code is defined first:
 
 ```js
