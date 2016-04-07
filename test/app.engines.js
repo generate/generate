@@ -41,9 +41,14 @@ describe('app.engines', function() {
     assert(hbs.hasOwnProperty('compile'));
   });
 
-  it('should return undefined if no engine is found:', function() {
-    var hbs = app.getEngine();
-    assert.equal(typeof hbs, 'undefined');
+  it('should throw when a string is not passed:', function(cb) {
+    try {
+      app.getEngine();
+      cb(new Error('expected an error'));
+    } catch (err) {
+      assert.equal(err.message, 'expected engine name to be a string');
+      cb();
+    }
   });
 
   it('should register multiple engines to the given extension', function() {

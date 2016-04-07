@@ -44,7 +44,7 @@ describe('.extendWith', function() {
       generate.getGenerator('foo');
       cb(new Error('expected an error'));
     } catch (err) {
-      assert.equal(err.message, 'cannot find generator fofoofofofofof');
+      assert.equal(err.message, 'cannot find generator: fofoofofofofof');
       cb();
     }
   });
@@ -253,7 +253,7 @@ describe('.extendWith', function() {
       generate.getGenerator('zzz');
     });
 
-    it('should extend with a generator invoked from global modules by alias', function(cb) {
+    it.skip('should extend with a generator invoked from global modules by alias', function(cb) {
       generate.register('generate-bar');
 
       generate.register('zzz', function(app) {

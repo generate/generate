@@ -174,7 +174,7 @@ describe('.register', function() {
         cb(new Error('expected an error'));
       } catch (err) {
         var fp = path.resolve(__dirname, '../node_modules/not-exposed');
-        assert.equal(err.message, 'Cannot find module \'' + fp + '\'');
+        assert.equal(err.message, 'generator instances must be exposed with module.exports');
         cb();
       }
     });

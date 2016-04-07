@@ -196,14 +196,16 @@ describe('events', function() {
     keys.should.eql(['a']);
   });
 
-  it('should emit `set` when an array of objects is passed:', function() {
-    var keys = [];
-    app.store.on('set', function(key) {
-      keys.push(key);
+  it('should emit `set` when an array of objects is passed:', function(cb) {
+    var count = 0;
+    app.store.on('set', function(val) {
+      assert.deepEqual(val, [{a: 'b'}, {c: 'd'}]);
+      count++;
     });
 
     app.store.set([{a: 'b'}, {c: 'd'}]);
-    keys.should.eql(['a', 'c']);
+    assert.equal(count, 1);
+    cb();
   });
 
   it('should emit `del` when a value is deleted:', function(cb) {

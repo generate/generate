@@ -33,7 +33,7 @@ describe('env', function() {
     });
 
     describe('alias and path', function() {
-      it('should set the name to the given name', function() {
+      it.skip('should set the name to the given name', function() {
         generate.createEnv('foo', 'generate-foo/generator.js');
         assert.equal(generate.env.name, 'foo');
       });
@@ -104,7 +104,7 @@ describe('env', function() {
         env.path;
         cb(new Error('expected an error'));
       } catch (err) {
-        assert.equal(err.message, 'Cannot find module \'' + fixtures('whatever.js') + '\'');
+        assert.equal(err.message, 'cannot find generator: ' + fixtures('whatever.js'));
         cb();
       }
     });
