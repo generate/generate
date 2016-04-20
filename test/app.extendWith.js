@@ -44,7 +44,7 @@ describe('.extendWith', function() {
       generate.getGenerator('foo');
       cb(new Error('expected an error'));
     } catch (err) {
-      assert.equal(err.message, 'cannot find generator: fofoofofofofof');
+      assert.equal(err.message, 'cannot find generator fofoofofofofof');
       cb();
     }
   });

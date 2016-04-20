@@ -119,13 +119,17 @@ describe('generators events', function() {
       generate = new Generate();
       var called = 0;
 
-      function count() {
-        called++;
+      function count(err) {
+        if (err.name !== 'AssertionError') {
+          called++;
+        }
       }
 
-      generate.once('error', function(err) {
-        assert.equal(err.message, 'whatever');
-        called++;
+      generate.on('error', function(err) {
+        if (err.name !== 'AssertionError') {
+          assert.equal(err.message, 'whatever');
+          called++;
+        }
       });
 
       generate.register('a', function() {
@@ -150,6 +154,7 @@ describe('generators events', function() {
 
       generate.getGenerator('a.b.c.d')
         .build(function(err) {
+          if (err) count(err);
           assert.equal(called, 6);
           cb();
         });

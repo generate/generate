@@ -24,7 +24,7 @@ describe('.generateEach', function() {
       generate.option('cwd', 'foo/bar/baz');
       generate.generateEach('sflsjljskksl', function(err) {
         assert(err);
-        assert.equal(err.message, 'Cannot find generator: "sflsjljskksl" in "foo/bar/baz/generator.js"');
+        assert.equal(err.message, 'Cannot find generator: "sflsjljskksl" in "foo/bar/baz"');
         cb();
       });
     });

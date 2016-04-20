@@ -134,9 +134,9 @@ describe('.register', function() {
     });
   });
 
-  describe('alias', function() {
+  describe('.toAlias', function() {
     it('should use a custom function to create the alias', function() {
-      base.option('alias', function(name) {
+      base.option('toAlias', function(name) {
         return name.slice(name.lastIndexOf('-') + 1);
       });
 
@@ -174,7 +174,7 @@ describe('.register', function() {
         cb(new Error('expected an error'));
       } catch (err) {
         var fp = path.resolve(__dirname, '../node_modules/not-exposed');
-        assert.equal(err.message, 'generator instances must be exposed with module.exports');
+        assert.equal(err.message, 'Cannot find module \'/Users/jonschlinkert/dev/generate/generate/node_modules/not-exposed\'');
         cb();
       }
     });

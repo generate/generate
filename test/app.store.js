@@ -270,13 +270,20 @@ describe('events', function() {
 
   it('should emit `set` when an array of objects is passed:', function(cb) {
     var count = 0;
-    app.store.on('set', function(val) {
-      assert.deepEqual(val, [{a: 'b'}, {c: 'd'}]);
+    app.store.on('set', function(key, val) {
+      if (count === 0) {
+        assert.equal(key, 'a'); 
+        assert.equal(val, 'b'); 
+      }
+      if (count === 1) {
+        assert.equal(key, 'c'); 
+        assert.equal(val, 'd'); 
+      }
       count++;
     });
 
     app.store.set([{a: 'b'}, {c: 'd'}]);
-    assert.equal(count, 1);
+    assert.equal(count, 2);
     cb();
   });
 
