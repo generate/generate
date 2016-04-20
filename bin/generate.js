@@ -1,47 +1,78 @@
 #!/usr/bin/env node
 
 process.env.GENERATE_CLI = true;
+
 var argv = require('minimist')(process.argv.slice(2));
 var runner = require('base-runner');
+var commands = require('../lib/commands');
 var Generate = require('..');
-var config = {
+
+// lift-off options
+var options = {
   name: 'generate',
   runner: require('../package'),
-  setTasks: setTasks,
-  processTitle: 'generate',
-  moduleName: 'generate',
-  configName: 'generator',
-  extensions: {
-    '.js': null
-  }
+  configName: 'generator'
 };
 
-runner(Generate, config, argv, function(base, options) {
-  base.option('lookup', function(key) {
-    return [key, `generate-${key}`];
-  });
+/**
+ * Initialize Generate CLI
+ */
 
-  var opts = base.pkg.get(options.env.name);
-  var argv = options.argv;
+runner(Generate, options, argv, function(err, app, runnerContext) {
+  if (err) app.handleError(err);
 
-  if (opts && !argv.noconfig) {
-    base.set('cache.config', opts);
-    base.option(opts);
+  /**
+   * Set `argv` on app.options
+   */
+
+  app.option(argv);
+
+  /**
+   * Load custom commands
+   */
+
+  commands(app, runnerContext);
+
+  /**
+   * runnerContext
+   */
+
+  // get the config object from package.json
+  var config = app.pkg.get(runnerContext.env.name);
+  if (config && !args.noconfig) {
+    app.set('cache.config', config);
   }
 
-  base.option(argv);
+  // set parsed and unparsed argv on `cache`
+  var args = app.argv(runnerContext.argv);
+  app.set('cache.argv', {
+    orig: argv,
+    parsed: runnerContext.argv,
+    processed: args
+  });
 
-  base.generate(options.tasks, function(err) {
-    if (err) {
-      base.emit('error', err);
-    } else {
-      base.emit('done');
-      process.exit();
+  /**
+   * Custom lookup function for resolving generators
+   */
+
+  app.option('lookup', function(key) {
+    var patterns = [`generate-${key}`];
+    if (/generate-/.test(key)) {
+      patterns.push(key);
     }
+    return patterns;
+  });
+
+  app.option('runner.new', 'files');
+
+  /**
+   * Process argv
+   */
+
+  app.cli.process(args, function(err) {
+    if (err) app.emit('error', err);
+    app.emit('done');
+    process.exit();
   });
 });
-
-function setTasks(app, configfile, tasks) {
-  return tasks.length === 0 ? ['default'] : tasks;
-}
 
