@@ -174,7 +174,7 @@ describe('.register', function() {
         cb(new Error('expected an error'));
       } catch (err) {
         var fp = path.resolve(__dirname, '../node_modules/not-exposed');
-        assert.equal(err.message, 'Cannot find module \'/Users/jonschlinkert/dev/generate/generate/node_modules/not-exposed\'');
+        assert.equal(err.message, 'Cannot find module \'' + fp + '\'');
         cb();
       }
     });
