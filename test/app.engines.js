@@ -41,6 +41,11 @@ describe('app.engines', function() {
     assert(hbs.hasOwnProperty('compile'));
   });
 
+  it('should return undefined if no engine is found:', function() {
+    var hbs = app.getEngine();
+    assert.equal(typeof hbs, 'undefined');
+  });
+
   it('should register multiple engines to the given extension', function() {
     app.engine(['hbs', 'md'], function() {});
     assert(typeof app.engines['.hbs'] === 'object');

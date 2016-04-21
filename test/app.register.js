@@ -21,7 +21,7 @@ describe('.register', function() {
   });
 
   describe('function', function() {
-    it('should register a generator a function', function() {
+    it('should register a generator function', function() {
       base.register('foo', function() {});
       var foo = base.getGenerator('foo');
       assert(foo);
