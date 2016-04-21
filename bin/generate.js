@@ -11,7 +11,8 @@ var Generate = require('..');
 var options = {
   name: 'generate',
   runner: require('../package'),
-  configName: 'generator'
+  configName: 'generator',
+  lookup: lookup
 };
 
 /**
@@ -55,14 +56,6 @@ runner(Generate, options, argv, function(err, app, runnerContext) {
    * Custom lookup function for resolving generators
    */
 
-  app.option('lookup', function(key) {
-    var patterns = [`generate-${key}`];
-    if (/generate-/.test(key)) {
-      patterns.push(key);
-    }
-    return patterns;
-  });
-
   app.option('runner.new', 'files');
 
   /**
@@ -76,3 +69,16 @@ runner(Generate, options, argv, function(err, app, runnerContext) {
   });
 });
 
+/**
+ * Custom lookup function for resolving generators
+ */
+
+function lookup(app) {
+  return function(key) {
+    var patterns = [`generate-${key}`];
+    if (/generate-/.test(key)) {
+      patterns.push(key);
+    }
+    return patterns;
+  }
+}
