@@ -269,14 +269,21 @@ describe('events', function() {
   });
 
   it('should emit `set` when an array of objects is passed:', function(cb) {
-    var keys = [];
-
-    app.store.on('set', function(key) {
-      keys.push(key);
+    var count = 0;
+    app.store.on('set', function(key, val) {
+      if (count === 0) {
+        assert.equal(key, 'a'); 
+        assert.equal(val, 'b'); 
+      }
+      if (count === 1) {
+        assert.equal(key, 'c'); 
+        assert.equal(val, 'd'); 
+      }
+      count++;
     });
 
     app.store.set([{a: 'b'}, {c: 'd'}]);
-    keys.should.eql(['a', 'c']);
+    assert.equal(count, 2);
     cb();
   });
 

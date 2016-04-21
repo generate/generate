@@ -10,9 +10,7 @@
 var util = require('generator-util');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
-var runner = require('./lib/runner');
 var utils = require('./lib/utils');
-var debug = Assemble.debug;
 
 /**
  * Create an instance of `Generate` with the given `options`
@@ -29,15 +27,9 @@ function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
   }
-
-  this.options = utils.extend({}, this.options, options);
-  Assemble.call(this, this.options);
-
+  Assemble.call(this, options);
   this.is('generate');
   this.define('isApp', true);
-  debug(this);
-
-  this.debug('initializing');
   this.initGenerate(this.options);
 }
 
@@ -52,27 +44,26 @@ Assemble.extend(Generate);
  */
 
 Generate.prototype.initGenerate = function(opts) {
-  this.debug('initializing generate defaults');
-  this.name = 'generate';
+  this.debug('initializing', __filename);
 
-  this.debug('creating globals store');
+  // create `app.globals` store
   this.define('globals', new utils.Store('globals', {
     cwd: utils.resolveDir('~/')
   }));
 
-  // data
+  // custom `toAlias` function for resolving generators by alias
+  this.option('toAlias', function(key) {
+    return key.replace(/^generate-/, '');
+  });
+
+  // add `runner` to `app.cache.data`
   this.data({runner: require('./package')});
 
-  // asyn `ask` helper
+  // register async `ask` helper
   this.asyncHelper('ask', utils.ask(this));
 
-  // only create a collection if it doesn't exist
-  this.define('lazyCreate', utils.lazyCreate(this));
-  if (this.utils) this.define('utils', this.utils);
-
-  // plugins
+  // initialize plugins
   this.initPlugins(this.options);
-  utils.plugin(this);
 };
 
 /**
@@ -82,24 +73,39 @@ Generate.prototype.initGenerate = function(opts) {
 Generate.prototype.initPlugins = function(opts) {
   this.debug('initializing generate plugins');
 
+  // load plugins
+  this.use(plugins.store());
+  this.use(plugins.questions());
   this.use(plugins.generators());
   this.use(plugins.pipeline());
-  this.use(plugins.runner());
   this.use(plugins.loader());
-  this.use(plugins.ask());
+  this.use(plugins.config());
+  this.use(plugins.cli());
+  this.use(plugins.npm());
+  this.use(utils.plugin);
 
+  // CLI-only
   if (opts.cli === true || process.env.GENERATE_CLI) {
-    this.create('templates');
-
-    this.use(plugins.runtimes(opts));
-    this.use(plugins.rename({replace: true}));
-
-    // modifies create, dest and src methods to automatically
-    // use cwd from generators unless overridden by the user
-    util.create(this);
-    util.dest(this);
-    util.src(this);
+    this.initCli(opts);
   }
+};
+
+/**
+ * Initialize CLI-specific plugins and view collections.
+ */
+
+Generate.prototype.initCli = function(opts) {
+  this.create('templates');
+  this.create('files');
+
+  this.use(plugins.rename({replace: true}));
+  this.use(plugins.runtimes(opts));
+
+  // modify the `create`, `dest` and `src` methods to automatically
+  // use the cwd from generators, unless overridden by the user
+  util.create(this);
+  util.dest(this);
+  util.src(this);
 };
 
 /**
@@ -111,46 +117,12 @@ Generate.prototype.initPlugins = function(opts) {
 
 Generate.prototype.handleErr = function(err) {
   if (!(err instanceof Error)) {
-    err = new Error(err);
+    throw new Error(err);
   }
   if (this.hasListeners('error')) {
-    return this.emit('error', err);
+    this.emit('error', err);
   }
-  throw err;
 };
-
-/**
- * Static `runner` method that can be used to add CLI for for running
- * locally and globally installed generators when interiting `Generate`.
- *
- * `.runner` takes the name of the configfile to lookup, e.g `generator.js`,
- * and a default generator function to use as arguments, and it returns
- * a `run` function.
- *
- * The returned `run` function takes:
- *
- * - `app` **{Object}** an instance of your application
- * - `cb` **{Function}** callback to call when the runner is finished loading the user environment and pre-processing `argv` arguments.
- *
- * ```js
- * #!/usr/bin/env node
- *
- * var generate = require('generate');
- * var run = generate.runner('configfile.js', require('./foo'));
- * var app = generate();
- *
- * // generate stuff
- * run(app, function(err, argv, app) {
- *   // `err` generator errors
- *   // `argv` processed by minimist and expand-args
- *   // `app` instance with generators and tasks loaded (this is the same
- *   // app instance that was passed to `run`, exposed as a convenience)
- * });
- * ```
- * @api public
- */
-
-Generate.runner = runner;
 
 /**
  * Expose static `is*` methods from Templates

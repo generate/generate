@@ -33,7 +33,7 @@ describe('env', function() {
     });
 
     describe('alias and path', function() {
-      it('should set the name to the given name', function() {
+      it.skip('should set the name to the given name', function() {
         generate.createEnv('foo', 'generate-foo/generator.js');
         assert.equal(generate.env.name, 'foo');
       });

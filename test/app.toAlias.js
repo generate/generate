@@ -16,7 +16,7 @@ describe('.toAlias', function() {
 
   it('should create an alias using the given alias function', function() {
     var alias = generate.toAlias('one-two-three', {
-      alias: function(name) {
+      toAlias: function(name) {
         return name.slice(name.lastIndexOf('-') + 1);
       }
     });

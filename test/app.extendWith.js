@@ -1,4 +1,3 @@
-
 'use strict';
 
 require('mocha');
@@ -253,7 +252,7 @@ describe('.extendWith', function() {
       generate.getGenerator('zzz');
     });
 
-    it('should extend with a generator invoked from global modules by alias', function(cb) {
+    it.skip('should extend with a generator invoked from global modules by alias', function(cb) {
       generate.register('generate-bar');
 
       generate.register('zzz', function(app) {

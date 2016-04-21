@@ -1,28 +1,84 @@
 #!/usr/bin/env node
 
 process.env.GENERATE_CLI = true;
-var generator = require('../lib/generators');
-var generate = require('..');
+
+var argv = require('minimist')(process.argv.slice(2));
+var runner = require('base-runner');
+var commands = require('../lib/commands');
+var Generate = require('..');
+
+// lift-off options
+var options = {
+  name: 'generate',
+  runner: require('../package'),
+  configName: 'generator',
+  lookup: lookup
+};
 
 /**
- * Create the generator "runner"
+ * Initialize Generate CLI
  */
 
-var run = generate.runner('generator.js', generator);
-var app = generate();
+runner(Generate, options, argv, function(err, app, runnerContext) {
+  if (err) app.handleError(err);
 
-app.on('done', function() {
-  process.exit(0);
-});
+  /**
+   * Set `argv` on app.options
+   */
 
-/**
- * Run generators and tasks
- */
+  app.option(argv);
 
-run(app, function(err, argv, app) {
-  if (err) {
-    console.log(err);
-    process.exit(1);
+  /**
+   * Load custom commands
+   */
+
+  commands(app, runnerContext);
+
+  /**
+   * runnerContext
+   */
+
+  // get the config object from package.json
+  var config = app.pkg.get(runnerContext.env.name);
+  if (config && !args.noconfig) {
+    app.set('cache.config', config);
   }
-  app.emit('done');
+
+  // set parsed and unparsed argv on `cache`
+  var args = app.argv(runnerContext.argv);
+  app.set('cache.argv', {
+    orig: argv,
+    parsed: runnerContext.argv,
+    processed: args
+  });
+
+  /**
+   * Custom lookup function for resolving generators
+   */
+
+  app.option('runner.new', 'files');
+
+  /**
+   * Process argv
+   */
+
+  app.cli.process(args, function(err) {
+    if (err) app.emit('error', err);
+    app.emit('done');
+    process.exit();
+  });
 });
+
+/**
+ * Custom lookup function for resolving generators
+ */
+
+function lookup(app) {
+  return function(key) {
+    var patterns = [`generate-${key}`];
+    if (/generate-/.test(key)) {
+      patterns.push(key);
+    }
+    return patterns;
+  }
+}

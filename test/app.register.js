@@ -21,7 +21,7 @@ describe('.register', function() {
   });
 
   describe('function', function() {
-    it('should register a generator a function', function() {
+    it('should register a generator function', function() {
       base.register('foo', function() {});
       var foo = base.getGenerator('foo');
       assert(foo);
@@ -134,9 +134,9 @@ describe('.register', function() {
     });
   });
 
-  describe('alias', function() {
+  describe('.toAlias', function() {
     it('should use a custom function to create the alias', function() {
-      base.option('alias', function(name) {
+      base.option('toAlias', function(name) {
         return name.slice(name.lastIndexOf('-') + 1);
       });
 

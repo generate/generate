@@ -31,7 +31,7 @@ var realMode = function(n) {
   return n & 07777;
 };
 
-describe('symlink stream', function() {
+describe('app.symlink', function() {
   beforeEach(wipeOut);
   afterEach(wipeOut);
 
@@ -45,7 +45,7 @@ describe('symlink stream', function() {
       contents: null
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered.length.should.equal(1);
       buffered[0].should.equal(expectedFile);
       cb();
@@ -70,7 +70,7 @@ describe('symlink stream', function() {
       contents: null
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered.length.should.equal(1);
       buffered[0].should.equal(expectedFile);
       cb();
@@ -99,7 +99,7 @@ describe('symlink stream', function() {
       contents: expectedContents
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered.length.should.equal(1);
       buffered[0].should.equal(expectedFile);
       buffered[0].cwd.should.equal(__dirname, 'cwd should have changed');
@@ -134,7 +134,7 @@ describe('symlink stream', function() {
       contents: expectedContents
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered.length.should.equal(1);
       buffered[0].should.equal(expectedFile);
       buffered[0].cwd.should.equal(__dirname, 'cwd should have changed');
@@ -146,7 +146,7 @@ describe('symlink stream', function() {
       cb();
     };
 
-    var stream = app.symlink(function(file){
+    var stream = app.symlink(function(file) {
       should.exist(file);
       file.should.equal(expectedFile);
       return './actual';
@@ -177,7 +177,7 @@ describe('symlink stream', function() {
       }
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered.length.should.equal(1);
       buffered[0].should.equal(expectedFile);
       buffered[0].cwd.should.equal(__dirname, 'cwd should have changed');
@@ -217,7 +217,7 @@ describe('symlink stream', function() {
       }
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered.length.should.equal(1);
       buffered[0].should.equal(expectedFile);
       buffered[0].cwd.should.equal(__dirname, 'cwd should have changed');
@@ -235,10 +235,10 @@ describe('symlink stream', function() {
     bufferStream = through.obj(dataWrap(buffered.push.bind(buffered)), onEnd);
     stream.pipe(bufferStream);
     stream.write(expectedFile);
-    setTimeout(function(){
+    setImmediate(function() {
       contentStream.write(expectedContents);
       contentStream.end();
-    }, 100);
+    });
     stream.end();
   });
 
@@ -255,14 +255,14 @@ describe('symlink stream', function() {
       path: inputPath,
       contents: null,
       stat: {
-        isDirectory: function(){
+        isDirectory: function() {
           return true;
         },
         mode: expectedMode
       }
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered.length.should.equal(1);
       buffered[0].should.equal(expectedFile);
       buffered[0].cwd.should.equal(__dirname, 'cwd should have changed');
@@ -297,7 +297,7 @@ describe('symlink stream', function() {
       stat: fs.statSync(inputPath)
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       realMode(fs.lstatSync(expectedBase).mode).should.equal(expectedDirMode);
       realMode(buffered[0].stat.mode).should.equal(expectedFileMode);
       cb();
@@ -328,7 +328,7 @@ describe('symlink stream', function() {
       stat: fs.statSync(inputPath)
     });
 
-    var onEnd = function(){
+    var onEnd = function() {
       buffered[0].base.should.equal(inputBase);
       cb();
     };
