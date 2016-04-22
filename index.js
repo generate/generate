@@ -7,7 +7,6 @@
 
 'use strict';
 
-var util = require('generator-util');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var utils = require('./lib/utils');
@@ -62,31 +61,14 @@ Generate.prototype.initGenerate = function(opts) {
   // register async `ask` helper
   this.asyncHelper('ask', utils.ask(this));
 
-  // initialize plugins
-  this.initPlugins(this.options);
-};
-
-/**
- * Generate prototype methods
- */
-
-Generate.prototype.initPlugins = function(opts) {
-  this.debug('initializing generate plugins');
-
   // load plugins
   this.use(plugins.store());
-  this.use(plugins.questions());
   this.use(plugins.generators());
   this.use(plugins.pipeline());
-  this.use(plugins.loader());
-  this.use(plugins.config());
-  this.use(plugins.cli());
-  this.use(plugins.npm());
-  this.use(utils.plugin);
 
   // CLI-only
   if (opts.cli === true || process.env.GENERATE_CLI) {
-    this.initCli(opts);
+    this.initGenerateCli(opts);
   }
 };
 
@@ -94,18 +76,26 @@ Generate.prototype.initPlugins = function(opts) {
  * Initialize CLI-specific plugins and view collections.
  */
 
-Generate.prototype.initCli = function(opts) {
-  this.create('templates');
-  this.create('files');
-
+Generate.prototype.initGenerateCli = function(opts) {
+  // TODO: externalize most of these to plugin or generator
   this.use(plugins.rename({replace: true}));
   this.use(plugins.runtimes(opts));
+  this.use(plugins.questions());
+  this.use(plugins.loader());
+  this.use(plugins.config());
+  this.use(plugins.cli());
+  this.use(plugins.npm());
 
   // modify the `create`, `dest` and `src` methods to automatically
   // use the cwd from generators, unless overridden by the user
-  util.create(this);
-  util.dest(this);
-  util.src(this);
+  this.use(utils.create());
+  this.use(utils.plugin());
+  utils.dest(this);
+  utils.src(this);
+
+  // built-in view collections
+  this.create('templates');
+  this.create('files');
 };
 
 /**

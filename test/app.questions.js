@@ -5,6 +5,8 @@ process.env.NODE_ENV = 'test';
 require('mocha');
 var fs = require('fs');
 var assert = require('assert');
+var questions = require('base-questions');
+var config = require('base-config-process');
 var store = require('base-store');
 var App = require('..');
 var app, base, site;
@@ -13,9 +15,13 @@ describe('app.questions', function() {
   describe('plugin', function() {
     beforeEach(function() {
       base = new App();
+      base.use(config());
+      base.use(questions());
       base.use(store('base-questions-tests/base'));
 
       app = new App();
+      app.use(config());
+      app.use(questions());
       app.use(store('base-questions-tests/app'));
     });
 
@@ -44,6 +50,8 @@ describe('app.questions', function() {
   describe('app.ask', function() {
     beforeEach(function() {
       app = new App();
+      app.use(config());
+      app.use(questions());
       app.use(store('base-questions-tests/ask'));
     });
 
@@ -174,9 +182,13 @@ describe('app.questions', function() {
   describe('session data', function() {
     before(function() {
       site = new App();
+      site.use(config());
+      site.use(questions());
       site.use(store('base-questions-tests/site'));
 
       app = new App();
+      app.use(config());
+      app.use(questions());
       app.use(store('base-questions-tests/ask'));
     });
 

@@ -5,6 +5,7 @@ require('should');
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
+var loader = require('assemble-loader');
 var support = require('./support');
 var App = support.resolve();
 var app;
@@ -13,6 +14,7 @@ describe('app.create', function() {
   describe('inflections', function() {
     beforeEach(function() {
       app = new App();
+      app.use(loader());
     });
 
     it('should expose the create method', function() {
@@ -35,6 +37,7 @@ describe('app.create', function() {
   describe('renderable views', function() {
     beforeEach(function() {
       app = new App();
+      app.use(loader());
       app.create('pages');
       app.create('partials', {viewType: 'partial'});
       app.create('layout', {viewType: 'layout'});
@@ -121,6 +124,7 @@ describe('app.create', function() {
       views.addView('c.hbs', {path: 'c.hbs', content: 'c'});
 
       app = new App();
+      app.use(loader());
       app.create('pages', views);
 
       var a = app.pages.getView('a.hbs');
@@ -138,6 +142,7 @@ describe('app.create', function() {
   describe('chaining', function() {
     beforeEach(function() {
       app = new App();
+      app.use(loader());
       app.engine('tmpl', require('engine-base'));
       app.create('page');
     });
@@ -166,6 +171,7 @@ describe('app.create', function() {
   describe('instance', function() {
     beforeEach(function() {
       app = new App();
+      app.use(loader());
       app.engine('tmpl', require('engine-base'));
     });
 
@@ -193,6 +199,7 @@ describe('app.create', function() {
   describe('viewType', function() {
     beforeEach(function() {
       app = new App();
+      app.use(loader());
       app.engine('tmpl', require('engine-base'));
     });
 
@@ -210,6 +217,7 @@ describe('app.create', function() {
   describe('events', function() {
     beforeEach(function() {
       app = new App();
+      app.use(loader());
       app.engine('tmpl', require('engine-base'));
     });
 

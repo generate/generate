@@ -25,6 +25,7 @@ describe('.page()', function() {
 
   describe('load', function() {
     it('should throw an error if a glob is passed', function(cb) {
+      if (!app.pages.loadViews) return cb();
       try {
         app.page('test/fixtures/pages/*.hbs');
         cb(new Error('expected an error'));

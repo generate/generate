@@ -27,6 +27,7 @@ describe('.pages()', function() {
 
   describe('load pages', function() {
     it('should load pages onto `app.views.pages`:', function() {
+      if (!app.pages.loadViews) return;
       app.pages('test/fixtures/pages/*.hbs');
       assert(Object.keys(app.views.pages).length === 3);
     });
