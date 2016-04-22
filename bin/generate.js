@@ -2,6 +2,7 @@
 
 process.env.GENERATE_CLI = true;
 
+var path = require('path');
 var argv = require('minimist')(process.argv.slice(2));
 var runner = require('base-runner');
 var commands = require('../lib/commands');
@@ -12,6 +13,7 @@ var options = {
   name: 'generate',
   runner: require('../package'),
   configName: 'generator',
+  moduleParentId: path.resolve(__dirname, '..'),
   lookup: lookup
 };
 
@@ -20,7 +22,7 @@ var options = {
  */
 
 runner(Generate, options, argv, function(err, app, runnerContext) {
-  if (err) app.handleError(err);
+  if (err) handleError(app, err);
 
   /**
    * Set `argv` on app.options
@@ -63,7 +65,7 @@ runner(Generate, options, argv, function(err, app, runnerContext) {
    */
 
   app.cli.process(args, function(err) {
-    if (err) app.emit('error', err);
+    if (err) handleError(app, err);
     app.emit('done');
     process.exit();
   });
@@ -80,5 +82,14 @@ function lookup(app) {
       patterns.push(key);
     }
     return patterns;
+  }
+}
+
+function handleError(app, err) {
+  if (app && app.handleError) {
+    app.handleError(err);
+  } else {
+    console.error(err.stack);
+    process.exit(1);
   }
 }
