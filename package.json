@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "Fast, composable, highly extendable project generator with a user-friendly and expressive API.",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
@@ -153,7 +153,8 @@
       "scaffold",
       "templates",
       "verb",
-      "vinyl"
+      "vinyl",
+      "yeoman"
     ],
     "lint": {
       "reflinks": true
