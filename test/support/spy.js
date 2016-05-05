@@ -10,8 +10,7 @@ function maybeCallAsync(module, func) {
   return sinon.stub(module, func, function() {
     var args = Array.prototype.slice.call(arguments);
     args.unshift(module, func);
-    var err = typeof errorfn === 'function' &&
-              errorfn.apply(this, args);
+    var err = typeof errorfn === 'function' && errorfn.apply(this, args);
     if (!err) {
       original.apply(this, arguments);
     } else {
@@ -28,5 +27,5 @@ module.exports = {
   fchmodSpy: maybeCallAsync(fs, 'fchmod'),
   futimesSpy: maybeCallAsync(fs, 'futimes'),
   statSpy: maybeCallAsync(fs, 'stat'),
-  fstatSpy: maybeCallAsync(fs, 'fstat'),
+  fstatSpy: maybeCallAsync(fs, 'fstat')
 };

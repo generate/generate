@@ -47,7 +47,7 @@ function masked(mode) {
   return mode & MASK_MODE;
 }
 
-describe('dest stream', function() {
+describe('app.dest', function() {
   beforeEach(wipeOut);
   afterEach(wipeOut);
 

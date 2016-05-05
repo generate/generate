@@ -90,8 +90,8 @@ Generate.prototype.initGenerateCli = function(opts) {
   // use the cwd from generators, unless overridden by the user
   this.use(utils.create());
   this.use(utils.plugin());
-  utils.dest(this);
-  utils.src(this);
+  this.use(utils.dest());
+  this.use(utils.src());
 
   // built-in view collections
   this.create('templates');
