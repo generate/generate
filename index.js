@@ -79,6 +79,7 @@ Generate.prototype.initGenerate = function(opts) {
 Generate.prototype.initGenerateCli = function(opts) {
   // TODO: externalize most of these to plugin or generator
   this.use(plugins.rename({replace: true}));
+  this.use(plugins.conflicts(opts));
   this.use(plugins.runtimes(opts));
   this.use(plugins.questions());
   this.use(plugins.loader());
@@ -88,10 +89,10 @@ Generate.prototype.initGenerateCli = function(opts) {
 
   // modify the `create`, `dest` and `src` methods to automatically
   // use the cwd from generators, unless overridden by the user
-  this.use(utils.create());
-  this.use(utils.plugin());
-  this.use(utils.dest());
-  this.use(utils.src());
+  this.use(plugins.create());
+  this.use(plugins.plugin());
+  this.use(plugins.dest());
+  this.use(plugins.src());
 
   // built-in view collections
   this.create('templates');

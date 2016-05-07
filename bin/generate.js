@@ -35,6 +35,7 @@ runner(Generate, options, argv, function(err, app, runnerContext) {
    */
 
   commands(app, runnerContext);
+  app.register('defaults', require('../lib/generator.js'));
 
   /**
    * runnerContext
