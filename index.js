@@ -108,10 +108,17 @@ Generate.prototype.initGenerateCli = function(opts) {
 
 Generate.prototype.handleErr = function(err) {
   if (!(err instanceof Error)) {
-    throw new Error(err);
+    err = new Error(err.toString());
   }
+
+  if (this.options.verbose) {
+    err = err.stack;
+  }
+
   if (this.hasListeners('error')) {
     this.emit('error', err);
+  } else {
+    throw err;
   }
 };
 
