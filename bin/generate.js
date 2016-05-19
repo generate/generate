@@ -16,10 +16,7 @@ var Generate = require('..');
 var config = {name: 'generate', configName: 'generator'};
 
 plugins.runner(Generate, config, argv, function(err, app, ctx) {
-  if (err) {
-    console.log(err.stack);
-    process.exit(1);
-  }
+  if (err) handleErr(app, err);
 
   app.on('error', function(err) {
     console.log(err);
@@ -49,5 +46,15 @@ function lookup(app) {
       patterns.unshift(key);
     }
     return patterns;
+  }
+}
+
+function handleErr(app, err) {
+  if (app && app.hasListeners('error')) {
+    app.emit('error', err);
+  } else {
+    console.log(err);
+    console.log(err.stack);
+    process.exit(1);
   }
 }
