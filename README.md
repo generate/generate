@@ -7,13 +7,9 @@ You might also be interested in [verb](https://github.com/verbose/verb).
 ## TOC
 
 - [Install](#install)
-- [What is generate?](#what-is-generate-)
-  * [Feature Highlights](#feature-highlights)
-- [Usage](#usage)
+- [What is generate?](#what-is-generate)
 - [Quickstart](#quickstart)
-- [API](#api)
-  * [[Generate](index.js#L25)](#-generate--indexjs-l25-)
-  * [[.ask](lib/utils.js#L33)](#-ask--lib-utilsjs-l33-)
+- [Running tasks and generators](#running-tasks-and-generators)
 - [Related projects](#related-projects)
 - [Contributing](#contributing)
 - [Building docs](#building-docs)
@@ -33,141 +29,78 @@ $ npm install -g generate
 
 ## What is generate?
 
-Generate is a fast, highly pluggable project generator, with a user-friendly CLI and an expressive API, and can be used as an alternative to Google's [yeoman](http://yeoman.io).
-
-### Feature Highlights
-
-* [x] Built on [assemble-core](https://github.com/assemble/assemble-core), so all methods from [base](https://github.com/node-base/base), [assemble](https://github.com/assemble/assemble), and [templates](https://github.com/jonschlinkert/templates) are exposed on generate's API.
-* [x] Supports [gulp](http://gulpjs.com) and [assemble](https://github.com/assemble/assemble) plugins
-* [x] Runs local or globally-installed generators
-* [x] Runs sub-generators using simple dot-notation. Supports any level of nesting!
-* [x] Runs [gulp](http://gulpjs.com)-style "tasks" and uses some of the same underlying libraries as gulp
-* [x] Generators can extend and use other generators
-* [x] Generators, sub-generators and tasks can be run by command line, API, or both.
-* [x] Runs tasks from any generator or sub-generator, programmatically or via CLI
-* [x] Easy to add functionality and features to generate using via plugins
-* [x] Supports any node.js template engine, including [consolidate](https://github.com/visionmedia/consolidate.js#readme)
-* [x] First class support for template collections, including pagination, sorting, groups, and more.
-* [x] Supports middleware that can be run on specific files or template collections, at specific points during the _build cycle_, such as `onLoad`, `preRender`, `postRender`, etc.
-
-Generate is also well-tested, with close to [1200 unit tests](./test).
-
-## Usage
-
-```js
-var Generate = require('generate');
-var generator = new Generate();
-
-generator.register('one', function(app) {
-  app.task('default', function(cb) {
-    // do stuff
-    cb();
-  });
-});
-
-generator.register('two', function(app) {
-  app.task('default', function(cb) {
-    // do stuff
-    cb();
-  });
-
-  app.task('foo', function(cb) {
-    // do stuff
-    cb();
-  });
-
-  app.task('bar', function(cb) {
-    // do stuff
-    cb();
-  });
-
-  // register another generator as a sub-generator
-  app.register('one');
-
-  // register a custom sub-generator
-  app.register('qux', function(qux) {
-    app.task('default', function(cb) {
-      // do stuff
-      cb();
-    });
-  });
-});
-
-// run the `default` task on generator `one`
-generator.generate('one', function(err) {
-  if (err) throw err;
-});
-
-// run the `bar` task on generator `two`
-generator.generate('two', 'bar', function(err) {
-  if (err) throw err;
-});
-
-// run the `one` sub-generator in generator "two"
-// (sub-generators can be infinitely nested!)
-generator.generate('two.one', function(err) {
-  if (err) throw err;
-});
-```
+Generate is a CLI and API for creating new code projects from templates, scaffolds and boilerplates.
 
 ## Quickstart
 
-**1. generator.js**
+**Installing the CLI**
 
-Create a `generator.js` file, and add the following code:
+To run generate from the command line, you'll need to install the module globally first. You can that now with the following command:
 
-```js
-module.exports = function(app) {
-  app.task('default', function(cb) {
-    console.log('task > default');
-    cb();
-  });
-
-  app.task('foo', function(cb) {
-    console.log('task > foo');
-    cb();
-  });
-};
+```sh
+$ npm i -g generate
 ```
 
-**2. Run `gen`**
+This adds the `gen` command to your system path, allowing it to be run from any directory.
 
-In the command line run:
+## Running tasks and generators
 
-* `gen` to execute the `default` task
-* `gen foo` to execute the `foo` task
+**Running a generator**
 
-## API
+Once installed successfully, you should be able to run generate using the `gen` command.
 
-### [Generate](index.js#L25)
+To run a **sub-generator** on the `defaults` generator:
 
-Create an instance of `Generate` with the given `options`
-
-**Params**
-
-* `options` **{Object}**: Settings to initialize with.
-
-**Example**
-
-```js
-var Generate = require('generate');
-var generate = new Generate();
+```sh
+# note the ".", where "foo" is a sub-generator
+$ gen defaults.foo
 ```
 
-### [.ask](lib/utils.js#L33)
+To run a **task** on the `defaults` generator:
 
-Async helper that prompts the user and populates a template with the answer.
-
-**Params**
-
-* `app` **{Object}**
-* `returns` **{Function}**: Returns the helper function
-
-**Example**
-
-```html
-<%= ask('author.name') %>
+```sh
+# note the ":", where "bar" is a task
+$ gen defaults:bar
 ```
+
+Or to run a **task on a sub-generator** of the `defaults` generator:
+
+```sh
+# note the "." and ":", where "foo:bar" is the "bar" task on the "foo" sub-generator
+$ gen defaults.foo:bar
+```
+
+```
+generate
+├─┬ assemble-core
+│ ├─┬ assemble-fs
+│ │ └── assemble-handle
+│ ├── assemble-render-file
+│ ├─┬ assemble-streams
+│ │ └── assemble-handle
+│ ├── base-task
+│ └─┬ templates
+│   ├── base
+│   ├── base-data
+│   ├── base-option
+│   └── base-plugins
+├── assemble-loader
+├── base-cli-process
+├── base-config-process
+├── base-fs-conflicts
+├── base-fs-rename
+├── base-generators
+├── base-npm
+├── base-pipeline
+├── base-questions
+├── base-runner
+├── base-runtimes
+├── base-store
+├── generate-collections
+└── generate-defaults
+```
+
+Generate is built on [base](https://github.com/node-base/base), a powerful and expressive framework for building node.js applications.
 
 ## Related projects
 
@@ -218,4 +151,4 @@ Released under the [MIT license](https://github.com/generate/generate/blob/maste
 
 ***
 
-_This file was generated by [verb](https://github.com/verbose/verb), v0.9.0, on April 26, 2016._
+_This file was generated by [verb](https://github.com/verbose/verb), v0.9.0, on May 23, 2016._
