@@ -41,11 +41,17 @@ describe('.generate', function() {
       });
     });
 
-    it('should throw an error when a task is not found', function(cb) {
+    it('should throw an error when a task is not found (task array)', function(cb) {
+      var fn = console.error;
+      var res = [];
+      console.error = function(msg) {
+        res.push(msg);
+      };
       generate.register('fdsslsllsfjssl', function() {});
       generate.generate('fdsslsllsfjssl', ['foo'], function(err) {
-        assert(err);
-        assert.equal('Cannot find task: "foo" in generator: "fdsslsllsfjssl"', err.message);
+        console.error = fn;
+        if (err) return cb(err);
+        assert.equal(res[0], 'Cannot find task: "foo" in generator: "fdsslsllsfjssl"');
         cb();
       });
     });

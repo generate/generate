@@ -11,33 +11,6 @@ describe('.generateEach', function() {
   });
 
   describe('generators', function(cb) {
-    it('should throw an error when a generator is not found', function(cb) {
-      generate.generateEach('fdsslsllsfjssl', function(err) {
-        assert(err);
-        assert.equal('Cannot find generator: "fdsslsllsfjssl"', err.message);
-        cb();
-      });
-    });
-
-    // special case
-    it('should throw an error when a generator is not found in argv.cwd', function(cb) {
-      generate.option('cwd', 'foo/bar/baz');
-      generate.generateEach('sflsjljskksl', function(err) {
-        assert(err);
-        assert.equal(err.message, 'Cannot find generator: "sflsjljskksl" in "foo/bar/baz"');
-        cb();
-      });
-    });
-
-    it('should throw an error when a task is not found', function(cb) {
-      generate.register('fdsslsllsfjssl', function() {});
-      generate.generateEach('fdsslsllsfjssl:foo', function(err) {
-        assert(err);
-        assert.equal('Cannot find task: "foo" in generator: "fdsslsllsfjssl"', err.message);
-        cb();
-      });
-    });
-
     it('should run a task on the instance', function(cb) {
       generate.task('foo', function(next) {
         next();

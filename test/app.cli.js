@@ -1,17 +1,14 @@
 'use strict';
 
 require('mocha');
-require('should');
 var assert = require('assert');
-var cli = require('base-cli');
 var support = require('./support');
 var App = support.resolve();
 var app;
 
 describe('app.cli', function() {
   beforeEach(function() {
-    app = new App();
-    app.use(cli());
+    app = new App({cli: true});
   });
 
   describe('app.cli.map', function() {

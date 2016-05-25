@@ -1,3 +1,5 @@
+'use strict';
+
 require('mocha');
 var should = require('should');
 var fs = require('graceful-fs');
@@ -28,7 +30,7 @@ var dataWrap = function(fn) {
 };
 
 var realMode = function(n) {
-  return n & 07777;
+  return n & parseInt('777', 8);
 };
 
 describe('app.symlink', function() {
@@ -165,7 +167,7 @@ describe('app.symlink', function() {
     var expectedPath = path.join(__dirname, './actual/test.coffee');
     var expectedContents = fs.readFileSync(inputPath);
     var expectedBase = path.join(__dirname, './actual');
-    var expectedMode = 0655;
+    var expectedMode = parseInt('655', 8);
 
     var expectedFile = new File({
       base: inputBase,
@@ -204,7 +206,7 @@ describe('app.symlink', function() {
     var expectedPath = path.join(__dirname, './actual/test.coffee');
     var expectedContents = fs.readFileSync(inputPath);
     var expectedBase = path.join(__dirname, './actual');
-    var expectedMode = 0655;
+    var expectedMode = parseInt('655', 8);
 
     var contentStream = through.obj();
     var expectedFile = new File({
@@ -247,7 +249,7 @@ describe('app.symlink', function() {
     var inputBase = path.join(__dirname, './fixtures/');
     var expectedPath = path.join(__dirname, './actual/wow');
     var expectedBase = path.join(__dirname, './actual');
-    var expectedMode = 0655;
+    var expectedMode = parseInt('655', 8);
 
     var expectedFile = new File({
       base: inputBase,
@@ -287,8 +289,8 @@ describe('app.symlink', function() {
     var inputBase = path.join(__dirname, './fixtures');
     var inputPath = path.join(__dirname, './fixtures/wow/suchempty');
     var expectedBase = path.join(__dirname, './actual/wow');
-    var expectedDirMode = 0755;
-    var expectedFileMode = 0655;
+    var expectedDirMode = parseInt('755', 8);
+    var expectedFileMode = parseInt('655', 8);
 
     var firstFile = new File({
       base: inputBase,
@@ -351,7 +353,7 @@ describe('app.symlink', function() {
     var inputBase = path.join(__dirname, './fixtures/');
     var expectedContents = fs.readFileSync(inputPath);
     var expectedBase = path.join(__dirname, './actual');
-    var expectedMode = 0722;
+    var expectedMode = parseInt('722', 8);
 
     var expectedFile = new File({
       base: inputBase,
@@ -386,7 +388,7 @@ describe('app.symlink', function() {
       var file = new File({
         path: srcPath,
         cwd: __dirname,
-        contents: new Buffer("1234567890")
+        contents: new Buffer('1234567890')
       });
 
       stream.write(file);
