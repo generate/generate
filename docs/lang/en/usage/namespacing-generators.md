@@ -1,2 +1,0 @@
-# Namespacing generators
-

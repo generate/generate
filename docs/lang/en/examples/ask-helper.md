@@ -1,1 +1,0 @@
-Hi, my name is <%= ask('first.name') %>.
