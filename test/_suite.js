@@ -8,7 +8,12 @@ var suite = require('base-test-suite');
  */
 
 runner.on('templates', function(file) {
-  require(file.path)(require('..'));
+  var fn = require(file.path);
+  if (typeof fn === 'function') {
+    fn(require('..'));
+  } else {
+    throw new Error('expected ' + file.path + ' to export a function');
+  }
 });
 
 runner.addFiles('templates', suite.test.templates);
