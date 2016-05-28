@@ -7,6 +7,7 @@
 
 'use strict';
 
+var path = require('path');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var utils = require('./lib/utils');
@@ -42,6 +43,8 @@ Assemble.extend(Generate);
  */
 
 Generate.prototype.initGenerate = function(opts) {
+  Generate.emit('generate.preInit', this);
+
   this.debug('initializing', __filename);
   this.define('isApp', true);
   var self = this;
@@ -84,9 +87,12 @@ Generate.prototype.initGenerate = function(opts) {
   });
 
   // CLI-only
-  if (opts.cli === true || process.env.GENERATE_CLI) {
+  // if (process.cwd() !== path.resolve(__dirname, '..')) {
+  if (utils.runnerEnabled(this)) {
     this.initGenerateCli(opts);
   }
+
+  Generate.emit('generate.postInit', this);
 };
 
 /**
