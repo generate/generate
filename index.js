@@ -28,7 +28,6 @@ function Generate(options) {
   }
   Assemble.call(this, options);
   this.is('generate');
-  this.define('isApp', true);
   this.initGenerate(this.options);
 }
 
@@ -44,6 +43,8 @@ Assemble.extend(Generate);
 
 Generate.prototype.initGenerate = function(opts) {
   this.debug('initializing', __filename);
+  this.define('isApp', true);
+  var self = this;
 
   // create `app.globals` store
   this.define('globals', new utils.Store('globals', {
@@ -65,6 +66,22 @@ Generate.prototype.initGenerate = function(opts) {
   this.use(plugins.store());
   this.use(plugins.generators());
   this.use(plugins.pipeline());
+
+  this.on('generator', function(alias, generator) {
+    if (generator.env) {
+      generator.store = new utils.Store(generator.env.name, {
+        cwd: utils.resolveDir('~/.data-store')
+      });
+    }
+  });
+
+  this.option('lookup', function(key) {
+    var patterns = [`generate-${key}`];
+    if (/generate-/.test(key)) {
+      patterns.unshift(key);
+    }
+    return patterns;
+  });
 
   // CLI-only
   if (opts.cli === true || process.env.GENERATE_CLI) {
@@ -89,8 +106,6 @@ Generate.prototype.initGenerateCli = function(opts) {
 
   // modify the `create`, `dest` and `src` methods to automatically
   // use the cwd from generators, unless overridden by the user
-  this.use(plugins.create());
-  this.use(plugins.plugin());
   this.use(plugins.dest());
   this.use(plugins.src());
 
@@ -129,7 +144,14 @@ Generate.prototype.handleErr = function(err) {
 Assemble._.plugin.is(Generate);
 
 /**
- * Expose `Generate`
+ * Expose static properties for unit tests
+ */
+
+utils.define(Generate, 'utils', Assemble.utils);
+utils.define(Generate, '_', Assemble._);
+
+/**
+ * Expose the `Generate` constructor
  */
 
 module.exports = Generate;

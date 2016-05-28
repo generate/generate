@@ -26,7 +26,6 @@ plugins.runner(Generate, config, argv, function(err, app, ctx) {
 
   commands(app, ctx);
   app.register('defaults', require('../lib/generator'));
-  app.option('lookup', lookup(app));
 
   app.cli.process(ctx.argv, function(err) {
     if (err) app.emit('error', err);
@@ -38,16 +37,6 @@ plugins.runner(Generate, config, argv, function(err, app, ctx) {
 /**
  * Custom lookup function for resolving generators
  */
-
-function lookup(app) {
-  return function(key) {
-    var patterns = [`generate-${key}`];
-    if (/generate-/.test(key)) {
-      patterns.unshift(key);
-    }
-    return patterns;
-  }
-}
 
 function handleErr(app, err) {
   if (app && app.hasListeners('error')) {
