@@ -7,7 +7,6 @@
 
 'use strict';
 
-var path = require('path');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var utils = require('./lib/utils');
@@ -47,7 +46,6 @@ Generate.prototype.initGenerate = function(opts) {
 
   this.debug('initializing', __filename);
   this.define('isApp', true);
-  var self = this;
 
   // create `app.globals` store
   this.define('globals', new utils.Store('globals', {
@@ -86,12 +84,9 @@ Generate.prototype.initGenerate = function(opts) {
     return patterns;
   });
 
-  // CLI-only
-  // if (process.cwd() !== path.resolve(__dirname, '..')) {
   if (utils.runnerEnabled(this)) {
     this.initGenerateCli(opts);
   }
-
   Generate.emit('generate.postInit', this);
 };
 
@@ -109,11 +104,6 @@ Generate.prototype.initGenerateCli = function(opts) {
   this.use(plugins.config());
   this.use(plugins.cli());
   this.use(plugins.npm());
-
-  // modify the `create`, `dest` and `src` methods to automatically
-  // use the cwd from generators, unless overridden by the user
-  this.use(plugins.dest());
-  this.use(plugins.src());
 
   // built-in view collections
   this.create('templates');
