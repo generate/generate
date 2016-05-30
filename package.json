@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "Fast, composable, highly pluggable project generator with a user-friendly and expressive API.",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
