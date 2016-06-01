@@ -45,8 +45,8 @@ plugins.runner(Generate, config, argv, function(err, app, ctx) {
  */
 
 function handleErr(app, err) {
-  if (app && app.hasListeners('error')) {
-    app.emit('error', err);
+  if (app && app.base.hasListeners('error')) {
+    app.base.emit('error', err);
   } else {
     console.log(err.stack);
     process.exit(1);

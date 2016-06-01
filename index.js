@@ -78,7 +78,7 @@ Generate.prototype.initGenerate = function(opts) {
 
   this.option('lookup', function(key) {
     var patterns = [`generate-${key}`];
-    if (/generate-/.test(key)) {
+    if (/generate-/.test(key) && !/^(verb|assemble|update)-/.test(key)) {
       patterns.unshift(key);
     }
     return patterns;
