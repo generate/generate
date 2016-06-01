@@ -137,13 +137,14 @@
       ]
     },
     "reflinks": [
+      "assemble",
+      "base",
+      "generate",
       "gulp",
       "handlebars",
       "lodash",
-      "swig",
       "pug",
-      "assemble",
-      "base",
+      "swig",
       "verb"
     ],
     "lint": {
