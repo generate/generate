@@ -69,7 +69,7 @@ Generate.prototype.initGenerate = function(opts) {
   this.use(plugins.pipeline());
 
   this.on('generator', function(alias, generator) {
-    if (generator.env) {
+    if (generator && generator.env) {
       generator.store = new utils.Store(generator.env.name, {
         cwd: utils.resolveDir('~/.data-store')
       });
@@ -78,10 +78,17 @@ Generate.prototype.initGenerate = function(opts) {
 
   this.option('lookup', function(key) {
     var patterns = [`generate-${key}`];
-    if (/generate-/.test(key) && !/^(verb|assemble|update)-/.test(key)) {
+    if (/^generate-/.test(key) && !/^(verb|assemble|update)-/.test(key)) {
       patterns.unshift(key);
     }
     return patterns;
+  });
+
+  this.on('unresolved', function(search, app) {
+    var resolved = utils.resolve(search.name) || utils.resolve(search.name, {cwd: utils.gm});
+    if (resolved) {
+      search.app = app.generator(search.name, resolved);
+    }
   });
 
   if (utils.runnerEnabled(this)) {
