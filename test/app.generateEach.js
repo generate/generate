@@ -2,15 +2,13 @@
 
 require('mocha');
 var assert = require('assert');
+var config = require('base-config-process');
 var Base = require('..');
-var config = require('base-config');
-var option = require('base-option');
 var base;
 
 describe('.generate', function() {
   beforeEach(function() {
     base = new Base();
-    base.use(option());
   });
 
   describe('config.process', function(cb) {
@@ -47,7 +45,6 @@ describe('.generate', function() {
     it('should handle config errors when the base-config plugin is used', function(cb) {
       base.use(config());
       var count = 0;
-
       base.config.map('foo', function(val, key, config, next) {
         count++;
         next(new Error('fooo'));

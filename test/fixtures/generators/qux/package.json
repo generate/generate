@@ -1,5 +1,5 @@
 {
-  "name": "generator-qux",
+  "name": "generate-qux",
   "private": true,
   "version": "0.1.0",
   "files": ["generator.js"],

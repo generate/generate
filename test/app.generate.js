@@ -2,15 +2,13 @@
 
 require('mocha');
 var assert = require('assert');
+var config = require('base-config-process');
 var Base = require('..');
-var config = require('base-config');
-var option = require('base-option');
 var base;
 
 describe('.generate', function() {
   beforeEach(function() {
     base = new Base();
-    base.use(option());
   });
 
   describe('config.process', function(cb) {
@@ -29,7 +27,7 @@ describe('.generate', function() {
       });
     });
 
-    it('should run handle errors when the base-config plugin is used', function(cb) {
+    it('should handle errors when the base-config plugin is used', function(cb) {
       base.use(config());
       var count = 0;
       base.task('default', function(next) {
@@ -54,7 +52,6 @@ describe('.generate', function() {
       });
 
       base.set('cache.config', {foo: true});
-
       base.task('default', function(next) {
         count--;
         next();

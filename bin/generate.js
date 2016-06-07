@@ -2,6 +2,8 @@
 
 process.env.GENERATE_CLI = true;
 
+require('set-blocking')(true);
+
 var generator =  require('../lib/generator');
 var commands = require('../lib/commands');
 var plugins =  require('../lib/plugins');

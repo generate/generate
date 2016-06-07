@@ -2,14 +2,12 @@
 
 require('mocha');
 var assert = require('assert');
-var option = require('base-option');
 var Base = require('..');
 var base;
 
 describe('.lookupGenerator', function() {
   beforeEach(function() {
     base = new Base();
-    base.use(option());
 
     base.option('toAlias', function(key) {
       return key.replace(/^generate-(.*)/, '$1');
@@ -17,8 +15,25 @@ describe('.lookupGenerator', function() {
   });
 
   it('should get a generator using a custom lookup function', function() {
+    base.register('generate-foo', function() {});
+    base.register('generate-bar', function() {});
     var gen = base.lookupGenerator('foo', function(key) {
       return ['generate-' + key, 'verb-' + key + '-generator', key];
+    });
+
+    assert(gen);
+    assert.equal(gen.env.name, 'generate-foo');
+    assert.equal(gen.env.alias, 'foo');
+  });
+
+  it('should get a generator using a custom lookup function passed on options', function() {
+    base.register('generate-foo', function() {});
+    base.register('generate-bar', function() {});
+
+    var gen = base.getGenerator('foo', {
+      lookup: function(key) {
+        return ['generate-' + key, 'verb-' + key + '-generator', key];
+      }
     });
 
     assert(gen);
@@ -42,17 +57,5 @@ describe('.lookupGenerator', function() {
       assert.equal(err.message, 'expected `fn` to be a lookup function');
       cb();
     }
-  });
-
-  it('should get a generator using a custom lookup function', function() {
-    var gen = base.getGenerator('foo', {
-      lookup: function(key) {
-        return ['generate-' + key, 'verb-' + key + '-generator', key];
-      }
-    });
-
-    assert(gen);
-    assert.equal(gen.env.name, 'generate-foo');
-    assert.equal(gen.env.alias, 'foo');
   });
 });

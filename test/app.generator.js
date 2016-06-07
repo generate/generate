@@ -3,7 +3,6 @@
 require('mocha');
 var path = require('path');
 var assert = require('assert');
-var option = require('base-option');
 var Base = require('..');
 var base;
 
@@ -12,7 +11,6 @@ var fixtures = path.resolve.bind(path, __dirname, 'fixtures');
 describe('.generator', function() {
   beforeEach(function() {
     base = new Base();
-    base.use(option());
 
     base.option('toAlias', function(key) {
       return key.replace(/^generate-(.*)/, '$1');
@@ -29,6 +27,9 @@ describe('.generator', function() {
     });
 
     it('should get a generator using a custom lookup function', function() {
+      base.register('generate-foo', function() {});
+      base.register('generate-bar', function() {});
+
       var gen = base.getGenerator('foo', {
         lookup: function(key) {
           return ['generate-' + key, 'verb-' + key + '-generator', key];
@@ -194,13 +195,6 @@ describe('.generator', function() {
       assert.deepEqual(base.generators.one, one);
     });
 
-    it('should register an instance from a file path', function() {
-      var two = base.generator('two', fixtures('two/generator.js'));
-      assert(base.generators.hasOwnProperty('two'));
-      assert(typeof base.generators.two === 'object');
-      assert.deepEqual(base.generators.two, two);
-    });
-
     it('should get a registered generator by name', function() {
       var one = base.generator('one', fixtures('one/generator.js'));
       var two = base.generator('two', fixtures('two/generator.js'));
@@ -248,23 +242,24 @@ describe('.generator', function() {
 
     it('should create namespace from generator alias', function(cb) {
       base.generator('generate-foo', function(app) {
-        assert.equal(app.namespace, 'foo');
+        assert.equal(app.namespace, base._name + '.foo');
         cb();
       });
     });
 
     it('should create sub-generator namespace from parent namespace and alias', function(cb) {
+      var name = base._name;
       base.generator('generate-foo', function(app) {
-        assert.equal(app.namespace, 'foo');
+        assert.equal(app.namespace, name + '.foo');
 
         app.generator('generate-bar', function(bar) {
-          assert.equal(bar.namespace, 'foo.bar');
+          assert.equal(bar.namespace, name + '.foo.bar');
 
           bar.generator('generate-baz', function(baz) {
-            assert.equal(baz.namespace, 'foo.bar.baz');
+            assert.equal(baz.namespace, name + '.foo.bar.baz');
 
             baz.generator('generate-qux', function(qux) {
-              assert.equal(qux.namespace, 'foo.bar.baz.qux');
+              assert.equal(qux.namespace, name + '.foo.bar.baz.qux');
               cb();
             });
           });
@@ -273,19 +268,21 @@ describe('.generator', function() {
     });
 
     it('should expose namespace on `this`', function(cb) {
+      var name = base._name;
+
       base.generator('generate-foo', function(app, first) {
-        assert.equal(this.namespace, 'foo');
+        assert.equal(this.namespace, base._name + '.foo');
 
         this.generator('generate-bar', function() {
-          assert.equal(this.namespace, 'foo.bar');
+          assert.equal(this.namespace, base._name + '.foo.bar');
 
           this.generator('generate-baz', function() {
-            assert.equal(this.namespace, 'foo.bar.baz');
+            assert.equal(this.namespace, base._name + '.foo.bar.baz');
 
             this.generator('generate-qux', function() {
-              assert.equal(this.namespace, 'foo.bar.baz.qux');
-              assert.equal(app.namespace, 'foo');
-              assert.equal(typeof first.namespace, 'undefined');
+              assert.equal(this.namespace, base._name + '.foo.bar.baz.qux');
+              assert.equal(app.namespace, base._name + '.foo');
+              assert.equal(first.namespace, base._name);
               cb();
             });
           });
