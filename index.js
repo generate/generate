@@ -90,9 +90,9 @@ Generate.prototype.initGenerate = function(opts) {
   });
 
   this.on('unresolved', function(search, app) {
-    var resolved = utils.resolve(search.name) || utils.resolve(search.name, {cwd: utils.gm});
+    var resolved = utils.resolve.file(search.name) || utils.resolve.file(search.name, {cwd: utils.gm});
     if (resolved) {
-      search.app = app.generator(search.name, resolved);
+      search.app = app.generator(search.name, require(resolved.path));
     }
   });
 
