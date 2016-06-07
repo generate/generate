@@ -46,6 +46,11 @@ Generate.prototype.initGenerate = function(opts) {
 
   this.debug('initializing', __filename);
   this.define('isApp', true);
+  this.option('help', {
+    command: 'gen',
+    configname: 'generator',
+    appname: 'generate'
+  });
 
   // create `app.globals` store
   this.define('globals', new utils.Store('globals', {

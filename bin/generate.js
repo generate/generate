@@ -31,9 +31,9 @@ var config = {name: 'generate', configName: 'generator'};
 plugins.runner(Generate, config, argv, function(err, app, ctx) {
   if (err) handleErr(app, err);
 
-  commands(app, ctx);
   app.set('cache.runnerContext', ctx);
   app.register('defaults', require('../lib/generator'));
+  commands(app, ctx);
 
   app.cli.process(ctx.argv, function(err) {
     if (err) app.emit('error', err);
