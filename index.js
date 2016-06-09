@@ -146,6 +146,36 @@ Generate.prototype.handleErr = function(err) {
 };
 
 /**
+ * Expose logging methods
+ */
+
+Object.defineProperty(Generate.prototype, 'log', {
+  configurable: true,
+  get: function() {
+    function log() {
+      return console.log.bind(console, utils.log.timestamp).apply(console, arguments);
+    }
+    log.warn = function(msg) {
+      return utils.logger('warning', 'yellow').apply(null, arguments);
+    };
+
+    log.success = function() {
+      return utils.logger('success', 'green').apply(null, arguments);
+    };
+
+    log.info = function() {
+      return utils.logger('info', 'cyan').apply(null, arguments);
+    };
+
+    log.error = function() {
+      return utils.logger('error', 'red').apply(null, arguments);
+    };
+    log.__proto__ = utils.log;
+    return log;
+  }
+});
+
+/**
  * Expose static `is*` methods from Templates
  */
 
