@@ -1,7 +1,7 @@
 {
   "name": "generate",
-  "description": "The Santa Claus machine for GitHub projects. Scaffolds out new projects, or creates any kind of required file or document out of any given templates or source materials.",
-  "version": "0.7.1",
+  "description": "The Santa Claus machine for GitHub projects. Scaffolds out new projects, or creates any kind of required file or document from any given templates or source materials.",
+  "version": "0.7.2",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
