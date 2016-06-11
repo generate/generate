@@ -41,6 +41,7 @@
     "base-runtimes": "^0.1.11",
     "base-store": "^0.4.4",
     "data-store": "^0.16.0",
+    "debug": "^2.2.0",
     "define-property": "^0.2.5",
     "export-files": "^2.1.1",
     "extend-shallow": "^2.0.1",
@@ -120,7 +121,7 @@
       "method": "postLayout",
       "match": "[*-+]\\s+\\.(\\w)"
     },
-    "layout": "global",
+    "layout": "minimal",
     "tasks": [
       "readme"
     ],
@@ -128,7 +129,6 @@
       "gulp-format-md"
     ],
     "related": {
-      "highlight": "base",
       "description": "Generate shares a common architecture and plugin ecosystem with the following libraries:",
       "list": [
         "assemble",

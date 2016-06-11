@@ -7,6 +7,7 @@
 
 'use strict';
 
+var debug = require('debug')('base:generate');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var utils = require('./lib/utils');
@@ -44,7 +45,7 @@ Assemble.extend(Generate);
 Generate.prototype.initGenerate = function(opts) {
   Generate.emit('generate.preInit', this);
 
-  this.debug('initializing', __filename);
+  debug('initializing', __filename);
   this.define('isApp', true);
   this.option('help', {
     command: 'gen',
