@@ -21,7 +21,7 @@
     "generate": "bin/generate.js"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=5.0"
   },
   "scripts": {
     "test": "mocha"
