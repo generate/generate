@@ -1,5 +1,6 @@
 'use strict';
 
+var generate = require('..');
 var runner = require('base-test-runner')();
 var suite = require('base-test-suite');
 
@@ -10,7 +11,7 @@ var suite = require('base-test-suite');
 runner.on('templates', function(file) {
   var fn = require(file.path);
   if (typeof fn === 'function') {
-    fn(require('..'));
+    fn(generate);
   } else {
     throw new Error('expected ' + file.path + ' to export a function');
   }
