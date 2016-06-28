@@ -63,7 +63,6 @@
   },
   "devDependencies": {
     "base-config-process": "^0.1.7",
-    "base-scaffold": "^0.3.1",
     "base-test-runner": "^0.2.0",
     "base-test-suite": "^0.1.11",
     "cross-spawn": "^4.0.0",
