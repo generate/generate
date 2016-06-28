@@ -116,7 +116,7 @@ Generate.prototype.initGenerate = function(opts) {
    */
 
   this.preWrite(/./, function(view, next) {
-    var askName = view.data.ask;
+    var askName = view.data && view.data.ask;
     var hint = view.basename;
     if (utils.isObject(askName)) {
       var obj = askName;
