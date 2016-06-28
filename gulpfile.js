@@ -27,7 +27,7 @@ gulp.task('eslint', function() {
 
 gulp.task('unused', function() {
   return gulp.src(['index.js', 'lib/**/*.js', 'bin/*.js'])
-    .pipe(unused({keys: keys(['lib/utils.js', 'lib/plugins.js'])}))
+    .pipe(unused({keys: keys(['lib/utils.js', 'lib/plugins.js'])}));
 });
 
 gulp.task('default', ['mocha', 'eslint']);

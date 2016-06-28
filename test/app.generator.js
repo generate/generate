@@ -268,8 +268,6 @@ describe('.generator', function() {
     });
 
     it('should expose namespace on `this`', function(cb) {
-      var name = base._name;
-
       base.generator('generate-foo', function(app, first) {
         assert.equal(this.namespace, base._name + '.foo');
 
