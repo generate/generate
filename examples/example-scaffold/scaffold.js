@@ -1,14 +1,15 @@
 'use strict';
 
-var Generate = require('..');
+var Generate = require('../..');
 var generate = new Generate();
+generate.use(require('generate-scaffold')());
 
 var Scaffold = require('scaffold');
 var scaffold = new Scaffold({
   a: {
     options: {
-      cwd: 'examples/fixtures',
-      destBase: 'two',
+      cwd: 'examples/example-scaffold/fixtures',
+      destBase: 'examples/example-scaffold/actual/two',
     },
     data: {name: 'Jon'},
     files: [
@@ -19,8 +20,8 @@ var scaffold = new Scaffold({
     ]
   },
   b: {
-    cwd: 'examples/fixtures',
-    destBase: 'one',
+    cwd: 'examples/example-scaffold/fixtures',
+    destBase: 'examples/example-scaffold/actual/one',
     data: {name: 'Brian'},
     files: [
       {src: '*.txt', dest: 'a'},
@@ -31,7 +32,8 @@ var scaffold = new Scaffold({
   }
 });
 
-generate.scaffold(scaffold, function(err) {
-  if (err) return console.log(err);
-  console.log('done!');
-});
+generate.scaffold('example', scaffold)
+  .generate(function(err) {
+    if (err) return console.log(err);
+    console.log('done!');
+  });

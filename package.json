@@ -70,6 +70,7 @@
     "engine-base": "^0.1.2",
     "engine-handlebars": "^0.8.0",
     "generate-foo": "^0.1.5",
+    "generate-scaffold": "^0.2.0",
     "generator-util": "^0.2.9",
     "glob-keys": "^0.1.1",
     "graceful-fs": "^4.1.4",

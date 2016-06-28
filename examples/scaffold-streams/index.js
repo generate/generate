@@ -1,9 +1,13 @@
 'use strict';
 
+var path = require('path');
+var dest = path.resolve.bind(path, __dirname);
+
 var through = require('through2');
 var extname = require('gulp-extname');
 var Generate = require('../..');
 var app = new Generate();
+app.use(require('generate-scaffold')());
 
 app.on('error', function(err) {
   console.log(err);
@@ -15,8 +19,8 @@ var scaffold = new Scaffold();
 scaffold.addTargets({
   a: {
     options: {
-      data: {title: 'Markdown'},
-      cwd: 'templates',
+      title: 'Markdown',
+      cwd: dest('templates'),
       flatten: true,
       destBase: __dirname + '/site/one',
       pipeline: ['render', 'extname']
@@ -25,13 +29,13 @@ scaffold.addTargets({
       {src: '*.hbs', dest: 'a', options: {pipeline: ['foo', 'bar', 'render', 'extname']}},
       {src: '*.hbs', dest: 'b'},
       {src: '*.hbs', dest: 'c'},
-      {src: '*.md', dest: 'd', data: {title: 'Foo'}},
+      {src: '*.md', dest: 'd', title: 'Foo'},
     ]
   },
   b: {
     options: {
-      data: {title: 'Baz'},
-      cwd: 'templates',
+      title: 'Baz',
+      cwd: dest('templates'),
       flatten: true,
       destBase: __dirname + '/site/two',
       pipeline: app.renderFile
@@ -40,7 +44,7 @@ scaffold.addTargets({
       {src: '*.hbs', dest: 'a'},
       {src: '*.hbs', dest: 'b'},
       {src: '*.hbs', dest: 'c'},
-      {src: '*.md', dest: 'd', data: {title: 'Bar'}},
+      {src: '*.md', dest: 'd', title: 'Bar'},
     ]
   }
 });
@@ -91,7 +95,8 @@ app.engine('md', require('engine-base'));
  * Generate scaffold
  */
 
-app.scaffoldStream(scaffold)
+app.scaffold('example', scaffold)
+  .generate()
   .on('error', console.error)
   .on('data', console.log)
   .on('end', function() {

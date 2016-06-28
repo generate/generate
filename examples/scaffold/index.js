@@ -3,7 +3,7 @@
 var path = require('path');
 var through = require('through2');
 var extname = require('gulp-extname');
-var scaffold = require('base-scaffold');
+var scaffold = require('generate-scaffold');
 var extend = require('extend-shallow');
 var parser = require('parser-front-matter');
 var Generate = require('../..');
@@ -23,8 +23,8 @@ var Scaffold = require('scaffold');
 var config = new Scaffold({
   a: {
     options: {
-      data: {title: 'Markdown'},
-      cwd: 'templates',
+      title: 'Markdown',
+      cwd: dest('templates'),
       flatten: true,
       destBase: dest('site/one'),
       pipeline: ['render', 'extname', 'foo', 'bar']
@@ -33,13 +33,13 @@ var config = new Scaffold({
       {src: '*.hbs', dest: 'a', options: {pipeline: ['foo', 'bar', 'render', 'extname']}},
       {src: '*.hbs', dest: 'b'},
       {src: '*.hbs', dest: 'c'},
-      {src: '*.md', dest: 'd', data: {title: 'Foo'}},
+      {src: '*.md', dest: 'd', title: 'Foo'},
     ]
   },
   b: {
     options: {
-      data: {title: 'Baz'},
-      cwd: 'templates',
+      title: 'Baz',
+      cwd: dest('templates'),
       flatten: true,
       destBase: dest('site/two'),
       pipeline: app.renderFile
@@ -99,7 +99,8 @@ app.engine('md', require('engine-base'));
  * Generate scaffold
  */
 
-app.scaffold(config, function(err) {
-  if (err) throw err;
-  console.log('done!');
-});
+app.scaffold('example', config)
+  .generate(function(err) {
+    if (err) throw err;
+    console.log('done!');
+  });
