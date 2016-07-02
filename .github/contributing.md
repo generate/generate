@@ -10,6 +10,8 @@ Creating an issue is the simplest form of contributing to a project. But there a
 - Feature requests
 - Bug reports
 
+The [Guide to Idiomatic Contributing](https://github.com/jonschlinkert/idiomatic-contributing) also has good advice.
+
 ## Issues
 
 **Before creating an issue**
