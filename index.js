@@ -265,8 +265,9 @@ Generate.handleErr = function(app, err) {
  */
 
 Generate.lookup = function(key) {
+  if (/generate-/.test(key)) return [key];
   var patterns = [`generate-${key}`];
-  if (/^generate-/.test(key) && !/^(verb|assemble|update)-/.test(key)) {
+  if (/^generate-/.test(key) && !/^(verb|assemble|updater)-/.test(key)) {
     patterns.unshift(key);
   }
   return patterns;
