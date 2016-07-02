@@ -1,6 +1,6 @@
 {
   "name": "generate",
-  "description": "The Santa Claus machine for GitHub projects. Scaffolds out new projects, or creates any kind of required file or document from any given templates or source materials.",
+  "description": "Command line tool and developer framework for scaffolding out new GitHub projects. Determine the templates, directories, files and contents to build based on answers to prompts and user's environment. Generators are easy to create and combine. Support for gulp, assemble and Base plugins.",
   "version": "0.8.0",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
@@ -48,6 +48,7 @@
     "generate-defaults": "^0.3.1",
     "get-value": "^2.0.6",
     "global-modules": "^0.2.2",
+    "gray-matter": "^2.0.2",
     "is-answer": "^0.1.0",
     "isobject": "^2.1.0",
     "lazy-cache": "^2.0.1",
@@ -119,10 +120,9 @@
     "run": true,
     "toc": {
       "render": true,
-      "method": "postLayout",
-      "match": "[*-+]\\s+\\.(\\w)"
+      "method": "postLayout"
     },
-    "layout": "minimal",
+    "layout": "common-minimal",
     "tasks": [
       "readme"
     ],
@@ -130,6 +130,7 @@
       "gulp-format-md"
     ],
     "related": {
+      "highlight": "update",
       "description": "Generate shares a common architecture and plugin ecosystem with the following libraries:",
       "list": [
         "assemble",
@@ -146,6 +147,7 @@
       "consolidate",
       "generate",
       "generate-dest",
+      "generator-example",
       "gulp",
       "handlebars",
       "lodash",
