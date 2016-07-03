@@ -14,8 +14,8 @@ app.register(name, fn);
 **Example**
 
 ```js
-var Generate = require('generate');
-var app = new Generate();
+var generate = require('generate');
+var app = generate();
 
 // not invoked until called by `.generate`
 app.register('foo', function(app) {

@@ -10,39 +10,70 @@ To run generate from the command line, you'll need to install Generate's CLI glo
 $ npm install --global generate
 ```
 
-This adds the `generate` command to your system path, allowing it to be run from any directory.
+This adds the `gen` command to your system path, allowing it to be run from any directory.
 
-You should now be able to use the `generate` command to execute code in a local `generator.js` file, or to run any locally or globally installed generators by their [aliases](tasks.md#alias-tasks) or full names.
+**Verify installation**
 
-**Init**
+You should now be able to use the `gen` command to execute code in a local `generator.js` file, or to execute globally installed generators by their [aliases](docs/#generator-aliases).
+
+To verify that Generate's CLI is installed, run the following command:
+
+```sh
+$ gen --version
+```
+
+## init
 
 If it's your first time using generate, run `generate init` to set your global defaults.
 
-**CLI help**
-
+```sh
+gen init
 ```
-Usage: generate <command> [options]
 
-Command: Generater or tasks to run
+## help
 
-Examples:
+```console
+$ gen help
 
-  # run the "foo" generator
-  $ generate foo
+  Usage: gen <command> [options]
 
-  # run the "bar" task on generator "foo"
-  $ generate foo:bar
+  Command: generator or tasks to run
 
-  # run multiple tasks on generator "foo"
-  $ generate foo:bar,baz,qux
+  Options:
 
-  # run a sub-generator on generator "foo"
-  $ generate foo.abc
+    --config, -c      Save a configuration value to the `gen` object in package.json
+    --cwd             Set or display the current working directory
+    --data, -d        Define data. API equivalent of `app.data()`
+    --disable         Disable an option. API equivalent of "app.disable('foo')"
+    --enable          Enable an option. API equivalent of "app.enable('foo')"
+    --global, -g      Save a global configuration value to use as a default
+    --help, -h        Display this help menu
+    --init, -i        Prompts for configuration values and stores the answers
+    --option, -o      Define options. API equivalent of `app.option()`
+    --run             Force tasks to run regardless of command line flags used
+    --silent, -S      Silence all tasks and updaters in the terminal
+    --show <key>      Display the value of <key>
+    --version, -V     Display the current version of generate
+    --verbose, -v     Display all verbose logging messages
 
-  # run task "xyz" on sub-generator "foo.abc"
-  $ generate foo.abc:xyz
+  Examples:
 
-  Generate attempts to automatically determine if "foo" is a task or generator.
-  If there is a conflict, you can force generate to run generator "foo"
-  by specifying a task on the generator. Example: `generate foo:default`
+    # run generator "foo"
+    $ gen foo
+
+    # run task "bar" from generator "foo"
+    $ gen foo:bar
+
+    # run multiple tasks from generator "foo"
+    $ gen foo:bar,baz,qux
+
+    # run a sub-generator from generator "foo"
+    $ gen foo.abc
+
+    # run task "xyz" from sub-generator "foo.abc"
+    $ gen foo.abc:xyz
+
+    Generate attempts to automatically determine if "foo" is a task or generator.
+    If there is a conflict, you can force generate to run generator "foo"
+    by specifying its default task. Example: `$ gen foo:default`
 ```
