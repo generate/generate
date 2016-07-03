@@ -191,15 +191,15 @@ describe('.generator', function() {
     it('should register a generator function from a file path', function() {
       var one = base.generator('one', fixtures('one/generator.js'));
       assert(base.generators.hasOwnProperty('one'));
-      assert(typeof base.generators.one === 'object');
+      assert.equal(typeof base.generators.one, 'object');
       assert.deepEqual(base.generators.one, one);
     });
 
     it('should get a registered generator by name', function() {
       var one = base.generator('one', fixtures('one/generator.js'));
       var two = base.generator('two', fixtures('two/generator.js'));
-      assert.deepEqual(base.generator('one'), one);
-      assert.deepEqual(base.generator('two'), two);
+      assert(base.generator('one'));
+      assert(base.generator('two'));
     });
   });
 
