@@ -18,13 +18,6 @@ var argv = require('yargs-parser')(args, {
   }
 });
 
-if (argv.version) {
-  console.log('generate v' + pkg.version);
-  if (Object.keys(argv).length === 2 && !argv._.length) {
-    process.exit();
-  }
-}
-
 /**
  * Listen for errors on all instances
  */
