@@ -10,7 +10,7 @@ The following example shows you to do this.
 
 ## Example
 
-**1. Create an generator project**
+**1. Create a generator project**
 
 Create a new project named `generator-aaa`. You can expedite this using [generate][] or Google's Yeoman or however you prefer.
 

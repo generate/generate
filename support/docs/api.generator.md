@@ -1,10 +1,10 @@
 ---
-title: Generater
+title: generater
 related:
   api: ['register', 'plugins']
 ---
 
-Register an generator function by name. Similar to [.register](register.md) but immediately invokes the generator function upon registering it.
+Register a generator function by name. Similar to [.register](register.md) but immediately invokes the generator function upon registering it.
 
 ```js
 app.generator(name, fn);

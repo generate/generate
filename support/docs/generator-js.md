@@ -23,7 +23,7 @@ Generate's CLI attempts to:
 * Find any generators you've specified for it to run by using node's `require()` system to search for locally installed modules with the name `generator-*`,
 
 
-## Creating an generator.js
+## Creating a generator.js
 
 An `generator.js` may contain any custom JavaScript code, but must export a function that takes an instance of Generate (`app`):
 
@@ -46,7 +46,7 @@ module.exports = function(app) {
     cb();
   });
 
-  // register an generator
+  // register a generator
   app.register('foo', function() {
 
   });

@@ -29,7 +29,7 @@ module.exports = function(app) {
     return app.toStream('docs')
       .pipe(drafts())
       .pipe(app.renderFile('*'))
-      .pipe(reflinks())
+      // .pipe(reflinks())
       .pipe(format())
       .pipe(app.dest(paths.docs()));
   });

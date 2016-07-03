@@ -7,6 +7,15 @@ related:
 
 A plugin is function that takes an instance of `Generate` and is registered with the `.use` method. See the [base-plugins][] documentation for additional details.
 
+**Heads up!**
+
+Most or all of the code examples in this document assume the following code exists first:
+
+```js
+var generate = require('generate');
+var app = generate();
+```
+
 ### .use
 
 The `.use` method is used for registering plugins that should be immediately invoked.
@@ -14,9 +23,6 @@ The `.use` method is used for registering plugins that should be immediately inv
 **Example**
 
 ```js
-var Generate = require('generate');
-var app = new Generate();
-
 function plugin(app) {
   // "app" and "this" both expose the instance of generate we created above
 }
@@ -33,9 +39,6 @@ If a plugin returns a function after it's invoked by `.use`, the function will b
 **Example**
 
 ```js
-var Generate = require('generate');
-var app = new Generate();
-
 function plugin(app) {
   // "app" and "this" both expose the instance of generate we created above
   return plugin;

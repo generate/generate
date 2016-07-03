@@ -2,13 +2,19 @@
 
 ## How is the name written?
 
-Generate, with a capital "U", the rest lowercase. `generator.js` is all lowercase, no capital letters.
+**Generate**
+
+Generate, with a capital "G", the rest lowercase.
+
+**generator.js**
+
+The file, `generator.js` is all lowercase, no capital letters.
 
 <a name="aliases">
 
 ## Aliases
 
-**What's an generator's alias, and what do they do?**
+**What's a generator's alias, and what do they do?**
 
 Generate tries to find globally installed generators using an "alias" first, falling back on the generator's full name if not found by its alias.
 

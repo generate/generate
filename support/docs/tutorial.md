@@ -7,7 +7,7 @@ related:
 
 The following intro only skims the surface of what generate has to offer. For a more in-depth introduction, we highly recommend visiting the [getting started guide][getting-started].
 
-**Create an generator**
+**Create a generator**
 
 Add a `generator.js` to the current working directory with the following code:
 
@@ -17,7 +17,7 @@ module.exports = function(app) {
 };
 ```
 
-**Run an generator**
+**Run a generator**
 
 Enter the following command:
 

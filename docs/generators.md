@@ -1,9 +1,9 @@
-# Generaters
+# Introduction to Generaters
 
-This document describes how to create, register and run generators.
+Learn how to create, register and run generators.
 
 - [TODO](#todo)
-- [What is an generator?](#what-is-an-generator)
+- [What is a generator?](#what-is-a-generator)
 - [Creating generators](#creating-generators)
 - [Registering generators](#registering-generators)
 - [Running generators](#running-generators)
@@ -13,7 +13,6 @@ This document describes how to create, register and run generators.
   * [Order of precendence](#order-of-precendence)
 - [Discovering generators](#discovering-generators)
 - [Default generator](#default-generator)
-- [Related](#related)
 
 ## TODO
 
@@ -21,7 +20,7 @@ This document describes how to create, register and run generators.
 * [ ] explain how the `base` instance works
 * [ ] document `env`
 
-## What is an generator?
+## What is a generator?
 
 Generaters are [plugins](api/plugins.md) that are registered by name. If you're not familiar with plugins yet, it might be a good idea to review the [plugins docs](api/plugins.md) first.
 
@@ -48,7 +47,7 @@ function generator(app) {
 
 ## Registering generators
 
-Register an generator function with the given `name`.
+Register a generator function with the given `name`.
 
 ```js
 app.register(name, fn);
@@ -69,7 +68,7 @@ function generator(app) {
   // do generator stuff
 }
 
-// register as an generator
+// register as a generator
 app.register('foo', generator);
 
 // or register as a plugin
@@ -88,11 +87,17 @@ Generaters and their tasks can be run by command line or API.
 
 **Command line**
 
-To run globally or locally installed `generator-foo`, or an generator named `foo` in `generator.js`, run:
+To run globally or locally installed `generator-foo`, or a generator named `foo` in `generator.js`, run:
 
 ```sh
-$ generate foo
+$ gen foo
 ```
+
+<a name="cli-default-task"></a>
+
+**"default" task**
+
+If `generator-foo` has a `default` task it will automatically be executed when the `$ gen foo` command is given. If a `default` task is not defined, the generator function is simply invoked.
 
 **API**
 
@@ -124,7 +129,7 @@ This provides a great deal of flexibility, but it also means that we need a stra
 
 ### Tasks and generators
 
-1. When both a task and an generator have the same name _on the same instance_, Generate will always try to run the task first (this is unlikely to happen unless you intend for it to - there are [reasons to do this](#naming-tips))
+1. When both a task and a generator have the same name _on the same instance_, Generate will always try to run the task first (this is unlikely to happen unless you intend for it to - there are [reasons to do this](#naming-tips))
 
 ### Naming tips
 
@@ -203,7 +208,7 @@ todo
 
 ## Default generator
 
-If an generator is registered with the name `default` it will receive special treatment from Generate and Generate's CLI. More specifically, when Generate's CLI looks for generators or tasks to run, it will search for them on the `default` generator first.
+If a generator is registered with the name `default` it will receive special treatment from Generate and Generate's CLI. More specifically, when Generate's CLI looks for generators or tasks to run, it will search for them on the `default` generator first.
 
 There is a catch...
 
@@ -221,3 +226,4 @@ When used by command line, Generate's CLI will then use node's `require()` syste
 * [generator-js](generator-js.md)
 * [installing-generators](installing-generators.md)
 * [symlinking-generators](symlinking-generators.md)
+* [sub-generators](sub-generators.md)

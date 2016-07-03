@@ -1,11 +1,39 @@
-# Command line flags
+# CLI Commands
 
-Supported command line flags.
+Available command line options.
 
-## --run
+## install
 
-Force stored tasks to run. Stored tasks are "skipped" if you have an `generator.js` in the current working directory.
+**flag**: `--install`
+
+Automatically install npm dependencies and devDependencies after files are written.
+
+## no-install
+
+**flag**: `--no-install`
+
+Skip automatic installation of npm dependencies and devDependencies after files are written.
+
+## default
+
+**flag**: `--default`
+
+**abbr**: `-D`
+
+Save the given task arguments as the default tasks to run with the `gen` command.
+
+**Example**
 
 ```sh
-$ generate --run
+$ gen foo bar baz -D
 ```
+
+**Delete defaults**
+
+To delete all stored default tasks, add the `--del` flag:
+
+```sh
+$ gen -D --del
+```
+
+Flags can be specified in any order.
