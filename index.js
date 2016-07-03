@@ -110,90 +110,17 @@ Generate.prototype.initGenerate = function(opts) {
   this.use(plugins.store('generate'));
   this.use(plugins.generators());
   this.use(plugins.pipeline());
+  this.use(utils.askWhen());
 
-  /**
-   * Middleware
-   */
+  // load listeners
+  Generate.initGenerateListeners(this);
 
-  this.preWrite(/./, function(view, next) {
-    var askName = view.data && view.data.ask;
-    var hint = view.basename;
-    if (utils.isObject(askName)) {
-      var obj = askName;
-      hint = obj.default || hint;
-      askName = obj.rename;
-    }
+  // load middleware
+  if (process.env.GENERATE_TEST) {
+  }
+    Generate.initGenerateMiddleware(this);
 
-    function setValue(obj) {
-      var key = askName;
-      var val = obj[key];
-      if (val) view[key] = val;
-    }
-
-    if (typeof askName === 'string') {
-      var argv = self.get('cache.argv');
-      if (argv[askName]) {
-        setValue(argv);
-        next();
-        return;
-      }
-
-      self.question(askName, `What is the file.${askName}?`, {default: hint});
-      self.ask(askName, {save: false}, function(err, answers) {
-        if (err) return next(err);
-        if (answers[askName]) {
-          setValue(answers);
-        }
-        next();
-      });
-    } else {
-      next();
-    }
-  });
-
-  this.preWrite(/./, utils.renameFile(self));
-  this.onLoad(/(^|[\\\/])templates[\\\/]/, function(view, next) {
-    var userDefined = self.home('templates', view.basename);
-    if (utils.exists(userDefined)) {
-      view.contents = fs.readFileSync(userDefined);
-    }
-
-    if (/^templates[\\\/]/.test(view.relative)) {
-      view.path = path.join(self.cwd, view.basename);
-    }
-
-    utils.stripPrefixes(view);
-    utils.parser.parse(view, next);
-  });
-
-  /**
-   * Listeners
-   */
-
-  this.on('option', function(key, val) {
-    if (key === 'dest') self.cwd = val;
-  });
-
-  this.on('unresolved', function(search, app) {
-    var resolved = utils.resolve.file(search.name) || utils.resolve.file(search.name, {cwd: utils.gm});
-    if (resolved) {
-      search.app = app.generator(search.name, require(resolved.path));
-    }
-  });
-
-  this.on('ask', function(answerVal, answerKey, question) {
-    if (typeof answerVal === 'undefined') {
-      var segs = answerKey.split('author.');
-      if (segs.length > 1) {
-        self.questions.answers[answerKey] = self.common.get(segs.pop());
-      }
-    }
-  });
-
-  /**
-   * CLI plugins
-   */
-
+  // load CLI plugins
   if (utils.runnerEnabled(this)) {
     this.initGenerateCLI(opts);
   }
@@ -218,6 +145,85 @@ Generate.prototype.initGenerateCLI = function(options) {
 
 Generate.prototype.handleErr = function(err) {
   return Generate.handleErr(this, err);
+};
+
+/**
+ * Middleware
+ */
+
+Generate.initGenerateMiddleware = function(app) {
+  app.preWrite(/./, function(view, next) {
+    var askName = view.data && view.data.ask;
+    var hint = view.basename;
+    if (utils.isObject(askName)) {
+      var obj = askName;
+      hint = obj.default || hint;
+      askName = obj.rename;
+    }
+
+    function setValue(obj) {
+      var key = askName;
+      var val = obj[key];
+      if (val) view[key] = val;
+    }
+
+    if (typeof askName === 'string') {
+      var argv = app.get('cache.argv') || {};
+      if (argv[askName]) {
+        setValue(argv);
+        next();
+        return;
+      }
+
+      app.question(askName, `What is the file.${askName}?`, {default: hint});
+      app.askWhen(askName, {save: false}, function(err, answers) {
+        if (err) return next(err);
+        if (answers[askName]) {
+          setValue(answers);
+        }
+        next();
+      });
+    } else {
+      next();
+    }
+  });
+
+  app.preWrite(/./, utils.renameFile(app));
+  app.onLoad(/(^|[\\\/])templates[\\\/]/, function(view, next) {
+    var userDefined = app.home('templates', view.basename);
+    if (utils.exists(userDefined)) {
+      view.contents = fs.readFileSync(userDefined);
+    }
+
+    if (/^templates[\\\/]/.test(view.relative)) {
+      view.path = path.join(app.cwd, view.basename);
+    }
+
+    utils.stripPrefixes(view);
+    utils.parser.parse(view, next);
+  });
+};
+
+Generate.initGenerateListeners = function(app) {
+  app.on('option', function(key, val) {
+    if (key === 'dest') app.cwd = val;
+  });
+
+  app.on('unresolved', function(search, app) {
+    var resolved = utils.resolve.file(search.name) || utils.resolve.file(search.name, {cwd: utils.gm});
+    if (resolved) {
+      search.app = app.generator(search.name, require(resolved.path));
+    }
+  });
+
+  app.on('ask', function(answerVal, answerKey, question) {
+    if (typeof answerVal === 'undefined') {
+      var segs = answerKey.split('author.');
+      if (segs.length > 1) {
+        app.questions.answers[answerKey] = app.common.get(segs.pop());
+      }
+    }
+  });
 };
 
 Generate.initGenerateCLI = function(app, options) {
