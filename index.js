@@ -116,9 +116,9 @@ Generate.prototype.initGenerate = function(opts) {
   Generate.initGenerateListeners(this);
 
   // load middleware
-  if (process.env.GENERATE_TEST) {
-  }
+  if (!process.env.GENERATE_TEST) {
     Generate.initGenerateMiddleware(this);
+  }
 
   // load CLI plugins
   if (utils.runnerEnabled(this)) {
@@ -206,7 +206,16 @@ Generate.initGenerateMiddleware = function(app) {
 
 Generate.initGenerateListeners = function(app) {
   app.on('option', function(key, val) {
-    if (key === 'dest') app.cwd = val;
+    if (key === 'dest') {
+      app.base.cwd = val;
+      app.cwd = val;
+    }
+  });
+
+  app.on('task', function(event, task) {
+    if (task && task.app) {
+      task.app.cwd = app.base.cwd;
+    }
   });
 
   app.on('unresolved', function(search, app) {
@@ -271,9 +280,12 @@ Generate.handleErr = function(app, err) {
  */
 
 Generate.lookup = function(key) {
-  if (/generate-/.test(key)) return [key];
+  var re = /^generate-/;
+  if (/generate-/.test(key)) {
+    return [key, key.replace(re, '')];
+  }
   var patterns = [`generate-${key}`];
-  if (/^generate-/.test(key) && !/^(verb|assemble|updater)-/.test(key)) {
+  if (re.test(key) && !/^(verb|assemble|updater)-/.test(key)) {
     patterns.unshift(key);
   }
   return patterns;
