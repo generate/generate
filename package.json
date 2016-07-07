@@ -1,7 +1,7 @@
 {
   "name": "generate",
-  "description": "Command line tool and developer framework for scaffolding out new GitHub projects. Determine the templates, directories, files and contents to build based on answers to prompts and user's environment. Generators are easy to create and combine. Support for gulp, assemble and Base plugins.",
-  "version": "0.8.0",
+  "description": "Command line tool and developer framework for scaffolding out new GitHub projects. Generate offers the robustness and configurability of Yeoman, the expressiveness and simplicity of Slush, and more powerful flow control and composability than either.",
+  "version": "0.8.1",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
@@ -12,7 +12,9 @@
   "files": [
     "bin",
     "index.js",
-    "lib"
+    "lib",
+    "LICENSE",
+    "README.md"
   ],
   "main": "index.js",
   "preferGlobal": true,
@@ -32,12 +34,13 @@
     "assemble-loader": "^0.6.1",
     "base-fs-conflicts": "^0.1.7",
     "base-fs-rename": "^0.1.4",
-    "base-generators": "^0.4.3",
+    "base-generators": "^0.4.4",
     "base-npm": "^0.4.0",
+    "base-npm-prompt": "^0.2.0",
     "base-pipeline": "^0.3.2",
     "base-questions": "^0.6.6",
     "base-runner": "^0.8.2",
-    "base-runtimes": "^0.1.11",
+    "base-runtimes": "^0.2.0",
     "base-store": "^0.4.4",
     "data-store": "^0.16.0",
     "define-property": "^0.2.5",
@@ -49,6 +52,7 @@
     "get-value": "^2.0.6",
     "global-modules": "^0.2.2",
     "gray-matter": "^2.0.2",
+    "helper-ask": "^0.1.1",
     "is-answer": "^0.1.0",
     "isobject": "^2.1.0",
     "lazy-cache": "^2.0.1",
@@ -62,6 +66,7 @@
     "yargs-parser": "^2.4.0"
   },
   "devDependencies": {
+    "base": "^0.11.1",
     "base-config-process": "^0.1.7",
     "base-test-runner": "^0.2.0",
     "base-test-suite": "^0.1.11",
@@ -116,12 +121,18 @@
     "yeoman",
     "yo"
   ],
+  "lintDeps": {
+    "ignore": [
+      "code",
+      "coverage",
+      "docs",
+      "examples",
+      "lib/tree.js"
+    ]
+  },
   "verb": {
     "run": true,
-    "toc": {
-      "render": true,
-      "method": "postLayout"
-    },
+    "toc": true,
     "layout": "common-minimal",
     "tasks": [
       "readme"
@@ -147,27 +158,20 @@
       "consolidate",
       "generate",
       "generate-dest",
-      "generator-example",
+      "generate-example",
       "gulp",
       "handlebars",
       "lodash",
       "pug",
       "swig",
       "templates",
+      "update",
       "verb",
-      "verb-readme-generator"
+      "verb-readme-generator",
+      "vinyl"
     ],
     "lint": {
       "reflinks": true
     }
-  },
-  "lintDeps": {
-    "ignore": [
-      "code",
-      "coverage",
-      "docs",
-      "examples",
-      "lib/tree.js"
-    ]
   }
 }
