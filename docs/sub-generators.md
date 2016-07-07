@@ -1,21 +1,54 @@
 # Sub generators
 
-Generaters provide a convenient way of "wrapping" code that should be executed on-demand, whilst also "namespacing" the code being wrapped, so that it's available to be executed and can be explicitly targeted via CLI or API, using a consistent and intuitive syntax across both interfaces.
+Generators provide a convenient way of "wrapping" code that should be executed on-demand, whilst also _namespacing_ the code being wrapped, so that it can be explicitly targeted via CLI or API using a consistent and intuitive syntax.
 
 **Example**
 
-We will explain this code in more detail below, but here is a preview of how sub-generators work.
+In the following example, we'll register two sub-generators, `foo` and `bar` (this is just a preview, we'll explain this code in more detail further on):
 
 ```js
 // -- generator.js --
 module.exports = function(app) {
-
+  app.register('foo', function() {});
+  app.register('bar', function() {});
 };
 ```
 
+**Run from the command line**
 
+We can now run the generators from the command line:
 
-TBC...
+```sh
+$ gen foo bar
+```
+
+**Run using the API**
+
+Or pass one or more generator names to the `.generate` method:
+
+```js
+module.exports = function(app) {
+  app.register('foo', function() {});
+  app.register('bar', function() {});
+
+  app.generate(['foo', 'bar'], function(err) {
+    if (err) return console.log(err);
+  });
+};
+```
+
+It's recommended that `.generate` be wrapped in a [task](docs/tasks.md), to delay execution until specified by the user:
+
+```js
+module.exports = function(app) {
+  app.register('foo', function() {});
+  app.register('bar', function() {});
+
+  app.task('default', function(cb) {
+    app.generate(['foo', 'bar'], cb);
+  });
+};
+```
 
 ## TODO
 
@@ -28,19 +61,6 @@ TBC...
 * [plugins](api/plugins.md)
 * [generators](generators.md)
 * [generator.js](generator-js.md)
-
-***
-
-
-Use as a [sub-generator]({%= platform.docs %}/generators.md) if you want to add `{%= name %}` to a  _namespace_ in your generator:
-
-```js
-module.exports = function(app) {
-  // register the {%= name %} with whatever name you want
-  app.register('foo', require('{%= name %}'));
-};
-```
-
 
 ## Nesting generators
 

@@ -5,7 +5,7 @@ var utils = require('./utils');
 
 module.exports = function(options) {
   return function(app) {
-    if (!utils.isValid(app, 'generate-support-helpers')) return;
+    if (!utils.isValid(app, 'update-support-helpers')) return;
     app.helpers(utils.helpers());
     app.helper('hasValue', function(val, str) {
       return utils.hasValue(val) ? str : '';
@@ -48,22 +48,25 @@ module.exports = function(options) {
 function createLink(dir, prop, link) {
   var key = (prop === 'doc') ? 'docs' : prop;
 
-  var filepath = name;
+  var filename = link;
   var name = link;
   var anchor = '';
   var segs = link.split('#');
-  if (segs.length > 1) {
-    name = segs.shift();
-    anchor = '#' + segs.pop();
+  if (segs.length === 2) {
+    name = segs[segs.length - 1];
+    anchor = '#' + name;
+    filename = segs[0];
   }
-  var filename = name;
+
   if (!/\.md$/.test(filename) && !/#/.test(filename)) {
     filename += '.md';
   }
   if (dir !== key) {
-    if (key === 'docs') key = '';
+    if (key === 'docs') {
+      key = '';
+    }
     filename = path.join('..', key, filename);
-  } else if (key !== 'docs') {
+  } else if (key !== 'docs' && dir !== key) {
     filename = path.join(key, filename);
   }
   return `- [${name}](${filename}${anchor})`;

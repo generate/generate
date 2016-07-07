@@ -31,7 +31,5 @@ app.generate('foo', function(err) {
 
 **API**
 
-* [generator](api/generator.md)
-* [plugins](api/plugins.md)
-
-[base-plugins]: https://github.com/node-base/base-plugins
+* [generator](generator.md)
+* [plugins](plugins.md)

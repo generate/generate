@@ -37,6 +37,3 @@ $ gen -D --del
 ```
 
 Flags can be specified in any order.
-
-[base-plugins]: https://github.com/node-base/base-plugins
-[gulp]: http://gulpjs.com

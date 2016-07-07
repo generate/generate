@@ -1,4 +1,4 @@
-# generater
+# generator
 
 Register a generator function by name. Similar to [.register](register.md) but immediately invokes the generator function upon registering it.
 
@@ -31,6 +31,5 @@ app.generate('bar', function(err) {
 
 **API**
 
-* [register](api/register.md)
-* [generate](api/generate.md)
-* [plugins](api/plugins.md)
+* [register](register.md)
+* [plugins](plugins.md)

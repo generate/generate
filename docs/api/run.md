@@ -75,5 +75,3 @@ When `.run` is called, it iterates over the `.fns` array and calls each function
 var obj = {};
 app.run(obj);
 ```
-
-[base-plugins]: https://github.com/node-base/base-plugins

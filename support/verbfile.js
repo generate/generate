@@ -36,8 +36,8 @@ module.exports = function(app) {
     return app.toStream('docs')
       .pipe(drafts())
       .pipe(app.renderFile('*'))
-      .pipe(format())
       .pipe(reflinks())
+      .pipe(format())
       .pipe(app.dest(function(file) {
         app.union('cache.reflinks', file._reflinks);
         return paths.docs();

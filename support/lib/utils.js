@@ -2,6 +2,7 @@
 
 var utils = module.exports = require('lazy-cache')(require);
 var rules = require('pretty-remarkable/lib/rules');
+
 var fn = require;
 require = utils;
 
@@ -35,12 +36,18 @@ utils.slugify = function(anchor) {
 };
 
 utils.links = function(rules) {
+  if (rules._added) return;
+  rules._added = true;
   var open = rules.link_open;
   rules.link_open = function(tokens, idx, options, env) {
     open.apply(rules, arguments);
     var token = tokens[idx];
+    if (/[.\\\/]+issues/.test(token.href)) {
+      return;
+    }
+
     if (options.paths && !/http/.test(token.href)) {
-      var href = token.href.replace(/^[.\\\/]+/, '').split(/[\\\/]+/).join('/');
+      var href = token.href.replace(/^\.?[\\\/]+/, '').split(/[\\\/]+/).join('/');
       var paths = options.paths;
       var anchors = paths.anchors;
       var file = options.file;
@@ -54,12 +61,20 @@ utils.links = function(rules) {
         }
       } else {
         var segs = href.split('/');
-        if (segs.length === 1) {
+        console.log(segs)
+        var len = segs.length;
+        if (len === 1) {
           segs.unshift(file.dir);
+        } else if (len === 2 && segs[0] === '..') {
+          segs[0] = 'docs';
+        } else if (len > 2 && segs[0] === '..') {
+          segs.shift();
         }
+
         var seg = segs.shift();
         var rest = segs.join('/');
         var group = paths[seg];
+
         if (typeof group === 'undefined') {
           throw new Error('directory group: ' + seg + ' is not defined');
         }
@@ -73,32 +88,32 @@ utils.links = function(rules) {
   return rules;
 };
 
-utils.lintLinks = function(md) {
-  md.renderer.renderInline = function(tokens, options, env) {
-    utils.links(rules);
-    var _rules = rules;
-    var len = tokens.length, i = 0;
-    var str = '';
+utils.lintLinks = function(options) {
+  utils.links(rules);
 
-    while (len--) {
-      str += _rules[tokens[i].type](tokens, i++, options, env, this);
-    }
-    return str;
-  };
+  return function(md) {
+    md.renderer.renderInline = function(tokens, options, env) {
+      var len = tokens.length, i = 0;
+      var str = '';
 
-  md.renderer.render = function(tokens, options, env) {
-    utils.links(rules);
-    var _rules = rules;
-    var len = tokens.length, i = -1;
-    var str = '';
-
-    while (++i < len) {
-      if (tokens[i].type === 'inline') {
-        str += this.renderInline(tokens[i].children, options, env);
-      } else {
-        str += _rules[tokens[i].type](tokens, i, options, env, this);
+      while (len--) {
+        str += rules[tokens[i].type](tokens, i++, options, env, this);
       }
-    }
-    return str;
+      return str;
+    };
+
+    md.renderer.render = function(tokens, options, env) {
+      var len = tokens.length, i = -1;
+      var str = '';
+
+      while (++i < len) {
+        if (tokens[i].type === 'inline') {
+          str += this.renderInline(tokens[i].children, options, env);
+        } else {
+          str += rules[tokens[i].type](tokens, i, options, env, this);
+        }
+      }
+      return str;
+    };
   };
 };

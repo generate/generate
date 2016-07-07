@@ -167,6 +167,6 @@ app.build(function(err) {
 
 **Docs**
 
-* [generators](generators.md#running-generators)
+* [running-generators](generators.md#running-generators)
 * [generators](generators.md)
 * [generator-js](generator-js.md)

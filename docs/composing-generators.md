@@ -15,8 +15,8 @@ For example, Let's say you create a ["micro-generator"](#micro-generators) named
 
 After using `generate-foofile` a few times, you decide that the destination directory should be customizable. There are a number of ways to accomplish this, but you narrow down your choices to one of the following:
 
-1. use [generate-dest][] as a [plugin](api/plugins.md), and setup a `dest` task, so that when users run `$ gen foofile`, they are automatically prompted for a destination directory before generating the file. Or,
-2. you can add the following sentence to the readme for `generate-foofile`: "To customize the destination directory, install [generate-dest][] globally and run it before running this generator. Example: `$ gen dest foofile`".
+1. use [generate-dest](https://github.com/generate/generate-dest) as a [plugin](api/plugins.md), and setup a `dest` task, so that when users run `$ gen foofile`, they are automatically prompted for a destination directory before generating the file. Or,
+2. you can add the following sentence to the readme for `generate-foofile`: "To customize the destination directory, install [generate-dest](https://github.com/generate/generate-dest) globally and run it before running this generator. Example: `$ gen dest foofile`".
 
 There is no correct answer, but more often than not the second option will be the better choice, since it:
 
@@ -133,7 +133,3 @@ module.exports = function(app, base) {
   app.task('default', Object.keys(app.tasks));
 };
 ```
-
-[base-plugins]: https://github.com/node-base/base-plugins
-[gulp]: http://gulpjs.com
-[generate-dest]: https://github.com/generate/generate-dest

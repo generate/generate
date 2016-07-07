@@ -49,6 +49,3 @@ Run task `abc` registered on sub-generator `example.xyz`:
 ```sh
 $ gen example.xyz:abc
 ```
-
-[base-plugins]: https://github.com/node-base/base-plugins
-[gulp]: http://gulpjs.com

@@ -108,11 +108,8 @@ And run:
 $ gen
 ```
 
-You're now a master at running tasks with generate! You can do anything with generate tasks that you can do with [gulp][] tasks (we use and support gulp libraries after all!).
+You're now a master at running tasks with generate! You can do anything with generate tasks that you can do with [gulp](http://gulpjs.com) tasks (we use and support gulp libraries after all!).
 
 **Next steps**
 
 But generate does much more than this. For a more in-depth introduction, we highly recommend visiting the [getting started guide][getting-started].
-
-[base-plugins]: https://github.com/node-base/base-plugins
-[gulp]: http://gulpjs.com

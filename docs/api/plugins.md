@@ -1,6 +1,6 @@
 # Plugins
 
-A plugin is function that takes an instance of `Generate` and is registered with the `.use` method. See the [base-plugins][] documentation for additional details.
+A plugin is function that takes an instance of `Generate` and is registered with the `.use` method. See the [base-plugins](https://github.com/node-base/base-plugins) documentation for additional details.
 
 **Heads up!**
 
@@ -56,7 +56,7 @@ Additionally:
 
 This can continue indefinitely as long as the plugin returns a function and the receiving object has `.use`/`.run` functions.
 
-## Generaters
+## Generators
 
 When plugins are [registered by name](docs/generators.md), they are referred to as "generators". See the [generator documentation](docs/generators.md) for more details.
 
@@ -64,7 +64,5 @@ When plugins are [registered by name](docs/generators.md), they are referred to 
 
 **API**
 
-* [generator](api/generator.md)
-* [register](api/register.md)
-
-[base-plugins]: https://github.com/node-base/base-plugins
+* [generator](generator.md)
+* [register](register.md)

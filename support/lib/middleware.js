@@ -13,6 +13,7 @@ module.exports = function(options) {
       var related = view.data.related || (view.data.related = {});
       related.doc = utils.arrayify(related.doc);
       related.api = utils.arrayify(related.api);
+      related.cli = utils.arrayify(related.cli);
       related.url = utils.arrayify(related.url);
 
       if (view.content.indexOf('<!-- toc -->') !== -1) {

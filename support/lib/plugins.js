@@ -74,7 +74,7 @@ function getAnchors(file, paths) {
 function getLinks(file, paths) {
   var md = new utils.Remarkable({paths: paths, file: file});
   md.use(utils.prettify);
-  md.use(utils.lintLinks);
+  md.use(utils.lintLinks());
   md.render(file.content);
 }
 
