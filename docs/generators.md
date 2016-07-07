@@ -234,7 +234,7 @@ When used by command line, Generate's CLI will then use node's `require()` syste
 The primary difference between "generators" and "plugins" is how they're registered, but there are a few other minor differences:
 
 |  | **Plugin** | **Generator** | 
-| --- | --- | --- |
+| --- | --- | --- | --- | --- | --- | --- |
 | Registered with | [.use](plugins.md#use) method | [.register](#register) method or [.generator](#generator) method |
 | Instance | Loaded onto "current" `Generate` instance | A `new Generate()` instance is created for every generator registered |
 | Invoked | Immediately | `.register` deferred (lazy), `.generator` immediately |

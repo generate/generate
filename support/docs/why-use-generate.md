@@ -1,5 +1,6 @@
 ---
 title: Why use Generate?
+toc: true
 ---
 
 > There are other project generators out there, why should you spend your time learning to use Generate?
@@ -31,7 +32,7 @@ On the other side of the spectrum is Slush, a functional solution that is easy t
 
 * **Flow control**: You can only run one generator at a time
 * **Composability**: Generators cannot be nested or used as plugins, so lots of commonly needed things get re-written over and over in generators.
-*
+
 ## Generate: Best of both worlds
 
 ### Expressive API

@@ -2,29 +2,29 @@
 
 This table shows how Generate compares to other frameworks.
 
-| **Feature** | **Google's Yeoman** | **Slush** | **Generate** | 
-| --- | --- | --- | --- | --- | --- | --- |
-| License | BSD-2-Clause © Google | MIT | MIT |
+| **Feature** | **Generate** | **Google's Yeoman** | **Slush** | 
+| --- | --- | --- | --- |
+| License | MIT | BSD-2-Clause © Google | MIT |
+| Learning curve | small | steep | small |
 | CLI | yes | yes | yes |
-| API | yes | gulp | yes |
-| Easy to unit test | no | yes | yes |
-| Tasks | no | gulp | yes |
-| Streams (gulp plugins) | no | yes | yes |
-| Generators | yes | gulpfiles | yes |
-| Sub-generators | kind-of | no | yes |
-| "Shared" instances | kind-of | no | yes |
-| Template rendering | ejs | no | any engine |
-| Template collections | no | no | yes |
-| Supports assemble plugins | no | no | yes |
-| Register helpers | no | no | yes |
-| Register Async helpers | no | no | yes |
-| Routes | no | no | yes |
-| Middleware | no | no | yes |
-| Instance plugins | no | no | yes |
-| Config store | yes | no | yes |
-| User interactions | yes | via plugins | yes |
-| Flow control | prototype method names | tasks | tasks |
-| Learning curve | steep | small | small |
+| API | yes | yes | gulp |
+| Easy to unit test | yes | no | yes |
+| Tasks | yes | no | gulp |
+| Streams | yes | kind of | yes |
+| Generators | yes | yes | gulpfiles |
+| Sub-generators | yes | kind of | no |
+| Template rendering | any engine | ejs | no |
+| Template collections | yes | no | no |
+| Supports assemble plugins | yes | no | no |
+| Register helpers | yes | no | no |
+| Register Async helpers | yes | no | no |
+| Render cycle | yes | no | no |
+| Middleware | yes | no | no |
+| Plugins | yes | no | no |
+| Pipeline plugins | yes | no | yes |
+| Config store | yes | yes | no |
+| User interactions | yes | during "prompting" stage | via plugins |
+| Flow control | tasks | prototype method names | tasks |
 
 ## Templates
 
@@ -58,11 +58,11 @@ Yeoman's concept of "tasks" is [Prototype methods as actions](http://yeoman.io/a
 
 **Slush**
 
-Provided by [gulp][].
+Provided by [gulp](http://gulpjs.com).
 
 **Generate**
 
-Same behavior and API as [gulp][] tasks (generate uses [bach][], created by the gulp team for gulp v4), with a couple of additional features:
+Same behavior and API as [gulp](http://gulpjs.com) tasks (generate uses [bach](https://github.com/gulpjs/bach), created by the gulp team for gulp v4), with a couple of additional features:
 
 * Task-dependencies can be specified in any order with generate, but not in gulp (in gulp, )
 

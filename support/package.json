@@ -52,6 +52,7 @@
       "assemble-fs",
       "bach",
       "base",
+      "base-docs",
       "base-fs",
       "base-plugins",
       "consolidate",
@@ -81,8 +82,7 @@
       "verb",
       "vinyl",
       "vinyl-fs",
-      "yaml",
-      "base-docs"
+      "yaml"
     ]
   }
 }
