@@ -4,15 +4,9 @@
 
 Here are just a few of the features that make generate awesome:
 
-* If you know how to use [assemble][], [templates][], [update][], [verb][] or any other [base][] application, you will know how to begin authoring generators. The same holds true in reverse.
+* If you know how to use [assemble][], [templates][], [update][], [verb][] or any other [base][] application, you will know how to use generate. The same holds true in reverse.
 * Built on [assemble-core][], so all methods from [base][], [assemble][], and [templates][] are exposed on generate's API.
 * Supports [gulp][] and [assemble][] plugins
-* Generators can extend and use other generators
-* **generators**: generators are lazy, so (unless forced) generators are only invoked when they're actually used
-* **global generators**: runs globally-installed generators
-* **local generators**: runs locally-installed generators
-* **generator.js**: use a local `generator.js` for generating project-specific files or scaffolds.
-* **sub-generators**: Runs sub-generators using simple dot-notation. Supports any level of nesting!
 * **tasks**: Runs tasks from any generator or sub-generator, programmatically or via CLI. Tasks are powered by some of the same underlying libraries as [gulp][], so if you're familiar with gulp you will know how to create and use tasks with generate
 * **templates**: generate a single file or an entire project using templates
 * **collections**: first class support for template collections, including pagination, sorting, groups, and more.
@@ -22,12 +16,6 @@ Here are just a few of the features that make generate awesome:
 * Supports middleware that can be run on specific files or template collections, at specific points during the _build cycle_
 
 * **data**: gathers data from the user's environment to populate "hints" in user prompts and render templates
-* **prompts**: interact with the user, easily create custom prompts to get any data you need. Answers to prompts can be used as context for rendering templates, settings options, determining file names, directory structure, and anything else that requires user feedback.
-* **conflict detection**: prompts the user for feedback before overwriting existing files
-* **patient prompts**: ever started generating a project and had to start over? No problem! generate saves project-specific answers as "hints", allowing you to start over where you left off.
-* **`ask` helper**: it couldn't be easier to create prompts for data to be used in templates. Just do `<%= ask("name") %>` instead of `<%= name %>`. See the ["ask" helper docs](docs/ask-helper.md) for more details.
-* **`askInclude` helper**:
-* **install vendor libraries**:  optionally install dependencies, which are automatically detected based on files generated
 * **file system**: methods for interacting with the file system
 * **vinyl**: files and templates are [vinyl][] files
 * **streams**: full support for [gulp][] and [assemble][] plugins
@@ -36,6 +24,24 @@ Here are just a few of the features that make generate awesome:
 * **config stores**: persist configuration settings, global defaults, project-specific defaults, answers to prompts, and so on.
 * **Easy to test**: testing generators is easy, no special setup or helpers required.
 * **Well-tested**: Generate itself is well-tested, with more than 1,200 unit tests.
+
+### Generators
+
+* Generators can extend and use other generators
+* **generators**: generators are lazy, so (unless forced) generators are only invoked when they're actually used
+* **global generators**: runs globally-installed generators
+* **local generators**: runs locally-installed generators
+* **generator.js**: use a local `generator.js` for generating project-specific files or scaffolds.
+* **sub-generators**: Runs sub-generators using simple dot-notation. Supports any level of nesting!
+
+### User interaction
+
+* **prompts**: interact with the user, easily create custom prompts to get any data you need. Answers to prompts can be used as context for rendering templates, settings options, determining file names, directory structure, and anything else that requires user feedback.
+* **conflict detection**: prompts the user for feedback before overwriting existing files
+* **patient prompts**: ever started generating a project and had to start over? No problem! generate saves project-specific answers as "hints", allowing you to start over where you left off.
+* **`ask` helper**: it couldn't be easier to create prompts for data to be used in templates. Just do `<%= ask("name") %>` instead of `<%= name %>`. See the ["ask" helper docs](docs/ask-helper.md) for more details.
+* **`askInclude` helper**:
+* **install vendor libraries**:  optionally install dependencies, which are automatically detected based on files generated
 
 These are just a few of the features that make generate a powerful and fun to use.
 
@@ -95,10 +101,6 @@ Visit the [getting started guide][getting-started] to learn more.
 * [How does generate work?](#How does generate work?)
 * [Why should I use generate (instead of X)?](#why-use-generate)
 
-### Bonus features
-
-* run any [slush generator](https://github.com/)
-
 ## How does it work?
 
 For a detailed introduction, we recommend visiting Generate's [Getting Started Guide](#Getting Started Guide). Here are the core concepts:
@@ -122,3 +124,21 @@ Designed from the ground up to help developers be more productive, Generate is e
 **Docs**
 
 * [faq](faq.md)
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com
+[generate-dest]: https://github.com/generate/generate-dest
+[assemble]: https://github.com/assemble/assemble
+[templates]: https://github.com/jonschlinkert/templates
+[update]: https://github.com/update/update
+[verb]: https://github.com/verbose/verb
+[base]: https://github.com/node-base/base
+[assemble-core]: https://github.com/assemble/assemble-core
+[handlebars]: http://www.handlebarsjs.com/
+[lodash]: https://lodash.com/
+[swig]: https://github.com/paularmstrong/swig
+[pug]: http://jade-lang.com
+[consolidate]: https://github.com/visionmedia/consolidate.js
+[vinyl]: http://github.com/wearefractal/vinyl
+[generator]: https://github.com/thisandagain/generator
+[getting-started]: https://github.com/taunus/getting-started

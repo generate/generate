@@ -1,11 +1,11 @@
 'use strict';
 
 var path = require('path');
+var copy = require('copy');
+var del = require('delete');
 var drafts = require('gulp-drafts');
 var reflinks = require('gulp-reflinks');
 var format = require('gulp-format-md');
-var copy = require('copy');
-var del = require('delete');
 var paths = require('./lib/paths');
 var lib = require('./lib');
 
@@ -22,6 +22,13 @@ module.exports = function(app) {
     copy('*.png', paths.docs(), cb);
   });
 
+  app.task('reflinks', function(cb) {
+    app.pkg.union('verb.reflinks', app.cache.reflinks || []);
+    app.pkg.logInfo('updated package.json with:', {reflinks: app.cache.reflinks || []});
+    app.pkg.save();
+    cb();
+  });
+
   app.task('docs', ['clean', 'copy'], function(cb) {
     app.layouts('docs/layouts/*.md', {cwd: paths.cwd()});
     app.docs('docs/*.md', {cwd: paths.cwd(), layout: 'default'});
@@ -29,10 +36,13 @@ module.exports = function(app) {
     return app.toStream('docs')
       .pipe(drafts())
       .pipe(app.renderFile('*'))
-      // .pipe(reflinks())
       .pipe(format())
-      .pipe(app.dest(paths.docs()));
+      .pipe(reflinks())
+      .pipe(app.dest(function(file) {
+        app.union('cache.reflinks', file._reflinks);
+        return paths.docs();
+      }));
   });
 
-  app.task('default', ['docs']);
+  app.task('default', ['docs', 'reflinks']);
 };

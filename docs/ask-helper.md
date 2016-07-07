@@ -88,3 +88,6 @@ module.exports = function(app) {
 ```
 
 Now, you can use the `ask` helper with these variables anywhere in any templates in your generator project, and the user will only be prompted once for each variable.
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com

@@ -61,6 +61,6 @@ Additionally:
 
 This can continue indefinitely as long as the plugin returns a function and the receiving object has `.use`/`.run` functions.
 
-## Generaters
+## Generators
 
 When plugins are [registered by name](docs/generators.md), they are referred to as "generators". See the [generator documentation](docs/generators.md) for more details.

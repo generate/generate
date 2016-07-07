@@ -49,3 +49,6 @@ Display a help menu with all available commands:
 ```sh
 $ generate help
 ```
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com

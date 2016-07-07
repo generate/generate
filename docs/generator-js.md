@@ -1,4 +1,8 @@
-# Generatefile
+---
+title: generatefile.js
+related:
+  doc: ['generators', 'sub-generators', 'installing-generators', 'micro-generators']
+---
 
 Each time `generate` is run, Generate's CLI looks for an `generator.js` in the current working directory.
 
@@ -6,17 +10,15 @@ Each time `generate` is run, Generate's CLI looks for an `generator.js` in the c
 
 Generate's CLI attempts to:
 
-* Load a local installation of the Generate library using node's `require()` system, falling back to global installation if not found.
-* Load the configuration from `generator.js` using node.js `require()` system
-* Register it as the ["default" generator](generators.md#default-generator)
-* Execute any tasks or generators you've specified for it to run.
-* If multiple task or generator names are specified on the command line, Generate's CLI will attempt to run
+1. Load a local installation of the Generate library using node's `require()` system, falling back to a global installation if not found locally.
+1. Load the configuration from `generator.js` using node.js `require()` system
+1. Register the configuration as the ["default" generator](generators.md#default-generator)
+1. Execute any tasks or generators you've specified for it to run.
+1. If multiple task or generator names are specified on the command line, Generate's CLI will attempt to run
 
 **If `generator.js` does not exist**
 
-Generate's CLI attempts to:
-
-* Find any generators you've specified for it to run by using node's `require()` system to search for locally installed modules with the name `generator-*`,
+Generate's CLI attempts to find any generators you've specified for it to run, using node's `require()` system to search for locally and globally installed modules with the name `generator-*`.
 
 ## Creating a generator.js
 
@@ -60,3 +62,22 @@ module.exports = function(app) {
 * [installing-generators](installing-generators.md)
 * [generators](generators.md)
 * [tasks](tasks.md)
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com
+[generate-dest]: https://github.com/generate/generate-dest
+[assemble]: https://github.com/assemble/assemble
+[templates]: https://github.com/jonschlinkert/templates
+[update]: https://github.com/update/update
+[verb]: https://github.com/verbose/verb
+[base]: https://github.com/node-base/base
+[assemble-core]: https://github.com/assemble/assemble-core
+[handlebars]: http://www.handlebarsjs.com/
+[lodash]: https://lodash.com/
+[swig]: https://github.com/paularmstrong/swig
+[pug]: http://jade-lang.com
+[consolidate]: https://github.com/visionmedia/consolidate.js
+[vinyl]: http://github.com/wearefractal/vinyl
+[generator]: https://github.com/thisandagain/generator
+[getting-started]: https://github.com/taunus/getting-started
+[gray-matter]: https://github.com/jonschlinkert/gray-matter

@@ -32,4 +32,5 @@ app.generate('bar', function(err) {
 **API**
 
 * [register](api/register.md)
+* [generate](api/generate.md)
 * [plugins](api/plugins.md)

@@ -20,7 +20,7 @@ If you're not familiar with how plugins work, it might help to review that docum
 
 ## .run
 
-The `.run` method is used for running the functions stored on the `.fns` array. 
+The `.run` method is used for running the functions stored on the `.fns` array.
 
 **How do functions get on the `.fns` array?**
 
@@ -70,7 +70,7 @@ console.log(app.fns);
 
 ## Usage
 
-When `.run` is called, it iterates over the `.fns` array and calls each function in the array on the given `obj`. 
+When `.run` is called, it iterates over the `.fns` array and calls each function in the array on the given `obj`.
 
 **Example**
 

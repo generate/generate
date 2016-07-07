@@ -83,3 +83,7 @@ See the [Best Practices Guide](https://github.com/generate/best-practices/naming
 
 * [renaming files](#renaming-files): how to rename templates to destination files
 * [automatically renaming templates](#renaming-templates): how to automatically rename templates based on values defined in YAML front matter
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com
+[generate-dest]: https://github.com/generate/generate-dest

@@ -1,5 +1,5 @@
 ---
-title: Introduction to Generaters
+title: Introduction to Generators
 related:
   doc: ['tasks', 'generator-js', 'installing-generators', 'symlinking-generators', 'sub-generators']
 ---
@@ -14,43 +14,51 @@ Learn how to create, register and run generators.
 - [ ] explain how the `base` instance works
 - [ ] document `env`
 
+**Prerequisites**
+
+- If you're not familiar with plugins yet, it might be a good idea to review the [plugins docs](api/plugins.md) first.
+
 
 ## What is a generator?
 
-Generaters are [plugins](api/plugins.md) that are registered by name. If you're not familiar with plugins yet, it might be a good idea to review the [plugins docs](api/plugins.md) first.
+Generators provide a convenient way of "wrapping" code that should be executed on-demand, whilst also _namespacing_ the code being wrapped, so that it can be explicitly targeted via CLI or API using a consistent and intuitive syntax.
 
-The primary difference between "generators" and "plugins" is how they're registered, but there are a few other minor differences:
-
-|  | **Plugin** | **Generater** |
-| --- | --- | --- |
-| Registered with | [.use](plugins.md#use) method | [.register](#register) method or [.generator](#generator) method |
-| Instance | Loaded onto "current" `Generate` instance | A `new Generate()` instance is created for every generator registered |
-| Invoked | Immediately | `.register` deferred (lazy), `.generator` immediately |
-| Run using | [.run](plugins.md#run): all plugins are run at once | `.generate`: only specified plugin(s) are run |
+You can also think of generators as "containers for tasks". For example, this is how you
 
 ## Creating generators
 
-An generator function takes an instance of `Generate` as the first argument.
+Generators are [plugins](api/plugins.md) that are registered by name. The only difference between a _generator_ and a plugin is how they are registered.
 
 **Example**
 
+Given this function:
+
 ```js
-function generator(app) {
-  // do generator stuff
+function foo(app) {
 }
+
+// use as a plugin
+app.use(foo);
+// register as a generator
+app.register('my-generator', foo);
 ```
-
-
 
 ## Registering generators
 
-Register a generator function with the given `name`.
+When a generator is registered using the `.register` method, it's added to the `app.generators` object.
 
 ```js
-app.register(name, fn);
+app.register('my-generator', function() {});
+console.log(app.generators);
+{'my-generator': {...}};
 ```
 
-Generaters may be registered using either of the following methods:
+### Namespacing
+
+When the generator is registered with the `.register` methodThe first difference between
+
+
+Generators may be registered using either of the following methods:
 
 * `.register`: if the plugin should not be invoked until it's called by `.generate` (stays lazy while it's cached, this is preferred)
 * `.generator`: if the plugin needs to be invoked immediately when registered
@@ -80,7 +88,7 @@ However, there are always exceptions. If you create custom code and notice that 
 
 ## Running generators
 
-Generaters and their tasks can be run by command line or API.
+Generators and their tasks can be run by command line or API.
 
 **Command line**
 
@@ -119,7 +127,7 @@ app.generate(['foo', 'bar'], function(err) {
 
 ## Resolving generators
 
-Generaters can be published to npm and installed globally or locally. But you there is no requirement that generators must be published. You can also create custom generators and register them using the [.register](#register) or [.generator](#generator) methods.
+Generators can be published to npm and installed globally or locally. But you there is no requirement that generators must be published. You can also create custom generators and register them using the [.register](#register) or [.generator](#generator) methods.
 
 This provides a great deal of flexibility, but it also means that we need a strategy for _finding generators_ when `generate` is run from the command line.
 
@@ -213,3 +221,14 @@ There is a catch...
 _The only way to register a `default` generator is by creating an [generator.js](generator-js.md) in the current working directory._
 
 When used by command line, Generate's CLI will then use node's `require()` system to get the function exported by `generator.js` and use it as the `default` generator.
+
+## Generators versus plugins
+
+The primary difference between "generators" and "plugins" is how they're registered, but there are a few other minor differences:
+
+|  | **Plugin** | **Generator** |
+| --- | --- | --- |
+| Registered with | [.use](plugins.md#use) method | [.register](#register) method or [.generator](#generator) method |
+| Instance | Loaded onto "current" `Generate` instance | A `new Generate()` instance is created for every generator registered |
+| Invoked | Immediately | `.register` deferred (lazy), `.generator` immediately |
+| Run using | [.run](plugins.md#run): all plugins are run at once | `.generate`: only specified plugin(s) are run |

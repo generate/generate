@@ -66,6 +66,7 @@ These are just a few of the features that make generate a powerful and fun to us
 - Promote new projects by letting users get started with a sample app
 
 
+
 ## Core concepts
 
 TODO: explain why each is valuable

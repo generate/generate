@@ -33,3 +33,5 @@ app.generate('foo', function(err) {
 
 * [generator](api/generator.md)
 * [plugins](api/plugins.md)
+
+[base-plugins]: https://github.com/node-base/base-plugins

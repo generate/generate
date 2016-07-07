@@ -11,14 +11,14 @@ related:
 
 Generate's API has methods for [creating](#creating-generators), [registering](#registering-generators), [resolving](#resolving-generators) and [running](#running-generators) generators.
 
-## Generaters
+## Generators
 
 All "generates" are accomplished using plugins called [generators](#generators).
 
 **What are generators?**
 
-- Generaters are functions that are registered by name, and can be run by [command line](#command-line) or [API](#api).
-- Generaters may be published to [npm](https://www.npmjs.com) using the `generator-foo` naming convention, where `foo` is the [alias](#aliases) of your generator.
+- Generators are functions that are registered by name, and can be run by [command line](#command-line) or [API](#api).
+- Generators may be published to [npm](https://www.npmjs.com) using the `generator-foo` naming convention, where `foo` is the [alias](#aliases) of your generator.
 - Published generators can be installed locally or globally.
 
 ## Command line

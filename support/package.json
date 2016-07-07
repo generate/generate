@@ -18,27 +18,26 @@
   },
   "devDependencies": {
     "base-generators": "^0.4.1",
+    "base-pkg": "^0.2.4",
     "copy": "^0.2.3",
     "delete": "^0.3.2",
     "export-files": "^2.1.1",
+    "generate-collections": "^0.3.4",
+    "generate-defaults": "^0.3.1",
     "gulp-drafts": "^0.2.0",
     "gulp-format-md": "^0.1.9",
     "gulp-reflinks": "^0.1.0",
     "has-value": "^0.3.1",
     "is-valid-app": "^0.2.0",
+    "lazy-cache": "^2.0.1",
     "memoize-path": "^0.1.2",
     "pretty-remarkable": "^0.3.6",
     "remarkable": "^1.6.2",
     "set-blocking": "^2.0.0",
+    "strip-color": "^0.1.0",
     "template-helpers": "^0.6.3",
     "through2": "^2.0.1",
     "verb-toc": "^0.2.3"
-  },
-  "dependencies": {
-    "generate-collections": "^0.3.4",
-    "generate-defaults": "^0.3.1",
-    "lazy-cache": "^2.0.1",
-    "strip-color": "^0.1.0"
   },
   "verb": {
     "plugins": [
@@ -46,6 +45,42 @@
     ],
     "lint": {
       "reflinks": true
-    }
+    },
+    "reflinks": [
+      "base-plugins",
+      "gulp",
+      "generate-dest",
+      "assemble",
+      "templates",
+      "update",
+      "verb",
+      "base",
+      "assemble-core",
+      "handlebars",
+      "lodash",
+      "swig",
+      "pug",
+      "consolidate",
+      "vinyl",
+      "generator",
+      "getting-started",
+      "gray-matter",
+      "express",
+      "handlers",
+      "layout",
+      "layout-stack",
+      "layouts",
+      "partials",
+      "context",
+      "assemble-fs",
+      "base-fs",
+      "vinyl-fs",
+      "gulp-rename",
+      "gulp-extname",
+      "key",
+      "generate",
+      "handlebars-helpers",
+      "bach"
+    ]
   }
 }

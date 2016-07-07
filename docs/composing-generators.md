@@ -133,3 +133,7 @@ module.exports = function(app, base) {
   app.task('default', Object.keys(app.tasks));
 };
 ```
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com
+[generate-dest]: https://github.com/generate/generate-dest

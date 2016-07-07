@@ -113,3 +113,6 @@ You're now a master at running tasks with generate! You can do anything with gen
 **Next steps**
 
 But generate does much more than this. For a more in-depth introduction, we highly recommend visiting the [getting started guide][getting-started].
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com

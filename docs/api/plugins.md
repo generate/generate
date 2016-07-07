@@ -66,3 +66,5 @@ When plugins are [registered by name](docs/generators.md), they are referred to 
 
 * [generator](api/generator.md)
 * [register](api/register.md)
+
+[base-plugins]: https://github.com/node-base/base-plugins

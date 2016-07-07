@@ -1,5 +1,5 @@
 ---
-title: generater
+title: generator
 related:
   api: ['register', 'plugins']
 ---

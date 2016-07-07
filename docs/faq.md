@@ -56,3 +56,7 @@ See the [Best Practices Guide](https://github.com/generate/best-practices/naming
 **Docs**
 
 * [features](features.md)
+
+[base-plugins]: https://github.com/node-base/base-plugins
+[gulp]: http://gulpjs.com
+[generate-dest]: https://github.com/generate/generate-dest

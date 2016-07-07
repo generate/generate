@@ -1,25 +1,72 @@
 ---
 title: Sub generators
-related: 
+related:
   docs: ['installing-generators', 'composing-generators', 'generators']
 ---
 
-Generaters provide a convenient way of wrapping code that should be executed on-demand, whilst also "namespacing" the code being wrapped, and making it available to be executed using a consistent and intuitive syntax by either CLI or API.
+Generators provide a convenient way of "wrapping" code that should be executed on-demand, whilst also _namespacing_ the code being wrapped, so that it can be explicitly targeted via CLI or API using a consistent and intuitive syntax.
 
+**Example**
 
-TBC...
+In the following example, we'll register two sub-generators, `foo` and `bar` (this is just a preview, we'll explain this code in more detail further on):
+
+```js
+// -- generator.js --
+module.exports = function(app) {
+  app.register('foo', function() {});
+  app.register('bar', function() {});
+};
+```
+
+**Run from the command line**
+
+We can now run the generators from the command line:
+
+```sh
+$ gen foo bar
+```
+
+**Run using the API**
+
+Or pass one or more generator names to the `.generate` method:
+
+```js
+module.exports = function(app) {
+  app.register('foo', function() {});
+  app.register('bar', function() {});
+
+  app.generate(['foo', 'bar'], function(err) {
+    if (err) return console.log(err);
+  });
+};
+```
+
+It's recommended that `.generate` be wrapped in a [task](docs/tasks.md), to delay execution until specified by the user:
+
+```js
+module.exports = function(app) {
+  app.register('foo', function() {});
+  app.register('bar', function() {});
+
+  app.task('default', function(cb) {
+    app.generate(['foo', 'bar'], cb);
+  });
+};
+```
 
 
 ## TODO
 
-- [ ] explain how nested generators work
-- [ ] command line syntax
-- [ ] API syntax
+* [ ] explain how nested generators work
+* [ ] command line syntax
+* [ ] API syntax
 
 ## Pre-requisites
 
-- [plugins](api/plugins.md)
-- [generators](generators.md)
+* [plugins](api/plugins.md)
+* [generators](generators.md)
+* [generator.js](generator-js.md)
+
 
 ## Nesting generators
 
@@ -45,8 +92,8 @@ module.exports = function(app, base) {
     });
   });
 
-  // run sub-generators programatically (we wrap the call 
-  // to `.generate` in a task to defer execution of the 
+  // run sub-generators programatically (we wrap the call
+  // to `.generate` in a task to defer execution of the
   // generator until the task is run)
   app.task('default', function(cb) {
     app.generate('foo.bar.baz', cb);
@@ -76,6 +123,6 @@ $ gen foo:default
 $ gen foo.bar
 # run the `default` task sub-generator `foo.bar.baz`
 $ gen foo.bar.baz
-# or 
+# or
 $ gen foo.bar.baz:default
 ```
