@@ -100,8 +100,6 @@ plugins.runner(App, options, argv, function(err, app, runnerContext) {
 
       app.generate(arr, function(err) {
         if (err) return handleErr(app, err);
-        app.emit('done');
-        process.exit();
       });
     });
   });
