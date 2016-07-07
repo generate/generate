@@ -66,7 +66,11 @@ Generate.prototype.initGenerate = function(opts) {
     appname: 'generate'
   });
 
-  this.define('home', path.resolve.bind(path, os.homedir()));
+  this.define('home', function() {
+    var args = [].slice.call(arguments);
+    return path.resolve.apply(path, [os.homedir(), 'update'].concat(args));
+  });
+
   this.define('destBase', {
     configurable: true,
     set: function(val) {
@@ -165,6 +169,10 @@ Generate.initGenerateMiddleware = function(app) {
       var key = askName;
       var val = obj[key];
       if (val) view[key] = val;
+      if (key === 'path') {
+        view.base = path.dirname(view.path);
+        app.options.dest = view.base;
+      }
     }
 
     if (typeof askName === 'string') {
@@ -243,6 +251,7 @@ Generate.initGenerateCLI = function(app, options) {
   app.use(plugins.questions());
   app.use(plugins.loader());
   app.use(plugins.npm());
+  app.use(plugins.prompt());
 
   // built-in view collections
   app.create('templates');
