@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 process.env.GENERATE_CLI = true;
-require('set-blocking')(true);
+process.on('exit', function() {
+  require('set-blocking')(true);
+});
 
 var util = require('util');
 var App = require('..');
@@ -11,12 +13,7 @@ var tasks = require('../lib/tasks');
 var utils = require('../lib/utils');
 var pkg = require('../package');
 var args = process.argv.slice(2);
-var argv = require('yargs-parser')(args, {
-  alias: {
-    verbose: 'v',
-    version: 'V'
-  }
-});
+var argv = utils.parseArgs(args);
 
 /**
  * Listen for errors on all instances
