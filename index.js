@@ -13,6 +13,9 @@ var path = require('path');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var utils = require('./lib/utils');
+var args = process.argv.slice(2);
+var argv = utils.parseArgs(args);
+var setArgs;
 
 /**
  * Create an instance of `Generate` with the given `options`
@@ -30,8 +33,14 @@ function Generate(options) {
     return new Generate(options);
   }
   Assemble.call(this, options);
+  this.paths = this.paths || {};
   this.is('generate');
   this.initGenerate(this.options);
+
+  if (!setArgs) {
+    setArgs = true;
+    this.base.option(argv);
+  }
 }
 
 /**
@@ -71,39 +80,23 @@ Generate.prototype.initGenerate = function(opts) {
     return path.resolve.apply(path, [os.homedir(), 'update'].concat(args));
   });
 
-  this.define('destBase', {
+  Object.defineProperty(this.paths, 'src', {
     configurable: true,
     set: function(val) {
-      this._destBase = val;
+      self.cache.src = val;
     },
     get: function() {
-      return this._destBase || this.options.dest || this.cwd;
+      return path.resolve(argv.src || self.cache.src || self.options.src);
     }
   });
 
-  // create `macros` store
-  Object.defineProperty(this, 'macros', {
+  Object.defineProperty(this.paths, 'dest', {
     configurable: true,
+    set: function(val) {
+      self.cache.dest = val;
+    },
     get: function() {
-      return new utils.MacroStore({name: 'generate-macros'});
-    }
-  });
-
-  // create `app.common` store
-  Object.defineProperty(this, 'common', {
-    configurable: true,
-    get: function() {
-      return new utils.Store('common-config');
-    }
-  });
-
-  // create `app.globals` store
-  Object.defineProperty(this, 'globals', {
-    configurable: true,
-    get: function() {
-      return new utils.Store('generate-globals', {
-        cwd: utils.resolveDir('~/')
-      });
+      return path.resolve(argv.dest || self.cache.dest || self.options.dest || self.cwd);
     }
   });
 
@@ -136,6 +129,12 @@ Generate.prototype.initGenerate = function(opts) {
  * Initialize CLI-specific plugins and view collections.
  */
 
+Generate.prototype.setPath = function(key, filepath) {
+  this.define('_paths', this._paths || {});
+  this._paths[key] = filepath;
+  return this;
+};
+
 Generate.prototype.initGenerateCLI = function(options) {
   Generate.initGenerateCLI(this, options);
 };
@@ -150,6 +149,32 @@ Generate.prototype.initGenerateCLI = function(options) {
 Generate.prototype.handleErr = function(err) {
   return Generate.handleErr(this, err);
 };
+
+// create `macros` store
+Object.defineProperty(Generate.prototype, 'macros', {
+  configurable: true,
+  get: function() {
+    return new utils.MacroStore({name: 'generate-macros'});
+  }
+});
+
+// create `app.common` store
+Object.defineProperty(Generate.prototype, 'common', {
+  configurable: true,
+  get: function() {
+    return new utils.Store('common-config');
+  }
+});
+
+// create `app.globals` store
+Object.defineProperty(Generate.prototype, 'globals', {
+  configurable: true,
+  get: function() {
+    return new utils.Store('generate-globals', {
+      cwd: utils.resolveDir('~/')
+    });
+  }
+});
 
 /**
  * Middleware
@@ -199,6 +224,10 @@ Generate.initGenerateMiddleware = function(app) {
   app.preWrite(/./, utils.renameFile(app));
   app.onLoad(/(^|[\\\/])templates[\\\/]/, function(view, next) {
     var userDefined = app.home('templates', view.basename);
+    if (utils.exists(userDefined)) {
+      view.contents = fs.readFileSync(userDefined);
+    }
+
     if (utils.exists(userDefined)) {
       view.contents = fs.readFileSync(userDefined);
     }

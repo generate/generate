@@ -33,7 +33,6 @@ App.on('generate.preInit', function(app) {
 
 App.on('generate.postInit', function(app) {
   app.option(argv);
-
   if (app.macros.has(args)) {
     app.macros.set(args);
     var macro = {};
