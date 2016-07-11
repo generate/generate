@@ -18,7 +18,7 @@ The [Guide to Idiomatic Contributing](https://github.com/jonschlinkert/idiomatic
 
 Please make sure you're creating one in the right place:
 
-- do you have a template syntax question? Like how to accomplish something with handlebars? The best place to get answers for this is [stackoverflow.com](https://github.com/stackoverflow.com), the [handlebars docs](handlebarsjs.com), or the documentation for the template engine you're using.
+- Please ask implementation questions on [stackoverflow.com](https://github.com/stackoverflow.com)
 - Are you having an issue with an Generate feature that is powered by an underlying lib? This is sometimes difficult to know, but sometimes it can be pretty easy to find out. For example, if you use a glob pattern somewhere and you found what you believe to be a matching bug, that would probably be an issue for [node-glob][] or [micromatch][]
 
 **Creating an issue**
