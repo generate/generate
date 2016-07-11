@@ -21,10 +21,6 @@ var argv = utils.parseArgs(args);
 
 App.on('generate.preInit', function(app) {
   app.set('cache.argv', argv);
-  app.on('error', function(err) {
-    console.log(err.stack);
-    process.exit(1);
-  });
 });
 
 /**
@@ -56,7 +52,38 @@ App.on('generate.postInit', function(app) {
       app.log.success('saved default tasks:', args);
     }
   }
+
+  taskLoggers(app.base);
 });
+
+/**
+ * Setup listeners
+ */
+
+function taskLoggers(base) {
+  function logger() {
+    if (argv.silent || base.options.silent) return;
+    console.log.apply(console, arguments);
+  }
+
+  base.on('build', function(event, build) {
+    if (build && event === 'starting' || event === 'finished') {
+      if (build.isSilent) return;
+      var prefix = event === 'finished' ? utils.log.success + ' ' : '';
+      var key = build.key.replace(/generate\./, '');
+      logger(utils.log.timestamp, event, key, prefix + utils.log.red(build.time));
+    }
+  });
+
+  base.on('task', function(event, task) {
+    console.log(arguments)
+    if (task && event === 'starting' || event === 'finished') {
+      if (task.isSilent) return;
+      var key = task.key.replace(/generate\./, '');
+      logger(utils.log.timestamp, event, key, utils.log.red(task.time));
+    }
+  });
+}
 
 /**
  * Initialize Runner
