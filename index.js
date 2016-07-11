@@ -10,6 +10,7 @@
 var fs = require('fs');
 var os = require('os');
 var path = require('path');
+var debug = require('debug')('generate');
 var Assemble = require('assemble-core');
 var plugins = require('./lib/plugins');
 var utils = require('./lib/utils');
@@ -32,10 +33,12 @@ function Generate(options) {
   if (!(this instanceof Generate)) {
     return new Generate(options);
   }
+
   Assemble.call(this, options);
   this.paths = this.paths || {};
   this.is('generate');
   this.initGenerate(this.options);
+  debug('initializing');
 
   if (!setArgs) {
     setArgs = true;
@@ -50,22 +53,31 @@ function Generate(options) {
 Assemble.extend(Generate);
 
 /**
+ * Initialize Stores
+ */
+
+plugins.stores(Generate.prototype);
+
+/**
  * Initialize generate defaults
  */
 
 Generate.prototype.initGenerate = function(opts) {
   Generate.emit('generate.preInit', this);
+  this.set('aliasRegex', /^(assemble(?:-generate)?|base|generate|helper|updater|verb(?:-generate)?)-/);
   var self = this;
 
   // add `runner` to `app.cache.data`
-  this.data({runner: require('./package')});
+  utils.getter(this, 'cache.data.runner', function() {
+    return require('./package');
+  });
 
   // custom lookup function for resolving generators
   this.option('lookup', Generate.lookup);
 
   // custom `toAlias` function for resolving generators by alias
   this.option('toAlias', function(key) {
-    return key.replace(/^generate-/, '');
+    return key.replace(self.get('aliasRegex'), '');
   });
 
   // format help menu
@@ -78,16 +90,6 @@ Generate.prototype.initGenerate = function(opts) {
   this.define('home', function() {
     var args = [].slice.call(arguments);
     return path.resolve.apply(path, [os.homedir(), 'update'].concat(args));
-  });
-
-  Object.defineProperty(this.paths, 'src', {
-    configurable: true,
-    set: function(val) {
-      self.cache.src = val;
-    },
-    get: function() {
-      return path.resolve(argv.src || self.cache.src || self.options.src);
-    }
   });
 
   Object.defineProperty(this.paths, 'dest', {
@@ -129,12 +131,6 @@ Generate.prototype.initGenerate = function(opts) {
  * Initialize CLI-specific plugins and view collections.
  */
 
-Generate.prototype.setPath = function(key, filepath) {
-  this.define('_paths', this._paths || {});
-  this._paths[key] = filepath;
-  return this;
-};
-
 Generate.prototype.initGenerateCLI = function(options) {
   Generate.initGenerateCLI(this, options);
 };
@@ -150,34 +146,8 @@ Generate.prototype.handleErr = function(err) {
   return Generate.handleErr(this, err);
 };
 
-// create `macros` store
-Object.defineProperty(Generate.prototype, 'macros', {
-  configurable: true,
-  get: function() {
-    return new utils.MacroStore({name: 'generate-macros'});
-  }
-});
-
-// create `app.common` store
-Object.defineProperty(Generate.prototype, 'common', {
-  configurable: true,
-  get: function() {
-    return new utils.Store('common-config');
-  }
-});
-
-// create `app.globals` store
-Object.defineProperty(Generate.prototype, 'globals', {
-  configurable: true,
-  get: function() {
-    return new utils.Store('generate-globals', {
-      cwd: utils.resolveDir('~/')
-    });
-  }
-});
-
 /**
- * Middleware
+ * Initialize middleware
  */
 
 Generate.initGenerateMiddleware = function(app) {
@@ -221,6 +191,7 @@ Generate.initGenerateMiddleware = function(app) {
     }
   });
 
+  app.preRender(/./, utils.renameFile(app));
   app.preWrite(/./, utils.renameFile(app));
   app.onLoad(/(^|[\\\/])templates[\\\/]/, function(view, next) {
     var userDefined = app.home('templates', view.basename);
@@ -240,6 +211,10 @@ Generate.initGenerateMiddleware = function(app) {
     utils.parser.parse(view, next);
   });
 };
+
+/**
+ * Initialize listeners
+ */
 
 Generate.initGenerateListeners = function(app) {
   app.on('option', function(key, val) {
@@ -261,23 +236,20 @@ Generate.initGenerateListeners = function(app) {
       search.app = app.generator(search.name, require(resolved.path));
     }
   });
-
-  app.on('ask', function(answerVal, answerKey, question) {
-    if (typeof answerVal === 'undefined') {
-      var segs = answerKey.split('author.');
-      if (segs.length > 1) {
-        app.questions.answers[answerKey] = app.common.get(segs.pop());
-      }
-    }
-  });
 };
 
+/**
+ * Initialize plugins for CLI
+ */
+
 Generate.initGenerateCLI = function(app, options) {
+  var opts = {globals: this.globals, store: this.store};
   plugins.runner.loadPlugins(app);
+  app.use(plugins.logger());
+  app.use(plugins.questions(opts));
   app.use(plugins.rename({replace: true}));
   app.use(plugins.conflicts(options));
   app.use(plugins.runtimes(options));
-  app.use(plugins.questions());
   app.use(plugins.loader());
   app.use(plugins.npm());
   app.use(plugins.prompt());
@@ -328,45 +300,6 @@ Generate.lookup = function(key) {
   }
   return patterns;
 };
-
-/**
- * Expose logging methods
- */
-
-Object.defineProperty(Generate.prototype, 'log', {
-  configurable: true,
-  get: function() {
-    function log() {
-      return console.log.bind(console, utils.log.timestamp).apply(console, arguments);
-    }
-
-    log.warn = function(msg) {
-      return utils.logger('warning').apply(null, arguments);
-    };
-
-    log.warning = function(msg) {
-      return utils.logger('warning', 'yellow').apply(null, arguments);
-    };
-
-    log.success = function() {
-      return utils.logger('success', 'green').apply(null, arguments);
-    };
-
-    log.ok = function() {
-      return utils.logger('success').apply(null, arguments);
-    };
-
-    log.info = function() {
-      return utils.logger('info', 'cyan').apply(null, arguments);
-    };
-
-    log.error = function() {
-      return utils.logger('error', 'red').apply(null, arguments);
-    };
-    log.__proto__ = utils.log;
-    return log;
-  }
-});
 
 /**
  * Expose the `Generate` constructor
