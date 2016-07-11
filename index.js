@@ -67,11 +67,6 @@ Generate.prototype.initGenerate = function(opts) {
   this.set('aliasRegex', /^(assemble(?:-generate)?|base|generate|helper|updater|verb(?:-generate)?)-/);
   var self = this;
 
-  // add `runner` to `app.cache.data`
-  utils.getter(this, 'cache.data.runner', function() {
-    return require('./package');
-  });
-
   // custom lookup function for resolving generators
   this.option('lookup', Generate.lookup);
 
@@ -299,6 +294,34 @@ Generate.lookup = function(key) {
     patterns.unshift(key);
   }
   return patterns;
+};
+
+/**
+ * Setup listeners
+ */
+
+Generate.logTasks = function(base, argv) {
+  function logger() {
+    if (argv.silent || base.options.silent) return;
+    console.log.apply(console, arguments);
+  }
+
+  base.on('build', function(event, build) {
+    if (build && event === 'starting' || event === 'finished') {
+      if (build.isSilent) return;
+      var prefix = event === 'finished' ? utils.log.success + ' ' : '';
+      var key = build.key.replace(/generate\./, '');
+      logger(utils.log.timestamp, event, key, prefix + utils.log.red(build.time));
+    }
+  });
+
+  base.on('task', function(event, task) {
+    if (task && event === 'starting' || event === 'finished') {
+      if (task.isSilent) return;
+      var key = task.key.replace(/generate\./, '');
+      logger(utils.log.timestamp, event, key, utils.log.red(task.time));
+    }
+  });
 };
 
 /**

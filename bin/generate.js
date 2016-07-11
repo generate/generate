@@ -53,37 +53,8 @@ App.on('generate.postInit', function(app) {
     }
   }
 
-  taskLoggers(app.base);
+  App.logTasks(app.base, argv);
 });
-
-/**
- * Setup listeners
- */
-
-function taskLoggers(base) {
-  function logger() {
-    if (argv.silent || base.options.silent) return;
-    console.log.apply(console, arguments);
-  }
-
-  base.on('build', function(event, build) {
-    if (build && event === 'starting' || event === 'finished') {
-      if (build.isSilent) return;
-      var prefix = event === 'finished' ? utils.log.success + ' ' : '';
-      var key = build.key.replace(/generate\./, '');
-      logger(utils.log.timestamp, event, key, prefix + utils.log.red(build.time));
-    }
-  });
-
-  base.on('task', function(event, task) {
-    console.log(arguments)
-    if (task && event === 'starting' || event === 'finished') {
-      if (task.isSilent) return;
-      var key = task.key.replace(/generate\./, '');
-      logger(utils.log.timestamp, event, key, utils.log.red(task.time));
-    }
-  });
-}
 
 /**
  * Initialize Runner
