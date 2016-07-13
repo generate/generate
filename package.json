@@ -1,7 +1,7 @@
 {
   "name": "generate",
   "description": "Command line tool and developer framework for scaffolding out new GitHub projects. Generate offers the robustness and configurability of Yeoman, the expressiveness and simplicity of Slush, and more powerful flow control and composability than either.",
-  "version": "0.8.7",
+  "version": "0.9.0",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "generate/generate",
@@ -139,7 +139,11 @@
   },
   "verb": {
     "run": true,
-    "toc": true,
+    "toc": {
+      "render": true,
+      "method": "preWrite",
+      "maxdepth": 2
+    },
     "layout": "common-minimal",
     "tasks": [
       "readme"
@@ -162,6 +166,7 @@
       "assemble-core",
       "bach",
       "base",
+      "common-config",
       "consolidate",
       "generate",
       "generate-dest",
