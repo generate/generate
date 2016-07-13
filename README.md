@@ -177,6 +177,8 @@ Note that all command line options are preceded by `--`, or `-` for abbreviation
 * `--no-install`: Don't automatically install `dependencies` or `devDependencies` after generating files.
 * `--no-hints`: Don't use hints in prompts
 
+See [options documentation](docs/options.md).
+
 ## Generators
 
 ### Discovering generators
