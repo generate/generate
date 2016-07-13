@@ -101,6 +101,7 @@ Generate.prototype.initGenerate = function(opts) {
   this.asyncHelper('ask', utils.ask(this));
 
   // load plugins
+  this.common = utils.common;
   this.use(plugins.store('generate'));
   this.use(plugins.generators());
   this.use(plugins.pipeline());

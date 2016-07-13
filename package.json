@@ -43,6 +43,7 @@
     "base-runtimes": "^0.2.0",
     "base-store": "^0.4.4",
     "camel-case": "^3.0.0",
+    "common-config": "^0.1.0",
     "data-store": "^0.16.0",
     "debug": "^2.2.0",
     "define-property": "^0.2.5",
