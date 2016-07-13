@@ -11,7 +11,7 @@ On one side of the spectrum, there are object-oriented, declarative solutions li
 
 ### Sprechen sie Yeoman?
 
-Authoring a generator for Yeoman is not unlike learning another language. Yeoman core team members and experienced contributors might be able to nagivate the API easiliy, but every part of the API is verbose and filled with nuanced concepts and abstractions that are unique to Yeoman, which makes it difficult and intimidating for newcomers.
+Authoring a generator for Yeoman is not unlike learning another language. Yeoman core team members and experienced contributors might be able to nagivate the API easily, but every part of the API is verbose and filled with nuanced concepts and abstractions that are unique to Yeoman, which makes it difficult and intimidating for newcomers.
 
 Here are some specific things we find lacking in Yeoman:
 
