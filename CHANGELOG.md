@@ -1,6 +1,6 @@
 #### key
 
-Changelog entries are categorized using the following labels _(from [keep-a-changelog](https://github.com/olivierlacan/keep-a-changelog)_):
+Changelog entries are classified using the following labels _(from [keep-a-changelog][]_):
 
 - `added`: for new features
 - `changed`: for changes in existing functionality
@@ -17,3 +17,11 @@ Changelog entries are categorized using the following labels _(from [keep-a-chan
 **Added**
 
 - [common-config][] will be used for storing user preferences. We haven't implemented any logic around this yet, but the `common-config` API is exposed on the `app.common` property, so you can begin using it in generators.
+
+
+[Unreleased]: https://github.com/generate/generate/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/generate/generate/compare/0.8.0...0.9.0
+
+[keep-a-changelog]: https://github.com/olivierlacan/keep-a-changelog
+[common-config]: https://github.com/jonschlinkert/common-config
+
