@@ -246,9 +246,7 @@ Changes are made in [CHANGELOG.md](changelog.md).
 
 #### key
 
-The following labels are used for identifying changes:
-
-_(from [keep-a-changelog](https://github.com/olivierlacan/keep-a-changelog)_)
+Changelog entries are categorized using the following labels _(from [keep-a-changelog](https://github.com/olivierlacan/keep-a-changelog)_):
 
 * `added`: for new features
 * `changed`: for changes in existing functionality
