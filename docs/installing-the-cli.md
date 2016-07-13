@@ -18,14 +18,6 @@ To verify that Generate's CLI is installed, run the following command:
 $ gen --version
 ```
 
-## init
-
-If it's your first time using generate, run `generate init` to set your global defaults.
-
-```sh
-gen init
-```
-
 ## help
 
 ```console

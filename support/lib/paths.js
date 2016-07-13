@@ -1,8 +1,9 @@
 'use strict';
 
 var path = require('path');
-exports.cwd = require('memoize-path')(path.resolve(__dirname, '..'));
-exports.memo = require('memoize-path')(path.resolve(__dirname, '..'));
+var base = path.resolve(__dirname, '..');
+exports.cwd = require('memoize-path')(base);
+exports.memo = require('memoize-path')(base);
 
 exports.docs = function(fp) {
   var res = exports.memo('../docs')(fp);

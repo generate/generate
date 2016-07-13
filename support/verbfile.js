@@ -13,6 +13,12 @@ module.exports = function(app) {
   var dest = paths.site();
   app.use(lib.middleware());
   app.use(lib.common());
+  app.preRender(/./, function(file, next) {
+    if (typeof file.data.title !== 'string') {
+      console.log('`title` missing in', file.path);
+    }
+    next();
+  });
 
   app.task('clean', function(cb) {
     del(paths.docs(), {force: true}, cb);
@@ -30,14 +36,14 @@ module.exports = function(app) {
   });
 
   app.task('docs', ['clean', 'copy'], function(cb) {
-    app.layouts('docs/layouts/*.md', {cwd: paths.cwd()});
-    app.docs('docs/*.md', {cwd: paths.cwd(), layout: 'default'});
+    app.layouts('templates/layouts/*.md', {cwd: paths.cwd()});
+    app.docs('templates/*.md', {cwd: paths.cwd(), layout: 'default'});
 
     return app.toStream('docs')
-      .pipe(drafts())
-      .pipe(app.renderFile('*'))
-      .pipe(reflinks())
-      .pipe(format())
+      .pipe(drafts()).on('error', console.error)
+      .pipe(app.renderFile('*')).on('error', console.error)
+      .pipe(reflinks()).on('error', console.error)
+      .pipe(format()).on('error', console.error)
       .pipe(app.dest(function(file) {
         app.union('cache.reflinks', file._reflinks);
         return paths.docs();

@@ -10,7 +10,6 @@ module.exports = function(app) {
   app.use(generators());
   app.use(lib.common());
   app.register('verb', require('./verbfile'));
-
   app.task('verb', function(cb) {
     app.generate('verb', cb);
   });
