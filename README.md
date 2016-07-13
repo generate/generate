@@ -242,6 +242,8 @@ $ npm install -d && npm test
 
 ### History
 
+Changes are made in [CHANGELOG.md](changelog.md).
+
 #### key
 
 The following labels are used for identifying changes:
