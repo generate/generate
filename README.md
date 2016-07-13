@@ -25,11 +25,12 @@ You might also be interested in [update](https://github.com/update/update).
   * [Discovering plugins](#discovering-plugins)
   * [Authoring generators](#authoring-generators)
 - [More information](#more-information)
-- [Community](#community)
 - [About](#about)
   * [Related projects](#related-projects)
+  * [Community](#community)
   * [Contributing](#contributing)
   * [Running tests](#running-tests)
+  * [History](#history)
   * [Author](#author)
   * [License](#license)
 
@@ -207,7 +208,16 @@ Visit the [generator documentation](docs/generators.md) guide to learn how to us
 * [API documentation](docs/api)
 * [Generaters maintained by the core team](https://github.com/generate)
 
-## Community
+## About
+
+### Related projects
+
+* [assemble](https://www.npmjs.com/package/assemble): Assemble is a powerful, extendable and easy to use static site generator for node.js. Used… [more](https://github.com/assemble/assemble) | [homepage](https://github.com/assemble/assemble "Assemble is a powerful, extendable and easy to use static site generator for node.js. Used by thousands of projects for much more than building websites, Assemble is also used for creating themes, scaffolds, boilerplates, e-books, UI components, API docum")
+* [base](https://www.npmjs.com/package/base): base is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting… [more](https://github.com/node-base/base) | [homepage](https://github.com/node-base/base "base is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting with a handful of common methods, like `set`, `get`, `del` and `use`.")
+* [update](https://www.npmjs.com/package/update): Be scalable! Update is a new, open source developer framework and CLI for automating updates… [more](https://github.com/update/update) | [homepage](https://github.com/update/update "Be scalable! Update is a new, open source developer framework and CLI for automating updates of any kind in code projects.")
+* [verb](https://www.npmjs.com/package/verb): Documentation generator for GitHub projects. Verb is extremely powerful, easy to use, and is used… [more](https://github.com/verbose/verb) | [homepage](https://github.com/verbose/verb "Documentation generator for GitHub projects. Verb is extremely powerful, easy to use, and is used on hundreds of projects of all sizes to generate everything from API docs to readmes.")
+
+### Community
 
 Are you using Generate in your project? Have you published an [generator](docs/generators.md) and want to share your Generate project with the world? Here are some suggestions:
 
@@ -215,17 +225,6 @@ Are you using Generate in your project? Have you published an [generator](docs/g
 * Get implementation help on [StackOverflow](http://stackoverflow.com/questions/tagged/generate) (please use the `gen` tag in questions)
 * **Gitter** Discuss Generate with us on [Gitter](https://gitter.im/generate)
 * If you publish an generator, thank you! To make your project as discoverable as possible, please add the keyword `generate-generator` to package.json.
-
-## About
-
-### Related projects
-
-Generate shares a common architecture and plugin ecosystem with the following libraries:
-
-* [assemble](https://www.npmjs.com/package/assemble): Assemble is a powerful, extendable and easy to use static site generator for node.js. Used… [more](https://github.com/assemble/assemble) | [homepage](https://github.com/assemble/assemble "Assemble is a powerful, extendable and easy to use static site generator for node.js. Used by thousands of projects for much more than building websites, Assemble is also used for creating themes, scaffolds, boilerplates, e-books, UI components, API docum")
-* [base](https://www.npmjs.com/package/base): base is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting… [more](https://github.com/node-base/base) | [homepage](https://github.com/node-base/base "base is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting with a handful of common methods, like `set`, `get`, `del` and `use`.")
-* [update](https://www.npmjs.com/package/update): Be scalable! Update is a new, open source developer framework and CLI for automating updates… [more](https://github.com/update/update) | [homepage](https://github.com/update/update "Be scalable! Update is a new, open source developer framework and CLI for automating updates of any kind in code projects.")
-* [verb](https://www.npmjs.com/package/verb): Documentation generator for GitHub projects. Verb is extremely powerful, easy to use, and is used… [more](https://github.com/verbose/verb) | [homepage](https://github.com/verbose/verb "Documentation generator for GitHub projects. Verb is extremely powerful, easy to use, and is used on hundreds of projects of all sizes to generate everything from API docs to readmes.")
 
 ### Contributing
 
@@ -240,6 +239,30 @@ Install dev dependencies:
 ```sh
 $ npm install -d && npm test
 ```
+
+### History
+
+#### key
+
+The following labels are used for identifying changes:
+
+_(from [keep-a-changelog](https://github.com/olivierlacan/keep-a-changelog)_)
+
+* `added`: for new features
+* `changed`: for changes in existing functionality
+* `deprecated`: for once-stable features removed in upcoming releases
+* `removed`: for deprecated features removed in this release
+* `fixed`: for any bug fixes
+
+#### [0.9.0] - 2016-07-12
+
+**Changed**
+
+* User-defined templates should now be stored in `~/generate/templates` instead of `~/templates`
+
+**Added**
+
+* [common-config](https://github.com/jonschlinkert/common-config) will be used for storing user preferences. We haven't implemented any logic around this yet, but the `common-config` API is exposed on the `app.common` property, so you can begin using it in generators.
 
 ### Author
 
