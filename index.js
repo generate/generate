@@ -189,7 +189,7 @@ Generate.initGenerateMiddleware = function(app) {
   app.preRender(/./, utils.renameFile(app));
   app.preWrite(/./, utils.renameFile(app));
   app.onLoad(/(^|[\\\/])templates[\\\/]/, function(view, next) {
-    var userDefined = app.home('templates', view.basename);
+    var userDefined = app.home('generate/templates', view.basename);
     if (utils.exists(userDefined)) {
       view.contents = fs.readFileSync(userDefined);
     }
