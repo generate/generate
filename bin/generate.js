@@ -12,8 +12,8 @@ var plugins = require('../lib/plugins');
 var tasks = require('../lib/tasks');
 var utils = require('../lib/utils');
 var pkg = require('../package');
-var args = process.argv.slice(2);
-var argv = utils.parseArgs(args);
+var args = utils.args;
+var argv = utils.argv;
 
 /**
  * Listen for errors on all instances
@@ -21,6 +21,7 @@ var argv = utils.parseArgs(args);
 
 App.on('generate.preInit', function(app) {
   app.set('cache.argv', argv);
+  app.set('cache.args', args);
 });
 
 /**
