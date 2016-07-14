@@ -5,7 +5,7 @@
 Here are just a few of the features that make generate awesome:
 
 * If you know how to use [assemble](https://github.com/assemble/assemble), [templates](https://github.com/jonschlinkert/templates), [update](https://github.com/update/update), [verb](https://github.com/verbose/verb) or any other [base](https://github.com/node-base/base) application, you will know how to begin authoring generators. The same holds true in reverse.
-* Built on [assemble-core](https://github.com/assemble/assemble-core), so all methods from [base](https://github.com/node-base/base), [assemble](https://github.com/assemble/assemble), and [templates](https://github.com/jonschlinkert/templates) are exposed on generate's API.
+* Built on [assemble-core][], so all methods from [base](https://github.com/node-base/base), [assemble](https://github.com/assemble/assemble), and [templates](https://github.com/jonschlinkert/templates) are exposed on generate's API.
 * Supports [gulp](http://gulpjs.com) and [assemble](https://github.com/assemble/assemble) plugins
 * Generators can extend and use other generators
 * **generators**: generators are lazy, so (unless forced) generators are only invoked when they're actually used
@@ -17,7 +17,7 @@ Here are just a few of the features that make generate awesome:
 * **templates**: generate a single file or an entire project using templates
 * **collections**: first class support for template collections, including pagination, sorting, groups, and more.
 * **scaffolds and boilerplates**: initialize an entire project, or provide ad-hoc "components" throughout the duration of a project using any combination of [templates, scaffolds and boilerplates](#templates-scaffolds-and-boilerplates).
-* **any engine**: use any template engine to render templates, including [handlebars](http://www.handlebarsjs.com/), [lodash](https://lodash.com/), [swig](https://github.com/paularmstrong/swig) and [pug](http://jade-lang.com), and anything supported by [consolidate](https://github.com/visionmedia/consolidate.js)
+* **any engine**: use any template engine to render templates, including [handlebars][], [lodash][], [swig][] and [pug][], and anything supported by [consolidate][]
 * **middleware**: Use middleware for transforming files at any point in the [render cycle](render-cycle.md), such as `onLoad`, `preRender`, `postRender`, etc.
 * Supports middleware that can be run on specific files or template collections, at specific points during the _build cycle_
 
@@ -29,7 +29,7 @@ Here are just a few of the features that make generate awesome:
 * **`askInclude` helper**:
 * **install vendor libraries**:  optionally install dependencies, which are automatically detected based on files generated
 * **file system**: methods for interacting with the file system
-* **vinyl**: files and templates are [vinyl](http://github.com/gulpjs/vinyl) files
+* **vinyl**: files and templates are [vinyl][] files
 * **streams**: full support for [gulp](http://gulpjs.com) and [assemble](https://github.com/assemble/assemble) plugins
 * **plugins**: It's easy to add functionality and features to generate using via plugins.
 * **plugin ecosystem**: Generate is built on [base](https://github.com/node-base/base), so any plugin from the Base ecosystem can be used, including plugins from [assemble](https://github.com/assemble/assemble), [update](https://github.com/update/update), [verb](https://github.com/verbose/verb) and [base](https://github.com/node-base/base) itself.
@@ -41,7 +41,7 @@ These are just a few of the features that make generate a powerful and fun to us
 
 ## Why use generate, instead of X?
 
-* **chainable**: generators can be chained in the command line or via API. For example, you can install [generate-dest](https://github.com/generate/generate-dest) then run `$ gen dest` followed by the name of another generator. `generate-dest` will prompt you for the destination directory and store the so the next generator can optionally use it. Or you can extend your own generator with the features and functionality of [generate-dest](https://github.com/generate/generate-dest).
+* **chainable**: generators can be chained in the command line or via API. For example, you can install [generate-dest][] then run `$ gen dest` followed by the name of another generator. `generate-dest` will prompt you for the destination directory and store the so the next generator can optionally use it. Or you can extend your own generator with the features and functionality of [generate-dest][].
 * **Highly pluggable**: generators can be extended with plugins, other generators, or even sub-generators.
 * **composable**: generators can be created from one or more other generators.
 * **unparalleled flow control**: by leveraging Generate's unique combination of [generators](docs/generators.md) and [tasks](docs/tasks.md)

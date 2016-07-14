@@ -62,7 +62,7 @@ Provided by [gulp](http://gulpjs.com).
 
 **Generate**
 
-Same behavior and API as [gulp](http://gulpjs.com) tasks (generate uses [bach](https://github.com/gulpjs/bach), created by the gulp team for gulp v4), with a couple of additional features:
+Same behavior and API as [gulp](http://gulpjs.com) tasks (generate uses [bach][], created by the gulp team for gulp v4), with a couple of additional features:
 
 * Task-dependencies can be specified in any order with generate, but not in gulp (in gulp, )
 

@@ -7,6 +7,11 @@ module.exports = function(options) {
   return function(app) {
     if (!utils.isValid(app, 'update-support-helpers')) return;
     app.helpers(utils.helpers());
+    app.helper('raw', function(str) {
+      console.log(str);
+      return str;
+    });
+
     app.helper('hasValue', function(val, str) {
       return utils.hasValue(val) ? str : '';
     });

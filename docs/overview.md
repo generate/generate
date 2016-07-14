@@ -50,7 +50,7 @@ app.use(plugin(/* options here */));
 
 ### "Smart" plugins
 
-Generate is built on [base](https://github.com/node-base/base/) and has full support for [smart plugins](https://github.com/node-base/base/blob/master/docs/){smart-plugins.md}.
+Generate is built on [base](https://github.com/node-base/base/) and has full support for [smart plugins](https://github.com/node-base/base/blob/master/docs/smart-plugins.md).
 
 _(We'll just cover the basics here, visit the [base docs](https://github.com/node-base/base/blob/master/docs/) for more information.)_
 

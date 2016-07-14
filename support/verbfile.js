@@ -29,9 +29,26 @@ module.exports = function(app) {
   });
 
   app.task('reflinks', function(cb) {
-    app.pkg.union('verb.reflinks', app.cache.reflinks || []);
-    app.pkg.logInfo('updated package.json with:', {reflinks: app.cache.reflinks || []});
-    app.pkg.save();
+    var reflinks = app.get('cache.reflinks') || [];
+    var diff = [];
+    var len = reflinks.length;
+    var idx = -1;
+    while (++idx < len) {
+      var reflink = reflinks[idx];
+      if (/v?\d+\./.test(reflink)) {
+        reflinks.splice(idx, 1);
+        continue;
+      }
+      if (reflinks.indexOf(reflink) === -1) {
+        diff.push(reflink);
+      }
+    }
+
+    if (diff.length > 1) {
+      app.pkg.union('verb.reflinks', diff);
+      app.pkg.save();
+      app.pkg.logInfo('updated package.json with:', {reflinks: diff});
+    }
     cb();
   });
 
@@ -50,5 +67,5 @@ module.exports = function(app) {
       }));
   });
 
-  app.task('default', ['docs', 'reflinks']);
+  app.task('default', ['docs']);
 };

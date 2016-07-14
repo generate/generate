@@ -14,7 +14,7 @@ Middleware functions can perform the following tasks:
 
 **Router methods**
 
-Router methods in <%= upper(name) %> are similar to the methods in [express][], but instead of representing HTTP methods, they represent significant points during the render cycle.
+Router methods in <%= upper(name) %> are similar to the methods in [express](http://expressjs.com/), but instead of representing HTTP methods, they represent significant points during the render cycle.
 
 For example, `.onLoad` represents when a [view](docs/view.md) is loaded onto a collection. Methods are described in detail in the [Router Methods](#router-methods) section.
 
@@ -87,10 +87,10 @@ The following middleware handlers are built-in to {%= upper(name) %}, in order:
 * [onLoad](#onLoad): Immediately after a view is loaded, as a last step just before adding the view to a collection.
 * [preRender](#preRender): Called before rendering a view.
 * [preCompile](#preCompile): Called before compiling a view.
-* [preLayout](#preLayout): Immediately before the first [layout][] in a [layout-stack][] is applied to a view.
-* [onLayout](#onLayout): Called after each [layout][] in a [layout-stack][] is applied.
-* [postLayout](#postLayout): Called after all [layouts][] have been applied to a view.
-* [onMerge](#onMerge): Called directly before [partials][] collections are merged onto the [context][].
+* [preLayout](#preLayout): Immediately before the first [layout](https://github.com/twolfson/layout) in a [layout-stack](https://github.com/doowb/layout-stack) is applied to a view.
+* [onLayout](#onLayout): Called after each [layout](https://github.com/twolfson/layout) in a [layout-stack](https://github.com/doowb/layout-stack) is applied.
+* [postLayout](#postLayout): Called after all [layouts](https://github.com/doowb/layouts) have been applied to a view.
+* [onMerge](#onMerge): Called directly before [partials](https://github.com/jonschlinkert/partials) collections are merged onto the [context](https://github.com/gather/context).
 * [postCompile](#postCompile): Called after compiling a view.
 * [postRender](#postRender): Called after rendering a view.
 
@@ -98,7 +98,7 @@ Note that if `.compile` is called directly, the `.preCompile` middleware handler
 
 ### Pipeline handlers
 
-<%= upper(name) %> adds the following handlers via the [assemble-fs][] plugin:
+<%= upper(name) %> adds the following handlers via the [assemble-fs](https://github.com/assemble/assemble-fs) plugin:
 
 * `onStream`: called by the `.toStream` method upon adding a view to the `.src` stream
 * `preWrite`: called by the `.dest` method before writing `view.contents` to the file system
@@ -145,7 +145,7 @@ app.preCompile(/\.hbs$/, function(view, next) {
 
 ### preLayout
 
-Immediately before the first [layout][] in a [layout-stack][] is applied to a view.
+Immediately before the first [layout](https://github.com/twolfson/layout) in a [layout-stack](https://github.com/doowb/layout-stack) is applied to a view.
 
 ```js
 app.preLayout(/\.hbs$/, function(view, next) {
@@ -156,7 +156,7 @@ app.preLayout(/\.hbs$/, function(view, next) {
 
 ### onLayout
 
-Called after each [layout][] in a [layout-stack][] is applied.
+Called after each [layout](https://github.com/twolfson/layout) in a [layout-stack](https://github.com/doowb/layout-stack) is applied.
 
 ```js
 app.onLayout(/\.hbs$/, function(view, next) {
@@ -167,7 +167,7 @@ app.onLayout(/\.hbs$/, function(view, next) {
 
 ### postLayout
 
-Called after all [layouts][] have been applied to a view.
+Called after all [layouts](https://github.com/doowb/layouts) have been applied to a view.
 
 ```js
 app.postLayout(/\.hbs$/, function(view, next) {
@@ -178,7 +178,7 @@ app.postLayout(/\.hbs$/, function(view, next) {
 
 ### onMerge
 
-Called directly before [partials][] collections are merged onto the [context][].
+Called directly before [partials](https://github.com/jonschlinkert/partials) collections are merged onto the [context](https://github.com/gather/context).
 
 ```js
 app.onMerge(/\.hbs$/, function(view, next) {

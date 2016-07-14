@@ -40,7 +40,7 @@ Generate's functional, expressive API is easier to customize and more configurab
 
 ### Low barrier to entry
 
-If you can create a [gulp][] task, you will know how to use Generate
+If you can create a [gulp](http://gulpjs.com) task, you will know how to use Generate
 
 ### Generators
 
@@ -82,7 +82,7 @@ Any consolidate engine can be used (one of Generate's maintainers, @doowb, also 
 
 **Assemble**
 
-Additionally, Generate's creators have authored many popular templating libraries, including [assemble][], [handlebars-helpers][], and [templates][].
+Additionally, Generate's creators have authored many popular templating libraries, including [assemble](https://github.com/assemble/assemble), [handlebars-helpers](https://github.com/assemble/handlebars-helpers), and [templates](https://github.com/jonschlinkert/templates).
 
 ### Tools
 
@@ -94,8 +94,8 @@ Yeoman itself only comprises one part of the workflow: `yo`. The other two parts
 
 Like Yeoman, Generate can be used with gulp, Grunt, NPM, Bower. But that's nothing special, any node.js library can do this. However, Generate shares common API conventions, command line options, and a plugin ecosystem with the following libraries:
 
-* [assemble][]: build projects
-* [verb][]: document projects
-* [update][]: maintain projects
+* [assemble](https://github.com/assemble/assemble): build projects
+* [verb](https://github.com/verbose/verb): document projects
+* [update](https://github.com/update/update): maintain projects
 
 If you use any of these tools, you'll know how to begin using the others.

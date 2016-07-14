@@ -1,6 +1,6 @@
 # Pipeline plugins
 
-Used to transform [vinyl][] files in a stream. All [gulp][] plugins are pipeline plugins.
+Used to transform [vinyl][] files in a stream. All [gulp](http://gulpjs.com) plugins are pipeline plugins.
 
 **Type**: `Stream`
 
@@ -10,7 +10,7 @@ Used to transform [vinyl][] files in a stream. All [gulp][] plugins are pipeline
 
 **Example**
 
-This example requires the [base-fs][] plugin (a wrapper for [vinyl-fs][], install with `$ npm i base-fs`):
+This example requires the [base-fs](https://github.com/node-base/base-fs) plugin (a wrapper for [vinyl-fs](http://github.com/wearefractal/vinyl-fs), install with `$ npm i base-fs`):
 
 ```js
 var base = require('base');
@@ -24,7 +24,7 @@ app.src('foo.hbs')
 
 **Special note**
 
-If you're using [templates][] (or [assemble][] or [verb][]), all views are vinyl files (in other words, `view` is an instance of `Vinyl`).
+If you're using [templates](https://github.com/jonschlinkert/templates) (or [assemble](https://github.com/assemble/assemble) or [verb](https://github.com/verbose/verb)), all views are vinyl files (in other words, `view` is an instance of `Vinyl`).
 
 ## Related
 

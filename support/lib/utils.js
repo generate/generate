@@ -61,7 +61,6 @@ utils.links = function(rules) {
         }
       } else {
         var segs = href.split('/');
-        console.log(segs)
         var len = segs.length;
         if (len === 1) {
           segs.unshift(file.dir);
