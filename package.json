@@ -29,7 +29,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "ask-when": "^0.1.1",
+    "ask-when": "^0.1.4",
     "assemble-core": "^0.25.0",
     "assemble-loader": "^0.6.1",
     "base-fs-conflicts": "^0.1.7",
@@ -38,50 +38,45 @@
     "base-npm": "^0.4.0",
     "base-npm-prompt": "^0.2.0",
     "base-pipeline": "^0.3.2",
-    "base-questions": "^0.6.6",
+    "base-questions": "^0.7.1",
     "base-runner": "^0.8.2",
     "base-runtimes": "^0.2.0",
     "base-store": "^0.4.4",
-    "camel-case": "^3.0.0",
     "common-config": "^0.1.0",
-    "data-store": "^0.16.0",
+    "data-store": "^0.16.1",
     "debug": "^2.2.0",
     "define-property": "^0.2.5",
     "export-files": "^2.1.1",
     "extend-shallow": "^2.0.1",
     "fs-exists-sync": "^0.1.0",
     "generate-collections": "^0.3.5",
-    "generate-defaults": "^0.3.1",
+    "generate-defaults": "^0.4.0",
     "get-value": "^2.0.6",
     "global-modules": "^0.2.2",
     "gray-matter": "^2.0.2",
-    "helper-ask": "^0.1.1",
-    "is-answer": "^0.1.0",
+    "helper-ask": "^0.1.4",
     "isobject": "^2.1.0",
     "lazy-cache": "^2.0.1",
-    "log-utils": "^0.1.4",
+    "log-utils": "^0.2.1",
     "macro-store": "^0.1.0",
-    "mixin-deep": "^1.1.3",
     "parser-front-matter": "^1.3.0",
-    "resolve-dir": "^0.1.0",
     "resolve-file": "^0.2.0",
     "set-blocking": "^2.0.0",
-    "set-getter": "^0.1.0",
     "strip-color": "^0.1.0",
     "text-table": "^0.2.0",
     "through2": "^2.0.1",
     "yargs-parser": "^2.4.0"
   },
   "devDependencies": {
+    "archy": "^1.0.0",
     "base": "^0.11.1",
-    "base-config-process": "^0.1.8",
+    "base-config-process": "^0.1.9",
     "base-test-runner": "^0.2.0",
     "base-test-suite": "^0.1.12",
     "cross-spawn": "^4.0.0",
     "generate-foo": "^0.1.5",
     "generator-util": "^0.2.9",
     "glob-keys": "^0.1.1",
-    "graceful-fs": "^4.1.4",
     "gulp": "^3.9.1",
     "gulp-eslint": "^3.0.1",
     "gulp-format-md": "^0.1.9",
@@ -89,12 +84,10 @@
     "gulp-mocha": "^2.2.0",
     "gulp-unused": "^0.1.2",
     "is-absolute": "^0.2.5",
-    "load-pkg": "^3.0.1",
     "mocha": "^2.5.3",
     "npm-install-global": "^0.1.2",
     "resolve": "^1.1.7",
-    "should": "^9.0.2",
-    "sinon": "^1.17.4"
+    "should": "^9.0.2"
   },
   "keywords": [
     "app",
@@ -134,7 +127,8 @@
       "coverage",
       "docs",
       "examples",
-      "lib/tree.js"
+      "lib/tree.js",
+      "support"
     ]
   },
   "verb": {
@@ -142,7 +136,7 @@
     "toc": {
       "render": true,
       "method": "preWrite",
-      "maxdepth": 2
+      "maxdepth": 3
     },
     "layout": "common-minimal",
     "tasks": [
@@ -162,25 +156,25 @@
       ]
     },
     "reflinks": [
-      "assemble",
       "assemble-core",
       "bach",
-      "base",
       "common-config",
       "consolidate",
       "generate",
       "generate-dest",
       "generate-example",
-      "gulp",
       "handlebars",
       "lodash",
       "pug",
       "swig",
       "templates",
       "update",
-      "verb",
       "verb-readme-generator",
-      "vinyl"
+      "vinyl",
+      "gulp",
+      "assemble",
+      "base",
+      "verb"
     ],
     "lint": {
       "reflinks": true
