@@ -174,6 +174,7 @@ $ gen help
 
 Note that all command line options are preceded by `--`, or `-` for abbreviations. Only generator names or tasks can be used as commands (without `--` or `-`).
 
+* `--dest`, `-d`: Set the destination directory to use for generated files.
 * `--no-install`: Don't automatically install `dependencies` or `devDependencies` after generating files.
 * `--no-hints`: Don't use hints in prompts
 
