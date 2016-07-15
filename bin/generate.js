@@ -53,8 +53,6 @@ App.on('generate.postInit', function(app) {
       app.log.success('saved default tasks:', args);
     }
   }
-
-  App.logTasks(app.base, argv);
 });
 
 /**
