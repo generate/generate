@@ -7,6 +7,7 @@ process.on('exit', function() {
 
 var util = require('util');
 var App = require('..');
+var debug = require('debug')('generate');
 var commands = require('../lib/commands');
 var plugins = require('../lib/plugins');
 var tasks = require('../lib/tasks');
@@ -29,7 +30,9 @@ App.on('generate.preInit', function(app) {
  */
 
 App.on('generate.postInit', function(app) {
+  debug('postInit', app.env);
   app.option(argv);
+
   if (app.macros.has(args)) {
     app.macros.set(args);
     var macro = {};
@@ -71,6 +74,7 @@ plugins.runner(App, options, argv, function(err, app, runnerContext) {
     app.register('defaults', require('../lib/generator'));
   }
 
+  debug('processing config');
   var ctx = utils.extend({}, runnerContext);
   var config = app.get('cache.config') || {};
   ctx.argv.tasks = [];

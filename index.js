@@ -9,9 +9,9 @@
 
 var debug = require('debug')('generate');
 var Assemble = require('assemble-core');
-var mixins = require('./lib/mixins');
 var defaults = require('./lib/defaults');
 var plugins = require('./lib/plugins');
+var mixins = require('./lib/mixins');
 var utils = require('./lib/utils');
 var setArgs;
 
@@ -35,7 +35,6 @@ function Generate(options) {
   this.paths = this.paths || {};
   this.is('generate');
   this.initGenerate(this.options);
-  debug('initializing');
 
   if (!setArgs) {
     setArgs = true;
@@ -60,6 +59,7 @@ plugins.stores(Generate.prototype);
  */
 
 Generate.prototype.initGenerate = function(opts) {
+  debug('initializing from <%s>', __filename);
   Generate.emit('generate.preInit', this);
 
   // initialize defaults
