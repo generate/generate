@@ -34,14 +34,21 @@ Generators are [plugins](api/plugins.md) that are registered by name. The only d
 Given this function:
 
 ```js
-function foo(app) {
+function plugin(app, base, options) {
 }
 
 // use as a plugin
-app.use(foo);
+app.use(plugin);
+
 // register as a generator
-app.register('my-generator', foo);
+app.register('my-generator', plugin);
 ```
+**Params**
+
+- `app`: instance of `Generate` created for the generator. Also available as `this` inside the function.
+- `base`: "shared" instance of `Generate`. Also available as `app.base` (or `this.base`)
+- `options`: Generator options. Also available as `this.options`
+
 
 ## Registering generators
 
