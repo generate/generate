@@ -13,15 +13,19 @@ var app, base, site;
 describe('app.questions', function() {
   describe('plugin', function() {
     beforeEach(function() {
-      base = new App();
+      base = new App({isApp: true});
       base.use(config());
-      base.use(questions());
       base.use(store('base-questions-tests/base'));
+      base.use(questions());
 
-      app = new App();
+      app = new App({isApp: true});
       app.use(config());
-      app.use(questions());
       app.use(store('base-questions-tests/app'));
+      app.use(questions());
+    });
+
+    it('should export a function', function() {
+      assert.equal(typeof questions, 'function');
     });
 
     it('should expose a `questions` object on "app"', function() {
@@ -64,11 +68,20 @@ describe('app.questions', function() {
       app.cache.data = {};
     });
 
-    it.skip('should force all questions to be asked', function(cb) {
-      app.questions.option('init', 'author');
+    it('should force all questions to be asked', function(cb) {
+      // var unhook = interception(/Name|Description/);
+
+      app.question('name', {message: 'Name?'});
+      app.question('desc', {message: 'Description?'});
+
+      bddStdin('Brian Woodward', '\n', 'Foo', '\n');
       app.ask({force: true}, function(err, answers) {
-        if (err) return cb(err);
-        console.log(answers);
+        if (err) {
+          cb(err);
+          return;
+        }
+        assert.deepEqual(answers, {name: 'Brian Woodward', desc: 'Foo'});
+        unhook();
         cb();
       });
     });
@@ -82,19 +95,25 @@ describe('app.questions', function() {
       assert.equal(app.questions.cache.a.message, 'b');
     });
 
-    it.skip('should re-init a specific question:', function(cb) {
-      this.timeout(20000);
+    it('should force a specific question:', function(cb) {
+      // var unhook = interception(/foo/);
+      app.on('ask', function() {
+        bddStdin('foo', '\n');
+      });
+
+      app.disable('force')
       app.question('a', 'b');
       app.question('c', 'd');
       app.question('e', 'f');
-      app.data({a: 'b'});
+      app.data({a: 'b', c: 'd', e: 'f'});
 
-      app.questions.get('e')
-        .force();
+      var question = app.questions.get('e');
+      question.options.force = true;
 
       app.ask(function(err, answers) {
         if (err) return cb(err);
-        console.log(answers);
+        assert.deepEqual(answers, {a: 'b', c: 'd', e: 'foo'});
+        unhook();
         cb();
       });
     });
@@ -129,6 +148,7 @@ describe('app.questions', function() {
     it('should ask a question and use a `store.data` value to answer:', function(cb) {
       app.question('a', 'this is another question');
       app.store.set('a', 'c');
+
       app.ask('a', function(err, answers) {
         if (err) return cb(err);
         assert(answers);
