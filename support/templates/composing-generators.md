@@ -1,7 +1,7 @@
 ---
 title: Composing generators
 related: 
-  docs: ['generators', 'installing-generators', 'micro-generators']
+  doc: ['generators', 'installing-generators', 'micro-generators']
 ---
 
 The [introduction to generators](generators.md) teaches you how to create, register and run generators. 

@@ -26,10 +26,3 @@ app.generate('foo', function(err) {
   if (err) return console.log(err);
 });
 ```
-
-## Related
-
-**API**
-
-* [generator](generator.md)
-* [plugins](plugins.md)

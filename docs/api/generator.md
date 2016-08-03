@@ -26,10 +26,3 @@ app.generate('bar', function(err) {
   if (err) return console.log(err);
 });
 ```
-
-## Related
-
-**API**
-
-* [register](register.md)
-* [plugins](plugins.md)

@@ -92,7 +92,7 @@ See the [Best Practices Guide](https://github.com/generate/best-practices/naming
 
 ## Related
 
-- [renaming files](#renaming-files): how to rename templates to destination files
-- [automatically renaming templates](#renaming-templates): how to automatically rename templates based on values defined in YAML front matter
+- [renaming files](recipe/renaming-files): how to rename templates to destination files
+- [automatically renaming templates](recipe/renaming-templates): how to automatically rename templates based on values defined in YAML front matter
 
 [generate-gulp]: https://github.com/generate/generate-gulp

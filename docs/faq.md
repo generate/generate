@@ -75,9 +75,3 @@ app.task('default', ['foo', 'bar']);
 ```
 
 See the [Best Practices Guide](https://github.com/generate/best-practices/naming-tasks) for advice on naming tasks.
-
-## Related
-
-**Docs**
-
-* [features](features.md)

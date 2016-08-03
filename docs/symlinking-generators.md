@@ -64,12 +64,3 @@ Then run:
 ```sh
 generate aaa bbb ccc
 ```
-
-## Related
-
-**Docs**
-
-* [tasks](tasks.md)
-* [generator-js](generator-js.md)
-* [installing-generators](installing-generators.md)
-* [generators](generators.md)

@@ -14,7 +14,7 @@ This adds the `gen` command to your system path, allowing it to be run from any 
 
 **Verify installation**
 
-You should now be able to use the `gen` command to execute code in a local `generator.js` file, or to execute globally installed generators by their [aliases](docs/#generator-aliases).
+You should now be able to use the `gen` command to execute code in a local `generator.js` file, or to execute globally installed generators by their [aliases](docs/faq#generator-aliases).
 
 To verify that Generate's CLI is installed, run the following command:
 

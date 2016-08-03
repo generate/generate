@@ -1,7 +1,6 @@
 ---
 name: Generate
 title: Middleware
-engine: hbs
 description: ""
 related: ['en-route']
 reflinks: ['en-route']

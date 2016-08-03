@@ -1,5 +1,19 @@
 # Conventions
 
+## Templates
+
+**Dotfiles**
+
+All dotfile templates are prefixed with an underscore to prevent programs from mistaking them as real files.
+
+Example: `_gitignore`
+
+**Manifest files**
+
+Manifest files are prefixed with `$`. This includes `package.json` for node.js, or other similar config files that should not be confused for real files.
+
+Example: `$package.json`
+
 ## Silencing tasks
 
 When `{silent: true}` is passed as the second argument to `app.task()`,  the `starting` and `finished` events are hidden in the terminal.
@@ -74,12 +88,7 @@ app.task('default', ['foo', 'bar']);
 
 See the [Best Practices Guide](https://github.com/generate/best-practices/naming-tasks) for advice on naming tasks.
 
-## Template naming conventions
-
-* **dotfiles** dotfile templates are prefixed with `_`. Example: `_travis.yml`
-* **manifests** templatse for package manifests or other similar config files that should not be confused for real files are prefixed with `$`. Example: `$package.json`
-
 ## Related
 
-* [renaming files](#renaming-files): how to rename templates to destination files
-* [automatically renaming templates](#renaming-templates): how to automatically rename templates based on values defined in YAML front matter
+* [renaming files](recipe/renaming-files): how to rename templates to destination files
+* [automatically renaming templates](recipe/renaming-templates): how to automatically rename templates based on values defined in YAML front matter

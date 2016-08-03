@@ -17,10 +17,3 @@ But `.findGenerator` will get the generator without invoking the function:
 ```js
 var foo = app.findGenerator('foo');
 ```
-
-## Related
-
-**API**
-
-* [register](register.md)
-* [plugins](plugins.md)

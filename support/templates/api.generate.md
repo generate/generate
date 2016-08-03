@@ -1,13 +1,9 @@
 ---
 title: generate
 related:
-  api: ['generator', 'register', 'plugins']
+  api: ['generator', 'register', 'plugins', 'build']
   doc: []
 ---
-
-**Prerequisites**
-
-- [getting-started](docs/getting-started.md)
 
 
 ## .generate

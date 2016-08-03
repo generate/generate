@@ -18,24 +18,15 @@
   },
   "devDependencies": {
     "base-generators": "^0.4.5",
-    "base-pkg": "^0.2.4",
     "copy": "^0.2.3",
     "delete": "^0.3.2",
-    "export-files": "^2.1.1",
     "generate-collections": "^0.3.5",
     "generate-defaults": "^0.4.0",
     "gulp-drafts": "^0.2.0",
     "gulp-format-md": "^0.1.9",
     "gulp-reflinks": "^0.2.0",
-    "has-value": "^0.3.1",
     "is-valid-app": "^0.2.0",
-    "lazy-cache": "^2.0.1",
     "memoize-path": "^0.1.2",
-    "pretty-remarkable": "^0.3.9",
-    "remarkable": "^1.6.2",
-    "set-blocking": "^2.0.0",
-    "strip-color": "^0.1.0",
-    "template-helpers": "^0.6.6",
     "through2": "^2.0.1",
     "verb-toc": "^0.2.8"
   },
@@ -84,5 +75,17 @@
       "vinyl-fs",
       "yaml"
     ]
+  },
+  "dependencies": {
+    "arr-union": "^3.1.0",
+    "export-files": "^2.1.1",
+    "has-value": "^0.3.1",
+    "lazy-cache": "^2.0.1",
+    "pascalcase": "^0.1.1",
+    "pretty-remarkable": "^0.3.9",
+    "remarkable": "^1.6.2",
+    "set-blocking": "^2.0.0",
+    "strip-color": "^0.1.0",
+    "template-helpers": "^0.6.7"
   }
 }

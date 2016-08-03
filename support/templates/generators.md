@@ -1,5 +1,6 @@
 ---
 title: Introduction to Generators
+draft: false
 related:
   doc: ['tasks', 'generator-js', 'installing-generators', 'symlinking-generators', 'sub-generators']
 ---

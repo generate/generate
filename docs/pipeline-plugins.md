@@ -1,6 +1,6 @@
 # Pipeline plugins
 
-Used to transform [vinyl][] files in a stream. All [gulp](http://gulpjs.com) plugins are pipeline plugins.
+Used to transform [vinyl](http://github.com/gulpjs/vinyl) files in a stream. All [gulp](http://gulpjs.com) plugins are pipeline plugins.
 
 **Type**: `Stream`
 
@@ -25,9 +25,3 @@ app.src('foo.hbs')
 **Special note**
 
 If you're using [templates](https://github.com/jonschlinkert/templates) (or [assemble](https://github.com/assemble/assemble) or [verb](https://github.com/verbose/verb)), all views are vinyl files (in other words, `view` is an instance of `Vinyl`).
-
-## Related
-
-**Docs**
-
-* [middleware](middleware.md)

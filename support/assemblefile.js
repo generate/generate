@@ -2,26 +2,33 @@
 
 var path = require('path');
 var generators = require('base-generators');
-var paths = require('./lib/paths');
-var lib = require('./lib');
+var common = require('./lib/common');
+var build = require('./lib/build');
+var utils = require('./lib/utils');
 
 module.exports = function(app) {
+  var paths = build.paths;
   var dest = paths.site();
-  app.use(generators());
-  app.use(lib.common());
-  app.register('verb', require('./verbfile'));
-  app.task('verb', function(cb) {
-    app.generate('verb', cb);
-  });
+  var md = new utils.Remarkable();
 
-  app.task('default', ['verb'], function() {
+  app.use(require('./verbfile'));
+  app.use(common());
+
+  app.on('error', console.log);
+
+  app.task('default', ['docs'], function() {
     app.layouts(paths.tmpl('layouts/*.hbs'));
     app.includes(paths.tmpl('includes/*.hbs'));
-    app.pages(paths.docs('**/*.md'));
-    return app.toStream('pages')
-      .pipe(lib.plugins.buildPaths(dest))
-      .pipe(lib.plugins.lintPaths(dest))
-      .pipe(app.renderFile())
-      .pipe(app.dest(dest));
+
+    return app.toStream('docs')
+      .pipe(app.renderFile({layout: 'default'}))
+      .pipe(utils.through.obj(function(file, enc, next) {
+        file.content = md.render(file.content);
+        next(null, file);
+      }))
+      .pipe(app.dest(function(file) {
+        file.extname = '.html';
+        return dest;
+      }));
   });
 };

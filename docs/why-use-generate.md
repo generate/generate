@@ -52,7 +52,7 @@ Generate makes generators so easy to create and compose the
 
 **Easier to compose**
 
-we encourage authors to publish [micro-generators](docs/micro-generators.md), which are generators that do one specific thing, like [generate a ](https://github.com/generate/generate-license)`LICENSE` file.
+we encourage authors to publish [micro-generators](docs/micro-generators.md), which are generators that do one specific thing, like [generate a license file](https://github.com/generate/generate-license).
 
 ### Flow control
 
@@ -78,7 +78,7 @@ app.engine('hbs', require('engine-handlebars'));
 
 **Consolidate**
 
-Any consolidate engine can be used (one of Generate's maintainers, @doowb, also maintains [consolidate][]).
+Any consolidate engine can be used (one of Generate's maintainers, @doowb, also maintains [consolidate](https://github.com/visionmedia/consolidate.js)).
 
 **Assemble**
 

@@ -1,4 +1,4 @@
-# <%= title %>
+# Middleware
 
 ## What is middleware?
 
@@ -14,7 +14,7 @@ Middleware functions can perform the following tasks:
 
 **Router methods**
 
-Router methods in <%= upper(name) %> are similar to the methods in [express](http://expressjs.com/), but instead of representing HTTP methods, they represent significant points during the render cycle.
+Router methods in GENERATE are similar to the methods in [express](http://expressjs.com/), but instead of representing HTTP methods, they represent significant points during the render cycle.
 
 For example, `.onLoad` represents when a [view](docs/view.md) is loaded onto a collection. Methods are described in detail in the [Router Methods](#router-methods) section.
 
@@ -98,7 +98,7 @@ Note that if `.compile` is called directly, the `.preCompile` middleware handler
 
 ### Pipeline handlers
 
-<%= upper(name) %> adds the following handlers via the [assemble-fs](https://github.com/assemble/assemble-fs) plugin:
+GENERATE adds the following handlers via the [assemble-fs](https://github.com/assemble/assemble-fs) plugin:
 
 * `onStream`: called by the `.toStream` method upon adding a view to the `.src` stream
 * `preWrite`: called by the `.dest` method before writing `view.contents` to the file system
@@ -208,13 +208,3 @@ app.postRender(/\.hbs$/, function(view, next) {
   next();
 });
 ```
-
-<%= hasAny([related.doc, related.api, related.url], '## Related') %>
-<%= hasValue(related.doc, '**Docs**') %>
-<%= links(related, 'doc') %>
-
-<%= hasValue(related.api, '**API**') %>
-<%= links(related, 'api') %>
-
-<%= hasValue(related.url, '**Links**') %>
-<%= links(related, 'url') %>
