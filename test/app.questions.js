@@ -6,6 +6,7 @@ require('mocha');
 var assert = require('assert');
 var questions = require('base-questions');
 var config = require('base-config-process');
+var bddStdin = require('bdd-stdin');
 var store = require('base-store');
 var App = require('..');
 var app, base, site;
@@ -49,10 +50,6 @@ describe('app.questions', function() {
       assert.equal(typeof app.question, 'function');
     });
   });
-
-  if (process.env.TRAVIS) {
-    return;
-  }
 
   describe('app.ask', function() {
     beforeEach(function() {
