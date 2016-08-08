@@ -78,7 +78,7 @@ describe('app.questions', function() {
           return;
         }
         assert.deepEqual(answers, {name: 'Brian Woodward', desc: 'Foo'});
-        unhook();
+        // unhook();
         cb();
       });
     });
@@ -110,7 +110,7 @@ describe('app.questions', function() {
       app.ask(function(err, answers) {
         if (err) return cb(err);
         assert.deepEqual(answers, {a: 'b', c: 'd', e: 'foo'});
-        unhook();
+        // unhook();
         cb();
       });
     });

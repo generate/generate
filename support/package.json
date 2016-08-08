@@ -20,14 +20,17 @@
     "base-generators": "^0.4.5",
     "copy": "^0.2.3",
     "delete": "^0.3.2",
+    "engine-base": "^0.1.2",
     "generate-collections": "^0.3.5",
     "generate-defaults": "^0.4.0",
     "gulp-drafts": "^0.2.0",
     "gulp-format-md": "^0.1.9",
+    "gulp-layouts": "^0.1.0",
     "gulp-reflinks": "^0.2.0",
     "is-valid-app": "^0.2.0",
     "memoize-path": "^0.1.2",
     "through2": "^2.0.1",
+    "verb-generate-readme": "^0.1.28",
     "verb-toc": "^0.2.8"
   },
   "verb": {
