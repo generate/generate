@@ -1,4 +1,4 @@
-#### key
+### key
 
 Changelog entries are classified using the following labels _(from [keep-a-changelog][]_):
 
@@ -8,7 +8,14 @@ Changelog entries are classified using the following labels _(from [keep-a-chang
 - `removed`: for deprecated features removed in this release
 - `fixed`: for any bug fixes
 
-#### [0.9.0] - 2016-07-12
+### [0.10.0] - 2016-08-09
+
+**Changed**
+
+- More improvements to user-defined template handling.
+- Documentation
+
+### [0.9.0] - 2016-07-12
 
 **Changed**
 
