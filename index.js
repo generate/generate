@@ -32,7 +32,6 @@ function Generate(options) {
   }
 
   Assemble.call(this, options);
-  this.paths = this.paths || {};
   this.is('generate');
   this.initGenerate(this.options);
 
