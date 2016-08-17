@@ -33,14 +33,6 @@ App.on('generate.postInit', function(app) {
   debug('postInit', app.env);
   app.option(argv);
 
-  if (app.macros.has(args)) {
-    app.macros.set(args);
-    var macro = {};
-    macro[args[0]] = args.slice(2).join(' ');
-    console.log('saved macro:', util.inspect(macro));
-    process.exit();
-  }
-
   var idx = utils.firstIndex(args, ['-D', '--default']);
   if (idx !== -1) {
     args.splice(idx, 1);

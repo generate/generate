@@ -273,7 +273,7 @@ describe('app.questions', function() {
       site.ask('author.name', function(err, answers) {
         if (err) return cb(err);
         assert(answers);
-        assert.equal(answers.author.name, 'Brian Woodward');
+        assert.equal(answers.author.name, 'Jon Schlinkert');
         cb();
       });
     });

@@ -29,7 +29,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "ask-when": "^0.1.4",
+    "ask-when": "^0.1.5",
     "assemble-core": "^0.26.0",
     "assemble-loader": "^0.6.1",
     "base-fs-conflicts": "^0.1.8",
@@ -38,7 +38,7 @@
     "base-npm": "^0.4.0",
     "base-npm-prompt": "^0.2.1",
     "base-pipeline": "^0.3.2",
-    "base-questions": "^0.7.4",
+    "base-questions": "^0.8.1",
     "base-runner": "^0.8.2",
     "base-runtimes": "^0.2.0",
     "base-store": "^0.4.4",
@@ -51,20 +51,20 @@
     "extend-shallow": "^2.0.1",
     "fs-exists-sync": "^0.1.0",
     "generate-collections": "^0.3.6",
-    "generate-defaults": "^0.5.0",
+    "generate-defaults": "^0.6.0",
     "get-value": "^2.0.6",
     "global-modules": "^0.2.3",
     "helper-ask": "^0.1.4",
     "isobject": "^2.1.0",
     "lazy-cache": "^2.0.1",
     "log-utils": "^0.2.1",
-    "macro-store": "^0.1.0",
+    "macro-store": "^0.3.0",
     "resolve-file": "^0.2.0",
     "set-blocking": "^2.0.0",
     "strip-color": "^0.1.0",
     "text-table": "^0.2.0",
     "through2": "^2.0.1",
-    "yargs-parser": "^3.1.0"
+    "yargs-parser": "^3.2.0"
   },
   "devDependencies": {
     "base-config-process": "^0.1.9",
