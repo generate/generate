@@ -32,6 +32,7 @@ Interested in seeing how generate works first-hand before reading another line? 
 - [Command line usage](#command-line-usage)
   * [Getting started](#getting-started)
   * [init](#init)
+  * [Macros](#macros)
   * [Command line options](#command-line-options)
 - [Generators](#generators)
   * [Discovering generators](#discovering-generators)
@@ -74,6 +75,7 @@ In a nutshell, Generate offers the robustness, power and configurability of Yeom
 * **exceptional flow control**: through the use of [generators](docs/generators.md) and [tasks](docs/tasks.md)
 * **render templates**: use templates to create new files, or replace existing files
 * **prompts**: It's easy to create custom prompts, and aswers to prompts can be used as context for rendering templates, for settings options, determining file names, directory structure, and anything else that requires user feedback.
+* **macros**: create a completely custom generator from the command line using [macros](https://github.com/aaronblohowiak/macros).
 * **any engine**: use any template engine to render templates, including [handlebars](http://www.handlebarsjs.com/), [lodash](https://lodash.com/), [swig](https://github.com/paularmstrong/swig) and [pug](http://jade-lang.com), and anything supported by [consolidate](https://github.com/visionmedia/consolidate.js).
 * **data**: gather data from the user's environment for rendering templates, to populate "hints" in user prompts or for rendering templates, etc.
 * **fs**: in the spirit of [gulp](http://gulpjs.com), use `.src` and `.dest` to read and write globs of files.
@@ -145,6 +147,26 @@ $ gen init
 ```
 
 You can run this command whenever you want to generate your preferences, like after installing new generators.
+
+### Macros
+
+With macros you can create a completely custom generator, _or generator experience_, from the command line.
+
+**Example**
+
+The following will create macro `foo` with the arguments `project:minimal travis editorconfig`:
+
+```sh
+$ gen --macro foo project:minimal travis editorconfig
+```
+
+Now, you can simly run `$ gen foo` instead of `$ gen project:minimal travis editorconfig`.
+
+**How do macros work?**
+
+When the `--macro` flag is used, the `process.argv` array that was passed with the macro (excluding the `--macro` flag itself and the macro name) is persisted to a [macro-store](https://github.com/doowb/macro-store). The next time macro name is used as a command line argument, the stored argv array is returned instead.
+
+See [macro-store](https://github.com/doowb/macro-store) for more details.
 
 ### Command line options
 

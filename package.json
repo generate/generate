@@ -171,7 +171,9 @@
       "update",
       "verb",
       "verb-readme-generator",
-      "vinyl"
+      "vinyl",
+      "macro-store",
+      "macros"
     ],
     "lint": {
       "reflinks": true
