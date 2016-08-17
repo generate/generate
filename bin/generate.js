@@ -16,6 +16,12 @@ var pkg = require('../package');
 var args = utils.args;
 var argv = utils.argv;
 
+if (argv.macro) {
+  var tasks = argv._.join(', ');
+  utils.log.ok('saved macro', utils.log.cyan(argv.macro), utils.log.bold(tasks));
+  process.exit();
+}
+
 /**
  * Listen for errors on all instances
  */
