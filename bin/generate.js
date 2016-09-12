@@ -13,6 +13,11 @@ var plugins = require('../lib/plugins');
 var tasks = require('../lib/tasks');
 var utils = require('../lib/utils');
 var pkg = require('../package');
+
+// Check for and notify if newer version available
+var updateNotifier = require('update-notifier');
+updateNotifier({pkg}).notify();
+
 var args = utils.args;
 var argv = utils.argv;
 
