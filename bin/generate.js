@@ -6,8 +6,8 @@ process.on('exit', function() {
 });
 
 var util = require('util');
-var App = require('..');
 var debug = require('debug')('generate');
+var App = require('..');
 var commands = require('../lib/commands');
 var plugins = require('../lib/plugins');
 var tasks = require('../lib/tasks');
