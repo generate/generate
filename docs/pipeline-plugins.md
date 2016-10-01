@@ -1,6 +1,6 @@
 # Pipeline plugins
 
-Used to transform [vinyl](http://github.com/gulpjs/vinyl) files in a stream. All [gulp](http://gulpjs.com) plugins are pipeline plugins.
+Used to transform [vinyl](https://github.com/gulpjs/vinyl) files in a stream. All [gulp](http://gulpjs.com) plugins are pipeline plugins.
 
 **Type**: `Stream`
 

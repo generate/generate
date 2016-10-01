@@ -29,7 +29,7 @@ Here are just a few of the features that make generate awesome:
 * **`askInclude` helper**:
 * **install vendor libraries**:  optionally install dependencies, which are automatically detected based on files generated
 * **file system**: methods for interacting with the file system
-* **vinyl**: files and templates are [vinyl](http://github.com/gulpjs/vinyl) files
+* **vinyl**: files and templates are [vinyl](https://github.com/gulpjs/vinyl) files
 * **streams**: full support for [gulp](http://gulpjs.com) and [assemble](https://github.com/assemble/assemble) plugins
 * **plugins**: It's easy to add functionality and features to generate using via plugins.
 * **plugin ecosystem**: Generate is built on [base](https://github.com/node-base/base), so any plugin from the Base ecosystem can be used, including plugins from [assemble](https://github.com/assemble/assemble), [update](https://github.com/update/update), [verb](https://github.com/verbose/verb) and [base](https://github.com/node-base/base) itself.

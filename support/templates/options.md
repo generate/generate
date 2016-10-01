@@ -4,7 +4,24 @@ title: Options
 
 ## Global options
 
-TODO
+### nohints
+
+Prevent data from being automatically pre-populated in templates, and disable hints from being used in prompts.
+
+**API**
+
+```js
+app.disable('hints');
+app.option('hints', false);
+app.option('nohints', true);
+```
+
+**Command line**
+
+```sh
+$ gen project --nohints
+$ gen project --hints=false
+```
 
 ## Template-specific options
 
@@ -63,6 +80,7 @@ Would be generated to the `test/test.js` directory, relative to the user's cwd.
 **How it works**
 
 Each property on the `rename` object maps to a property on the [file](file.md) object. If a property does not map to a field on the `file` object, it will be ignored.
+
 
 ### render
 
