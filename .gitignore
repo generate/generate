@@ -13,10 +13,11 @@ npm-debug.log
 
 # misc
 _gh_pages
-_drafts
 _docs
+_drafts
 benchmark
 bower_components
 vendor
 temp
 tmp
+TODO.md
