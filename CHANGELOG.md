@@ -1,4 +1,6 @@
-### key
+### Release history
+
+#### key
 
 Changelog entries are classified using the following labels _(from [keep-a-changelog][]_):
 
@@ -7,15 +9,53 @@ Changelog entries are classified using the following labels _(from [keep-a-chang
 - `deprecated`: for once-stable features removed in upcoming releases
 - `removed`: for deprecated features removed in this release
 - `fixed`: for any bug fixes
+- `bumped`: updated dependencies, only minor or higher will be listed.
 
-### [0.10.0] - 2016-08-09
+#### [0.13.0] - 2016-10-01
+
+**Fixed**
+
+- improve answer handling in `ask` listener
+- update dependencies
+
+#### [0.12.1] - 2016-09-18
+
+**Fixed**
+
+- Ensure `cwd` is set and `dest` is set on `app.cache.data`
+- Ensure the reverse of a negative flag is set on options
+
+#### [0.12.0] - 2016-09-12
+
+**Added**
+
+- Adds [update-notifier][]
+
+#### [0.11.0] - 2016-08-17
+
+**Fixed**
+
+- CLI: macro handling was improved
+
+**Removed**
+
+- Unused `app.paths` property
+
+**Bumped**
+
+- [ask-when][]
+- [base-questions][]
+- [generate-defaults][]
+- [macro-store][]
+
+#### [0.10.0] - 2016-08-09
 
 **Changed**
 
 - More improvements to user-defined template handling.
 - Documentation
 
-### [0.9.0] - 2016-07-12
+#### [0.9.0] - 2016-07-12
 
 **Changed**
 

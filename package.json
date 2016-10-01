@@ -4,6 +4,12 @@
   "version": "0.13.0",
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "contributors": [
+    "Brian Woodward <brian.woodward@gmail.com> (https://github.com/doowb)",
+    "Dawson Botsford <dawsonbotsford@gmail.com> (http://dawsonbotsford.com)",
+    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)",
+    "Stefan Walther (http://qliksite.io)"
+  ],
   "repository": "generate/generate",
   "bugs": {
     "url": "https://github.com/generate/generate/issues"
@@ -12,9 +18,7 @@
   "files": [
     "bin",
     "index.js",
-    "lib",
-    "LICENSE",
-    "README.md"
+    "lib"
   ],
   "main": "index.js",
   "preferGlobal": true,
@@ -81,6 +85,7 @@
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^3.0.1",
     "gulp-unused": "^0.2.0",
+    "helper-changelog": "^0.3.0",
     "is-absolute": "^0.2.5",
     "mocha": "^3.1.0",
     "npm-install-global": "^0.1.2",
@@ -140,6 +145,9 @@
     "tasks": [
       "readme"
     ],
+    "helpers": [
+      "helper-changelog"
+    ],
     "plugins": [
       "gulp-format-md"
     ],
@@ -166,6 +174,8 @@
       "gulp",
       "handlebars",
       "lodash",
+      "macro-store",
+      "macros",
       "pug",
       "swig",
       "templates",
@@ -173,8 +183,10 @@
       "verb",
       "verb-readme-generator",
       "vinyl",
-      "macro-store",
-      "macros"
+      "ask-when",
+      "base-questions",
+      "generate-defaults",
+      "update-notifier"
     ],
     "lint": {
       "reflinks": true
