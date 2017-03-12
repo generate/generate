@@ -1,0 +1,44 @@
+# Test against these versions of Node.js
+environment:
+  matrix:
+    - nodejs_version: "6.0"
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+  # install modules
+  - npm install
+
+# Post-install test scripts.
+test_script:
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+
+  # actually run tests
+  - npm test
+
+# Don't actually build.
+build: off
+
+environment:
+  matrix:
+    - nodejs_version: '5'
+    - nodejs_version: '4'
+    - nodejs_version: '0.12'
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - set CI=true
+  - npm -g install npm@latest
+  - set PATH=%APPDATA%\npm;%PATH%
+  - npm install
+matrix:
+  fast_finish: true
+build: off
+version: '{build}'
+shallow_clone: true
+clone_depth: 1
+test_script:
+  - npm test
+
