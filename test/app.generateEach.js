@@ -36,7 +36,7 @@ describe('.generate', function() {
       });
 
       base.generate('default', function(err) {
-        assert.equal(err.message, 'fooo');
+        assert(/fooo/.test(err.message));
         assert.equal(count, 1);
         cb();
       });
@@ -114,7 +114,7 @@ describe('.generate', function() {
 
       base.generate('default', function(err) {
         assert(err);
-        assert.equal(err.message, 'whatever');
+        assert(/whatever/.test(err.message));
         cb();
       });
     });

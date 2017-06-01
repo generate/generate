@@ -142,7 +142,7 @@ describe('.generate', function() {
   it('should emit an error event when an error is passed back in a task', function(cb) {
     base.on('error', function(err) {
       assert(err);
-      assert.equal(err.message, 'This is an error');
+      assert(/an error/.test(err.message));
     });
     base.task('default', function(cb) {
       return cb(new Error('This is an error'));
@@ -156,7 +156,7 @@ describe('.generate', function() {
   it('should emit an error event when an error is thrown in a task', function(cb) {
     base.on('error', function(err) {
       assert(err);
-      assert.equal(err.message, 'This is an error');
+      assert(/an error/.test(err.message));
     });
     base.task('default', function(cb) {
       cb(new Error('This is an error'));

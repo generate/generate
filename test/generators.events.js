@@ -49,7 +49,7 @@ describe('generators events', function() {
       var called = 0;
 
       base.on('error', function(err) {
-        assert.equal(err.message, 'whatever');
+        assert(/whatever/.test(err.message));
         called++;
       });
 
@@ -67,7 +67,7 @@ describe('generators events', function() {
       var called = 0;
 
       base.on('error', function(err) {
-        assert.equal(err.message, 'whatever');
+        assert(/whatever/.test(err.message));
         called++;
       });
 
@@ -91,7 +91,7 @@ describe('generators events', function() {
       var called = 0;
 
       base.on('error', function(err) {
-        assert.equal(err.message, 'whatever');
+        assert(/whatever/.test(err.message));
         called++;
       });
 
@@ -125,7 +125,7 @@ describe('generators events', function() {
       }
 
       base.on('error', function(err) {
-        assert.equal(err.message, 'whatever');
+        assert(/whatever/.test(err.message));
         called++;
       });
 
@@ -153,7 +153,7 @@ describe('generators events', function() {
         .build(function(err) {
           assert(err);
           assert.equal(called, 6);
-          assert.equal(err.message, 'whatever');
+          assert(/whatever/.test(err.message));
           cb();
         });
     });
