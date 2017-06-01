@@ -1,15 +1,15 @@
 /*!
- * generate <https://github.com/jonschlinkert/generate>
+ * generate <https://github.com/generate/generate>
  *
- * Copyright (c) 2015-2016, Jon Schlinkert.
- * Licensed under the MIT License.
+ * Copyright (c) 2015-2017, Jon Schlinkert.
+ * Released under the MIT License.
  */
 
 'use strict';
 
 var debug = require('debug')('generate');
 var Assemble = require('assemble-core');
-var defaults = require('./lib/defaults');
+var config = require('./lib/config');
 var plugins = require('./lib/plugins');
 var mixins = require('./lib/mixins');
 var utils = require('./lib/utils');
@@ -54,15 +54,15 @@ Assemble.extend(Generate);
 plugins.stores(Generate.prototype);
 
 /**
- * Initialize generate defaults
+ * Initialize generate config
  */
 
 Generate.prototype.initGenerate = function(opts) {
   debug('initializing from <%s>', __filename);
   Generate.emit('generate.preInit', this);
 
-  // initialize defaults
-  defaults(Generate, this);
+  // initialize config defaults
+  config(Generate, this);
 
   // load listeners
   Generate.initGenerateListeners(this);
@@ -72,10 +72,18 @@ Generate.prototype.initGenerate = function(opts) {
     Generate.initGenerateMiddleware(this);
   }
 
+  // ensure command line values are merged onto the context last
+  var fn = this.render;
+  this.render = function() {
+    this.data(this.cache.argv);
+    return fn.apply(this, arguments);
+  }.bind(this);
+
   // load CLI plugins
   if (utils.runnerEnabled(this)) {
     this.initGenerateCLI(opts);
   }
+
   Generate.emit('generate.postInit', this);
 };
 
