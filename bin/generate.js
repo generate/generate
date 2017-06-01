@@ -6,6 +6,9 @@ process.on('exit', function() {
 });
 
 var util = require('util');
+var path = require('path');
+var glob = require('matched');
+var gm = require('global-modules');
 var debug = require('debug')('generate');
 var App = require('..');
 var commands = require('../lib/commands');
@@ -34,6 +37,10 @@ if (argv.macro) {
 App.on('generate.preInit', function(app) {
   app.set('cache.argv', argv);
   app.set('cache.args', args);
+  app.on('error', function(err) {
+    console.error(err);
+    process.exit(1);
+  });
 });
 
 /**
@@ -68,13 +75,13 @@ App.on('generate.postInit', function(app) {
 var options = {name: 'generate', configName: 'generator'};
 
 plugins.runner(App, options, argv, function(err, app, runnerContext) {
-  if (err) handleErr(app, err);
+  if (err) return app.emit('error', err);
 
   app.set('cache.runnerContext', runnerContext);
   commands(app, runnerContext);
 
   if (!app.generators.defaults) {
-    app.register('defaults', require('../lib/generator'));
+    app.generator('defaults', require('../lib/generator'));
   }
 
   debug('processing config');
@@ -82,14 +89,23 @@ plugins.runner(App, options, argv, function(err, app, runnerContext) {
   var config = app.get('cache.config') || {};
   ctx.argv.tasks = [];
 
+  var hooks = glob.sync('generate-hook-*', {cwd: gm});
+  for (var i = 0; i < hooks.length; i++) {
+    var hook = require(path.resolve(gm, hooks[i]));
+    if (typeof hook !== 'function') {
+      throw new TypeError(`expected ${hooks[i]} to export a function`);
+    }
+    app.use(hook(argv, ctx, config));
+  }
+
   app.config.process(config, function(err, config) {
-    if (err) return handleErr(app, err);
+    if (err) return app.emit('error', err);
 
     // reset `cache.config`
     app.base.cache.config = config;
 
     app.cli.process(ctx.argv, function(err) {
-      if (err) return handleErr(app, err);
+      if (err) return app.emit('error', err);
 
       var arr = tasks(app, ctx, argv);
       app.log.success('running tasks:', arr);
@@ -99,21 +115,8 @@ plugins.runner(App, options, argv, function(err, app, runnerContext) {
       }
 
       app.generate(arr, function(err) {
-        if (err) return handleErr(app, err);
+        if (err) return app.emit('error', err);
       });
     });
   });
 });
-
-/**
- * Handle errors
- */
-
-function handleErr(app, err) {
-  if (app && app.base.hasListeners('error')) {
-    app.base.emit('error', err);
-  } else {
-    console.log(err.stack);
-    process.exit(1);
-  }
-}
