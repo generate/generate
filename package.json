@@ -5,9 +5,10 @@
   "homepage": "https://github.com/generate/generate",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
-    "Brian Woodward <brian.woodward@gmail.com> (https://github.com/doowb)",
-    "Dawson Botsford <dawsonbotsford@gmail.com> (http://dawsonbotsford.com)",
-    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)",
+    "Brian Woodward (https://twitter.com/doowb)",
+    "Dawson Botsford (https://dawsbot.com)",
+    "Jon Schlinkert (http://twitter.com/jonschlinkert)",
+    "Rémi Becheras (https://rbecheras.github.io)",
     "Stefan Walther (http://qliksite.io)"
   ],
   "repository": "generate/generate",
@@ -34,51 +35,54 @@
   },
   "dependencies": {
     "ask-when": "^0.1.7",
-    "assemble-core": "^0.26.0",
+    "assemble-core": "0.26.0",
     "assemble-loader": "^0.6.1",
     "base-fs-conflicts": "^0.1.9",
     "base-fs-rename": "^0.1.4",
-    "base-generators": "^0.4.5",
+    "base-generators": "^0.4.6",
     "base-npm": "^0.4.1",
     "base-npm-prompt": "^0.2.1",
     "base-pipeline": "^0.3.2",
-    "base-questions": "^0.9.0",
+    "base-questions": "^0.9.1",
     "base-runner": "^0.8.2",
     "base-runtimes": "^0.2.0",
     "base-store": "^0.4.4",
-    "bdd-stdin": "^0.2.0",
     "common-config": "^0.1.0",
     "data-store": "^0.16.1",
-    "debug": "^2.2.0",
+    "debug": "^2.6.0",
     "define-property": "^0.2.5",
     "export-files": "^2.1.1",
     "extend-shallow": "^2.0.1",
     "fs-exists-sync": "^0.1.0",
     "generate-collections": "^0.3.6",
-    "generate-defaults": "^0.6.5",
+    "generate-defaults": "^0.6.6",
     "get-value": "^2.0.6",
     "global-modules": "^0.2.3",
     "helper-ask": "^0.2.1",
-    "isobject": "^2.1.0",
-    "lazy-cache": "^2.0.1",
+    "isobject": "^3.0.0",
+    "lazy-cache": "^2.0.2",
     "log-utils": "^0.2.1",
     "macro-store": "^0.3.1",
-    "resolve-file": "^0.2.1",
+    "matched": "^0.4.4",
+    "resolve-file": "^0.3.0",
     "set-blocking": "^2.0.0",
     "strip-color": "^0.1.0",
     "text-table": "^0.2.0",
-    "through2": "^2.0.1",
-    "update-notifier": "^1.0.2",
-    "yargs-parser": "^4.0.2"
+    "through2": "^2.0.3",
+    "update-notifier": "^1.0.3",
+    "yargs-parser": "^4.2.1"
   },
   "devDependencies": {
     "base-config-process": "^0.1.9",
     "base-test-runner": "^0.2.0",
-    "base-test-suite": "^0.2.4",
-    "cross-spawn": "^4.0.2",
+    "base-test-suite": "^0.4.3",
+    "bdd-stdin": "^0.2.0",
+    "cross-spawn": "^5.0.1",
+    "engine-base": "^0.1.2",
     "generate-foo": "^0.1.5",
     "generator-util": "^0.2.9",
     "glob-keys": "^0.1.1",
+    "graceful-fs": "^4.1.11",
     "gulp": "^3.9.1",
     "gulp-eslint": "^3.0.1",
     "gulp-format-md": "^0.1.11",
@@ -86,11 +90,14 @@
     "gulp-mocha": "^3.0.1",
     "gulp-unused": "^0.2.0",
     "helper-changelog": "^0.3.0",
-    "is-absolute": "^0.2.5",
-    "mocha": "^3.1.0",
+    "is-absolute": "^0.2.6",
+    "load-pkg": "^3.0.1",
+    "minimist": "^1.2.0",
+    "mocha": "^3.2.0",
     "npm-install-global": "^0.1.2",
-    "resolve": "^1.1.7",
-    "should": "^11.1.0"
+    "resolve": "^1.2.0",
+    "should": "^11.1.2",
+    "sinon": "^1.17.7"
   },
   "keywords": [
     "app",
@@ -125,14 +132,16 @@
     "yo"
   ],
   "lintDeps": {
-    "ignore": [
-      "code",
-      "coverage",
-      "docs",
-      "examples",
-      "lib/tree.js",
-      "support"
-    ]
+    "files": {
+      "ignore": [
+        "code",
+        "coverage",
+        "docs",
+        "examples",
+        "lib/tree.js",
+        "support"
+      ]
+    }
   },
   "verb": {
     "run": true,
@@ -162,13 +171,16 @@
       ]
     },
     "reflinks": [
+      "ask-when",
       "assemble",
       "assemble-core",
       "bach",
       "base",
+      "base-questions",
       "common-config",
       "consolidate",
       "generate",
+      "generate-defaults",
       "generate-dest",
       "generate-example",
       "gulp",
@@ -180,13 +192,10 @@
       "swig",
       "templates",
       "update",
+      "update-notifier",
       "verb",
       "verb-readme-generator",
-      "vinyl",
-      "ask-when",
-      "base-questions",
-      "generate-defaults",
-      "update-notifier"
+      "vinyl"
     ],
     "lint": {
       "reflinks": true
