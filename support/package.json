@@ -1,6 +1,7 @@
 {
   "name": "generate-docs",
-  "description": "Documentation for Generate.",
+  "private": true,
+  "description": "Source code for Generate's documentation website.",
   "version": "0.0.0",
   "homepage": "https://github.com/generate/generate-docs",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
@@ -8,87 +9,32 @@
   "bugs": {
     "url": "https://github.com/generate/generate-docs/issues"
   },
-  "private": true,
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4"
   },
   "scripts": {
-    "test": "mocha"
+    "build": "assemble"
   },
   "devDependencies": {
-    "base-generators": "^0.4.5",
-    "copy": "^0.2.3",
-    "delete": "^0.3.2",
-    "engine-base": "^0.1.2",
-    "generate-collections": "^0.3.5",
-    "generate-defaults": "^0.4.0",
-    "gulp-drafts": "^0.2.0",
-    "gulp-format-md": "^0.1.9",
-    "gulp-layouts": "^0.1.0",
-    "gulp-reflinks": "^0.2.0",
-    "is-valid-app": "^0.2.0",
-    "memoize-path": "^0.1.2",
-    "through2": "^2.0.1",
-    "verb-generate-readme": "^0.1.28",
-    "verb-toc": "^0.2.8"
-  },
-  "verb": {
-    "plugins": [
-      "gulp-format-md"
-    ],
-    "lint": {
-      "reflinks": true
-    },
-    "reflinks": [
-      "assemble",
-      "assemble-core",
-      "assemble-fs",
-      "bach",
-      "base",
-      "base-docs",
-      "base-fs",
-      "base-plugins",
-      "consolidate",
-      "context",
-      "express",
-      "generate",
-      "generate-dest",
-      "generator",
-      "getting-started",
-      "gray-matter",
-      "gulp",
-      "gulp-extname",
-      "gulp-rename",
-      "handlebars",
-      "handlebars-helpers",
-      "handlers",
-      "key",
-      "layout",
-      "layout-stack",
-      "layouts",
-      "lodash",
-      "partials",
-      "pug",
-      "swig",
-      "templates",
-      "update",
-      "verb",
-      "vinyl",
-      "vinyl-fs",
-      "yaml"
-    ]
-  },
-  "dependencies": {
-    "arr-union": "^3.1.0",
+    "assemble": "^0.24.3",
+    "assemble-middleware-page-variable": "^0.1.0",
+    "assemble-remarkable": "^1.0.1",
+    "assemble-sitemaps": "^0.1.1",
+    "camel-case": "^3.0.0",
+    "data-store": "^1.0.0",
+    "delete": "^1.0.1",
     "export-files": "^2.1.1",
-    "has-value": "^0.3.1",
-    "lazy-cache": "^2.0.1",
-    "pascalcase": "^0.1.1",
-    "pretty-remarkable": "^0.3.9",
-    "remarkable": "^1.6.2",
-    "set-blocking": "^2.0.0",
-    "strip-color": "^0.1.0",
-    "template-helpers": "^0.6.7"
+    "gulp-drafts": "^0.2.0",
+    "gulp-extname": "^0.2.2",
+    "gulp-html-toc": "^1.1.0",
+    "gulp-reflinks": "^0.2.0",
+    "gulp-sass": "^3.1.0",
+    "handlebars-helper-create-frame": "^0.1.0",
+    "handlebars-helpers": "^0.8.2",
+    "helper-geopattern": "^0.2.0",
+    "helper-link-to": "^0.3.0",
+    "helper-prompt": "^1.3.1",
+    "koalas": "^1.0.2"
   }
 }
